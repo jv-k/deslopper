@@ -52,6 +52,42 @@ The error tier (em dashes, the section sign) fails the run. The warn tier prints
 unless you add `--strict`. Exit codes: 0 clean, 1 a failing-tier finding or an unreadable
 file, 2 a usage or configuration error.
 
+## Use it in CI
+
+Run deslopper as a gate with GitHub Actions. Until it is on PyPI, install it from the public
+repo. Switch to the pinned PyPI form (`uvx deslopper@x.y.z ...`) once it ships.
+
+```yaml
+# .github/workflows/prose.yml
+name: Prose
+on: pull_request
+permissions:
+  contents: read
+jobs:
+  deslop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.2.0
+      - run: uvx --from git+https://github.com/jv-k/deslopper@main deslopper lint --format github
+```
+
+On a repo whose prose predates the rules, lint only the files changed in the PR, so the
+backlog does not block every commit:
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+- uses: astral-sh/setup-uv@v8.2.0
+- run: |
+    files=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- '*.md' '*.markdown')
+    [ -z "$files" ] && exit 0
+    uvx --from git+https://github.com/jv-k/deslopper@main deslopper lint --format github $files
+```
+
+For a local gate, add a pre-commit hook that runs the same command on staged Markdown.
+
 ## Configure
 
 Drop a `deslopper.config.json` to retune the bundled `recommended` rule set:
