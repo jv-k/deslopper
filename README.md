@@ -57,6 +57,12 @@ Exempt an example from the lint with an HTML comment. The directive keyword keep
     <!-- deslop-lint-disable-line -->
     <!-- deslop-lint-disable --> ... <!-- deslop-lint-enable -->
 
+## Contributing
+
+Add a tell, add a preset, or change the code. See [CONTRIBUTING.md](CONTRIBUTING.md). Tells
+live in `src/deslopper/presets/recommended.json`. A preset is a `<name>.json` file in
+`src/deslopper/presets/`, opted into from a config as `deslopper:<name>`.
+
 ## Licence
 
 MIT.

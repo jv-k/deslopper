@@ -8,3 +8,7 @@
   `strict`, and `files`, keyed by (name, phase).
 - Commands: `lint`, `check`, `rules`, `init`.
 - Output formats: text, github, json. Exit codes 0, 1, 2.
+- Built-in presets are flat `<name>.json` files in `src/deslopper/presets/`. `extends`
+  accepts multiple built-in presets, resolved left to right.
+- Community infra: a contributing guide, issue and PR templates, a labeler, and commit and
+  PR title linting.

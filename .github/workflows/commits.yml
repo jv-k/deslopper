@@ -1,0 +1,39 @@
+name: Commit messages
+
+# Check every commit subject in the PR against Conventional Commits. Self-contained:
+# no external action, no config file. Merge commits are skipped.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  conventional:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check each commit subject
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^)]+\))?!?: .+'
+          fail=0
+          for sha in $(git rev-list "$BASE..$HEAD"); do
+            subject=$(git log -1 --format=%s "$sha")
+            case "$subject" in
+              "Merge "*) continue ;;
+            esac
+            if ! printf '%s' "$subject" | grep -qE "$pattern"; then
+              echo "::error::Not a Conventional Commit: $subject"
+              fail=1
+            fi
+          done
+          if [ "$fail" -eq 0 ]; then echo "All commit subjects are Conventional Commits."; fi
+          exit $fail

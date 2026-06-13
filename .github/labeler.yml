@@ -1,0 +1,49 @@
+# PR labels applied from changed file paths by actions/labeler@v6.
+# Every label here must already exist in the repo; the action applies labels, it
+# never creates them. Globs use minimatch.
+
+"area: engine":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/deslopper/engine.py"
+          - "src/deslopper/rules.py"
+          - "src/deslopper/findings.py"
+
+"area: rules":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/deslopper/presets/**"
+
+"area: config":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/deslopper/config.py"
+          - "src/deslopper/discovery.py"
+
+"area: cli":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/deslopper/cli.py"
+          - "src/deslopper/report.py"
+          - "src/deslopper/__main__.py"
+
+"area: tests":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tests/**"
+
+"area: ci":
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+          - ".pre-commit-config.yaml"
+
+"area: packaging":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "pyproject.toml"
+
+"area: docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"

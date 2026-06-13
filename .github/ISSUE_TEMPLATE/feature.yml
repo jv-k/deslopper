@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose new behaviour for the CLI, the engine, or the config.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: change
+    attributes:
+      label: The change
+      description: What you want, and roughly where it fits.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: The problem it solves.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

@@ -1,0 +1,41 @@
+name: Labeler
+
+# Auto-label PRs and issues against the repo's label taxonomy.
+#   pr-areas:   actions/labeler      -> area:* from changed file paths  (.github/labeler.yml)
+#   title-body: github/issue-labeler -> type/area from title & body regex
+#                                       on both PRs and issues          (.github/issue-labeler.yml)
+# Labels are additive: nothing added by hand or by the other job is stripped.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+  issues:
+    types: [opened, edited, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  pr-areas:
+    name: PR area labels (by path)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v6
+        with:
+          sync-labels: false
+
+  title-body:
+    name: Type / area (by title & body)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: github/issue-labeler@v3.4
+        with:
+          repo-token: ${{ github.token }}
+          configuration-path: .github/issue-labeler.yml
+          enable-versioned-regex: 0
+          include-title: 1
+          include-body: 1
+          sync-labels: 0
