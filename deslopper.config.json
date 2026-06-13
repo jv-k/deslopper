@@ -1,0 +1,7 @@
+{
+  "extends": ["deslopper:recommended"],
+  "files": {
+    "include": ["**/*.md", "**/*.markdown"],
+    "exclude": ["tests/fixtures/**"]
+  }
+}
