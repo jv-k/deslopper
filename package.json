@@ -1,0 +1,12 @@
+{
+  "name": "deslopper",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dev and release scripts for the deslopper Python package.",
+  "scripts": {
+    "bump:patch": "python3 scripts/bump.py patch",
+    "bump:minor": "python3 scripts/bump.py minor",
+    "bump:major": "python3 scripts/bump.py major",
+    "release": "bash scripts/release.sh"
+  }
+}
