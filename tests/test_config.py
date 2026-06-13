@@ -1,8 +1,8 @@
-from deslopper.presets.recommended import load
+from deslopper.presets import load_builtin, available
 
 
 def test_recommended_has_twelve_tells_including_both_phase_variants():
-    fragment = load()
+    fragment = load_builtin("recommended")
     tells = fragment["tells"]
     assert len(tells) == 12
     names = [t["name"] for t in tells]
@@ -121,3 +121,13 @@ def test_schemas_are_packaged():
     for name in ("config.schema.json", "output.schema.json"):
         text = resources.files("deslopper.schema").joinpath(name).read_text(encoding="utf-8")
         assert json.loads(text)["title"].startswith("deslopper")
+
+
+def test_available_lists_builtin_presets():
+    assert "recommended" in available()
+
+
+def test_unknown_builtin_preset_in_extends_is_error(tmp_path):
+    write_config(tmp_path, {"extends": ["deslopper:nope"]})
+    with pytest.raises(ConfigError):
+        load_config(None, str(tmp_path))
