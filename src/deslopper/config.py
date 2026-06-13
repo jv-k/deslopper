@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from .discovery import find_config
 from .errors import ConfigError
-from .presets.recommended import load as load_recommended
+from .presets import load_builtin
 from .rules import compile_tell
 
 DEFAULT_INCLUDE = ["**/*.md", "**/*.markdown"]
@@ -58,15 +58,25 @@ def _resolve_raw_tells(config: dict) -> list:
     extends = config.get("extends", [RECOMMENDED])
     if not isinstance(extends, list):
         raise ConfigError("`extends` must be an array")
-    for name in extends:
-        if name != RECOMMENDED:
-            raise ConfigError(
-                f"extends {name!r} is not available in this version; only {RECOMMENDED!r} is"
-            )
     if config.get("plugins"):
         raise ConfigError("`plugins` are not available in this version")
 
-    raw = list(load_recommended()["tells"])
+    # Resolve each built-in preset left to right, merging by (name, phase) so a later
+    # preset replaces an inherited tell in place. Third-party (pip) presets are v0.3.
+    raw = []
+    for ref in extends:
+        if not isinstance(ref, str) or not ref.startswith("deslopper:"):
+            raise ConfigError(
+                f"extends {ref!r} must be a built-in preset like {RECOMMENDED!r}; "
+                "third-party presets are not available in this version"
+            )
+        for tell in load_builtin(ref[len("deslopper:"):])["tells"]:
+            key = f"{tell['name']}@{tell.get('phase', 'post-entity')}"
+            idx = _match_indices(raw, key)
+            if idx:
+                raw[idx[0]] = tell
+            else:
+                raw.append(tell)
 
     tells = config.get("tells", {})
     for add in tells.get("add", []):

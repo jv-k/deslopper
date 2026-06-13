@@ -19,15 +19,9 @@ classifiers = [
 [project.scripts]
 deslopper = "deslopper.cli:main"
 
-[project.entry-points."deslopper.presets"]
-recommended = "deslopper.presets.recommended:load"
-
 [tool.hatch.build.targets.wheel]
 packages = ["src/deslopper"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"src/deslopper/presets/recommended/tells.json" = "deslopper/presets/recommended/tells.json"
-"src/deslopper/schema" = "deslopper/schema"
+artifacts = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
