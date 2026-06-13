@@ -4,6 +4,20 @@ import fnmatch
 import os
 import subprocess
 
+CONFIG_NAME = "deslopper.config.json"
+
+
+def find_config(start_dir: str):
+    cur = os.path.abspath(start_dir)
+    while True:
+        candidate = os.path.join(cur, CONFIG_NAME)
+        if os.path.isfile(candidate):
+            return candidate
+        parent = os.path.dirname(cur)
+        if parent == cur:
+            return None
+        cur = parent
+
 
 def _git_toplevel(start_dir: str):
     try:

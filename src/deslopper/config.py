@@ -4,6 +4,7 @@ import json
 import os
 from dataclasses import dataclass
 
+from .discovery import find_config
 from .errors import ConfigError
 from .presets.recommended import load as load_recommended
 from .rules import compile_tell
@@ -96,18 +97,6 @@ def resolve(config: dict) -> ResolvedConfig:
         exclude=exclude,
         rewrite_ruleset=rewrite.get("ruleset"),
     )
-
-
-def find_config(start_dir: str):
-    cur = os.path.abspath(start_dir)
-    while True:
-        candidate = os.path.join(cur, CONFIG_NAME)
-        if os.path.isfile(candidate):
-            return candidate
-        parent = os.path.dirname(cur)
-        if parent == cur:
-            return None
-        cur = parent
 
 
 def load_config(config_path, start_dir: str):
