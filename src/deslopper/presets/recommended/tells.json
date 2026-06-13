@@ -1,1 +1,87 @@
-{"tells": []}
+{
+  "description": "Tell definitions for scripts/deslop-lint.py. Each tell is matched against a line after fenced code, inline code, and front matter are stripped. Order matters: tells run top to bottom, and 'pre-entity' tells run before HTML entities are masked. See conventions/writing-style.md for the rules behind each one.",
+  "tells": [
+    {
+      "name": "em-dash",
+      "tier": "error",
+      "phase": "pre-entity",
+      "pattern": "&mdash;|&#0*8212;|&#[xX]0*2014;",
+      "message": "em dash as an HTML entity, write it out plainly"
+    },
+    {
+      "name": "section-sign",
+      "tier": "error",
+      "phase": "pre-entity",
+      "pattern": "&sect;|&#0*167;|&#[xX]0*[aA]7;",
+      "message": "section sign as an HTML entity, write 'section'"
+    },
+    {
+      "name": "em-dash",
+      "tier": "error",
+      "pattern": "[\\u2014\\u2015]",
+      "message": "em dash in prose, use a colon, comma, parentheses, or two sentences"
+    },
+    {
+      "name": "section-sign",
+      "tier": "error",
+      "pattern": "\\u00A7",
+      "message": "section sign, write 'section'"
+    },
+    {
+      "name": "bold-bullet-lead",
+      "tier": "warn",
+      "kind": "bold-bullet",
+      "pattern": "^(\\s*(?:[-*+]|\\d+\\.)\\s+)(\\*\\*|__)(.+?)\\2(.*)$",
+      "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
+    },
+    {
+      "name": "semicolon",
+      "tier": "warn",
+      "pattern": ";",
+      "message": "semicolon in prose, prefer a full stop"
+    },
+    {
+      "name": "not-just-x-but-y",
+      "tier": "warn",
+      "scope": "first",
+      "flags": "i",
+      "pattern": "\\bnot just\\b[^.?!]{0,60}?\\bbut\\b",
+      "message": "\"not just X but Y\" padding, make the point once"
+    },
+    {
+      "name": "filler-verb",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["surfaces", "leverages?", "enables?", "powers", "facilitates?", "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?", "streamlines?", "empowers?", "showcases?", "delves?"],
+      "message": "filler verb, use a plain verb or cut"
+    },
+    {
+      "name": "marketing-adjective",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["seamless", "robust", "powerful", "cutting-edge", "comprehensive", "vibrant", "elegant", "intuitive", "game-changing"],
+      "message": "marketing adjective, say what is true"
+    },
+    {
+      "name": "throat-clearing",
+      "tier": "warn",
+      "scope": "first",
+      "flags": "i",
+      "pattern": "^\\s*(?:[-*+]\\s+|>\\s*|#{1,6}\\s+)?(In today's|It's worth noting that|When it comes to|At its core|Furthermore|Moreover|Additionally|That being said)\\b",
+      "message": "throat-clearing or transition opener, start with the point"
+    },
+    {
+      "name": "vague-intensifier",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["very", "really", "quite", "significantly"],
+      "message": "vague intensifier with no number behind it"
+    },
+    {
+      "name": "emoji",
+      "tier": "warn",
+      "pattern": "[\\U0001F300-\\U0001FAFF\\u2600-\\u27BF\\u2705\\u2714\\u2611\\u2713\\u2B50\\u2728]",
+      "message": "emoji or decorative checkmark in body text"
+    }
+  ]
+}
