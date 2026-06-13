@@ -3,12 +3,34 @@
 A deterministic prose linter for the mechanical tells of machine-generated writing. No
 model, no network: it runs in CI and pre-commit and fails the build on a banned tell.
 
+## Why?
+
+Machine-generated prose has tells: the em-dash aside, the filler verb, the marketing
+adjective, the `not just X but Y` padding, the throat-clearing opener. A model can rewrite
+them away, but that costs a model call on every check and gives a different result each run.
+deslopper catches the mechanical tells with plain patterns, so the check is free, instant,
+and identical every time. That makes it safe as a gate in CI and pre-commit, where a model
+pass does not belong. Use it for the deterministic floor, and leave the model rewrite for
+the judgement a regex cannot make.
+
 ## Install and run
 
-Zero install:
+deslopper needs no runtime dependencies beyond Python 3.9+. It is published to PyPI and to a
+Homebrew tap on each tagged release.
+
+From PyPI, with no install:
 
     uvx deslopper lint
     pipx run deslopper lint
+
+Or install it:
+
+    pipx install deslopper
+    pip install deslopper
+
+From Homebrew:
+
+    brew install jv-k/tap/deslopper
 
 Pin a version in CI for reproducible builds:
 
