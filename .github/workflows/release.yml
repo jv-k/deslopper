@@ -1,0 +1,29 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e . pytest build
+      - run: pytest -q
+      - run: deslopper lint --format github
+      - name: Verify the tag matches the package version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          ver="$(python -c 'import deslopper; print(deslopper.__version__)')"
+          test "$tag" = "$ver" || { echo "tag $tag != version $ver"; exit 1; }
+      - run: python -m build
+      - uses: pypa/gh-action-pypi-publish@release/v1

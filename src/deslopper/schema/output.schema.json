@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "deslopper json output",
+  "type": "object",
+  "required": ["findings", "unreadable", "summary"],
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "line", "col", "tier", "name", "message"],
+        "properties": {
+          "path": { "type": "string" },
+          "line": { "type": "integer", "minimum": 1 },
+          "col": { "type": "integer", "minimum": 1 },
+          "tier": { "enum": ["error", "warn"] },
+          "name": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    },
+    "unreadable": { "type": "array", "items": { "type": "string" } },
+    "summary": {
+      "type": "object",
+      "required": ["errors", "warnings", "unreadable"],
+      "properties": {
+        "errors": { "type": "integer" },
+        "warnings": { "type": "integer" },
+        "unreadable": { "type": "integer" }
+      }
+    }
+  }
+}

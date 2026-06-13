@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "deslopper config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "extends": { "type": "array", "items": { "type": "string" } },
+    "plugins": { "type": "array", "items": { "type": "string" } },
+    "strict": { "type": "boolean" },
+    "rewrite": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "ruleset": { "type": "string" } }
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "include": { "type": "array", "items": { "type": "string" } },
+        "exclude": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "tells": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "add": { "type": "array", "items": { "$ref": "#/$defs/tell" } },
+        "disable": { "type": "array", "items": { "type": "string" } },
+        "override": { "type": "object" }
+      }
+    }
+  },
+  "$defs": {
+    "tell": {
+      "type": "object",
+      "required": ["name", "tier", "message"],
+      "properties": {
+        "name": { "type": "string" },
+        "tier": { "enum": ["error", "warn"] },
+        "phase": { "enum": ["pre-entity", "post-entity"] },
+        "scope": { "enum": ["all", "first"] },
+        "kind": { "type": "string" },
+        "flags": { "type": "string", "pattern": "^[i]*$" },
+        "pattern": { "type": "string" },
+        "words": { "type": "array", "items": { "type": "string" } },
+        "message": { "type": "string" }
+      }
+    }
+  }
+}
