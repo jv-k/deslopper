@@ -1,0 +1,33 @@
+name: Tell or preset proposal
+description: Propose a new tell for the recommended set, or a new preset.
+labels: [enhancement, "area: rules"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - A new tell in the recommended set
+        - A new preset
+    validations:
+      required: true
+  - type: textarea
+    id: rule
+    attributes:
+      label: The rule
+      description: The pattern or word list, the tier (error or warn), and the message.
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples it should flag, and ones it should not
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Why it is a tell
+      description: What makes this a mark of machine-generated writing.
+    validations:
+      required: true

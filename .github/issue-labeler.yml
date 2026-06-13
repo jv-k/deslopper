@@ -1,0 +1,35 @@
+# Title/body regex labels for github/issue-labeler@v3.4 (PRs and issues).
+# Each label maps to a list of regexes; any match applies the label.
+# /.../i is case-insensitive. sync-labels is 0 in the workflow, so a
+# non-match never removes a label (path-based area labels stay put).
+# The ^type(...) anchors catch conventional PR titles; the keywords catch
+# free-text issues. Best-effort, correct by hand when off.
+
+# --- type (conventional title prefix, or issue keywords) ---
+bug:
+  - '/^fix(\(|!|:)/i'
+  - '/\b(bug|wrong|incorrect|false[ -]?positive|false[ -]?negative|broken|crash|traceback)\b/i'
+
+enhancement:
+  - '/^(feat|feature)(\(|!|:)/i'
+  - '/\b(feature request|please add|would be (nice|good|great)|propose|proposal|support for)\b/i'
+
+documentation:
+  - '/^docs(\(|!|:)/i'
+  - '/\b(readme|documentation|docs)\b/i'
+
+refactor:
+  - '/^refactor(\(|!|:)/i'
+
+# --- area (free-text keywords; also reinforces PR path labels) ---
+"area: rules":
+  - '/\b(tell|preset|rule ?set|word list|em ?dash|section sign|filler|marketing|throat[ -]?clearing|intensifier|emoji)\b/i'
+
+"area: engine":
+  - '/\b(engine|scanner|fence|front[ -]?matter|inline code|phase|column)\b/i'
+
+"area: config":
+  - '/\b(config|extends|override|disable|discovery|resolution)\b/i'
+
+"area: cli":
+  - '/\b(cli|sub ?command|\blint\b|\bcheck\b|init|output format|exit code)\b/i'

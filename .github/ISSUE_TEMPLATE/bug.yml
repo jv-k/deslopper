@@ -1,0 +1,32 @@
+name: Bug report
+description: A false positive, a false negative, or a crash in deslopper.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran and what deslopper did.
+      placeholder: "deslopper lint flagged X in file Y, but it should not have."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal Markdown that reproduces it
+      render: markdown
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: deslopper version
+      description: Output of `deslopper --version`.
+    validations:
+      required: false
