@@ -112,3 +112,12 @@ def test_malformed_json_is_error(tmp_path):
     (tmp_path / "deslopper.config.json").write_text("{not json", encoding="utf-8")
     with pytest.raises(ConfigError):
         load_config(None, str(tmp_path))
+
+
+from importlib import resources
+
+
+def test_schemas_are_packaged():
+    for name in ("config.schema.json", "output.schema.json"):
+        text = resources.files("deslopper.schema").joinpath(name).read_text(encoding="utf-8")
+        assert json.loads(text)["title"].startswith("deslopper")
