@@ -1,0 +1,258 @@
+{
+  "findings": [
+    {
+      "path": "comprehensive.md",
+      "line": 6,
+      "col": 27,
+      "tier": "warn",
+      "name": "semicolon",
+      "message": "semicolon in prose, prefer a full stop"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 8,
+      "col": 23,
+      "tier": "error",
+      "name": "em-dash",
+      "message": "em dash in prose, use a colon, comma, parentheses, or two sentences"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 8,
+      "col": 44,
+      "tier": "error",
+      "name": "section-sign",
+      "message": "section sign, write 'section'"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 10,
+      "col": 11,
+      "tier": "error",
+      "name": "em-dash",
+      "message": "em dash as an HTML entity, write it out plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 10,
+      "col": 23,
+      "tier": "error",
+      "name": "em-dash",
+      "message": "em dash as an HTML entity, write it out plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 10,
+      "col": 35,
+      "tier": "error",
+      "name": "em-dash",
+      "message": "em dash as an HTML entity, write it out plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 10,
+      "col": 48,
+      "tier": "error",
+      "name": "section-sign",
+      "message": "section sign as an HTML entity, write 'section'"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 10,
+      "col": 59,
+      "tier": "error",
+      "name": "section-sign",
+      "message": "section sign as an HTML entity, write 'section'"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 10,
+      "col": 70,
+      "tier": "error",
+      "name": "section-sign",
+      "message": "section sign as an HTML entity, write 'section'"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 12,
+      "col": 15,
+      "tier": "error",
+      "name": "em-dash",
+      "message": "em dash in prose, use a colon, comma, parentheses, or two sentences"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 12,
+      "col": 20,
+      "tier": "error",
+      "name": "em-dash",
+      "message": "em dash in prose, use a colon, comma, parentheses, or two sentences"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 14,
+      "col": 3,
+      "tier": "warn",
+      "name": "bold-bullet-lead",
+      "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 17,
+      "col": 4,
+      "tier": "warn",
+      "name": "bold-bullet-lead",
+      "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 19,
+      "col": 6,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 19,
+      "col": 20,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 19,
+      "col": 32,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 21,
+      "col": 3,
+      "tier": "warn",
+      "name": "marketing-adjective",
+      "message": "marketing adjective, say what is true"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 21,
+      "col": 13,
+      "tier": "warn",
+      "name": "marketing-adjective",
+      "message": "marketing adjective, say what is true"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 21,
+      "col": 21,
+      "tier": "warn",
+      "name": "marketing-adjective",
+      "message": "marketing adjective, say what is true"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 23,
+      "col": 1,
+      "tier": "warn",
+      "name": "throat-clearing",
+      "message": "throat-clearing or transition opener, start with the point"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 25,
+      "col": 1,
+      "tier": "warn",
+      "name": "throat-clearing",
+      "message": "throat-clearing or transition opener, start with the point"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 25,
+      "col": 21,
+      "tier": "warn",
+      "name": "vague-intensifier",
+      "message": "vague intensifier with no number behind it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 25,
+      "col": 26,
+      "tier": "warn",
+      "name": "vague-intensifier",
+      "message": "vague intensifier with no number behind it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 25,
+      "col": 33,
+      "tier": "warn",
+      "name": "vague-intensifier",
+      "message": "vague intensifier with no number behind it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 25,
+      "col": 39,
+      "tier": "warn",
+      "name": "vague-intensifier",
+      "message": "vague intensifier with no number behind it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 27,
+      "col": 9,
+      "tier": "warn",
+      "name": "not-just-x-but-y",
+      "message": "\"not just X but Y\" padding, make the point once"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 29,
+      "col": 12,
+      "tier": "warn",
+      "name": "emoji",
+      "message": "emoji or decorative checkmark in body text"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 29,
+      "col": 31,
+      "tier": "warn",
+      "name": "emoji",
+      "message": "emoji or decorative checkmark in body text"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 29,
+      "col": 44,
+      "tier": "warn",
+      "name": "emoji",
+      "message": "emoji or decorative checkmark in body text"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 45,
+      "col": 9,
+      "tier": "error",
+      "name": "em-dash",
+      "message": "em dash in prose, use a colon, comma, parentheses, or two sentences"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 45,
+      "col": 17,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut"
+    }
+  ],
+  "unreadable": [],
+  "summary": {
+    "errors": 11,
+    "warnings": 20,
+    "unreadable": 0
+  }
+}

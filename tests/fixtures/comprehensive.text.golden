@@ -1,0 +1,31 @@
+comprehensive.md:6:27 [warn] semicolon: semicolon in prose, prefer a full stop
+comprehensive.md:8:23 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:8:44 [error] section-sign: section sign, write 'section'
+comprehensive.md:10:11 [error] em-dash: em dash as an HTML entity, write it out plainly
+comprehensive.md:10:23 [error] em-dash: em dash as an HTML entity, write it out plainly
+comprehensive.md:10:35 [error] em-dash: em dash as an HTML entity, write it out plainly
+comprehensive.md:10:48 [error] section-sign: section sign as an HTML entity, write 'section'
+comprehensive.md:10:59 [error] section-sign: section sign as an HTML entity, write 'section'
+comprehensive.md:10:70 [error] section-sign: section sign as an HTML entity, write 'section'
+comprehensive.md:12:15 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:12:20 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:14:3 [warn] bold-bullet-lead: bolded bullet lead, reserve bold for a rare callout not a per-item label
+comprehensive.md:17:4 [warn] bold-bullet-lead: bolded bullet lead, reserve bold for a rare callout not a per-item label
+comprehensive.md:19:6 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:19:20 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:19:32 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:21:3 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:21:13 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:21:21 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:23:1 [warn] throat-clearing: throat-clearing or transition opener, start with the point
+comprehensive.md:25:1 [warn] throat-clearing: throat-clearing or transition opener, start with the point
+comprehensive.md:25:21 [warn] vague-intensifier: vague intensifier with no number behind it
+comprehensive.md:25:26 [warn] vague-intensifier: vague intensifier with no number behind it
+comprehensive.md:25:33 [warn] vague-intensifier: vague intensifier with no number behind it
+comprehensive.md:25:39 [warn] vague-intensifier: vague intensifier with no number behind it
+comprehensive.md:27:9 [warn] not-just-x-but-y: "not just X but Y" padding, make the point once
+comprehensive.md:29:12 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:29:31 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:29:44 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:45:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:45:17 [warn] filler-verb: filler verb, use a plain verb or cut
