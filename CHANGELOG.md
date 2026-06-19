@@ -12,3 +12,5 @@
   accepts multiple built-in presets, resolved left to right.
 - Community infra: a contributing guide, issue and PR templates, a labeler, and commit and
   PR title linting.
+- File discovery and the scanner now cover `.mdx`. Top-level ESM `import` and `export` lines
+  are skipped. JSX that wraps prose is still linted.

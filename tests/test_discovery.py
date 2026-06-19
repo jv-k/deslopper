@@ -38,3 +38,9 @@ def test_resolve_inputs_explicit_paths(tmp_path):
     make_files(str(tmp_path), ["a.md", "b.md"])
     items = resolve_inputs(["a.md"], str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
     assert items == [("a.md", os.path.join(str(tmp_path), "a.md"))]
+
+
+def test_discover_files_includes_mdx(tmp_path):
+    make_files(str(tmp_path), ["a.md", "b.mdx", "docs/c.mdx", "d.txt"])
+    found = discover_files(str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    assert sorted(found) == ["a.md", "b.mdx", "docs/c.mdx"]

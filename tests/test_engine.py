@@ -87,3 +87,28 @@ def test_astral_emoji_counts_as_one_column(tmp_path):
     # rocket at col 4 (1-based, code points), semicolon after it
     cols = {(f.name, f.col) for f in r.findings}
     assert ("emoji", 4) in cols
+
+
+def test_mdx_skips_esm_import_export(tmp_path):
+    # In .mdx, top-level import/export are ESM statements, not prose. Their
+    # semicolons must not be flagged.
+    p = tmp_path / "doc.mdx"
+    p.write_text("import {Foo} from 'bar';\nexport const x = 1;\n; body\n", encoding="utf-8")
+    r = lint_files([("doc.mdx", str(p))], [compile_tell(SEMI)])
+    assert [f.line for f in r.findings] == [3]
+
+
+def test_mdx_lints_prose_inside_jsx(tmp_path):
+    # JSX wraps rendered prose, so it is still scanned.
+    p = tmp_path / "doc.mdx"
+    p.write_text("<Callout>a; b</Callout>\n", encoding="utf-8")
+    r = lint_files([("doc.mdx", str(p))], [compile_tell(SEMI)])
+    assert [f.line for f in r.findings] == [1]
+
+
+def test_md_does_not_skip_import_prose(tmp_path):
+    # ESM masking is .mdx-only. A .md line that starts with "import" is prose.
+    p = tmp_path / "doc.md"
+    p.write_text("import the data; then continue\n", encoding="utf-8")
+    r = lint_files([("doc.md", str(p))], [compile_tell(SEMI)])
+    assert [f.line for f in r.findings] == [1]
