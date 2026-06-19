@@ -12,6 +12,10 @@ ENTITY = re.compile(r"&#?[0-9a-zA-Z]+;")
 DISABLE_LINE = re.compile(r"<!--\s*deslop-lint-disable-line\b[^>]*-->")
 DISABLE = re.compile(r"<!--\s*deslop-lint-disable\b[^>]*-->")
 ENABLE = re.compile(r"<!--\s*deslop-lint-enable\b[^>]*-->")
+# In .mdx, a top-level line that starts with import/export is an ESM statement,
+# not prose. Skip those lines so their punctuation is not scanned. JSX is left
+# alone: it wraps rendered prose that should still be linted.
+MDX_ESM = re.compile(r"^(import|export)\b")
 
 
 def _blank(match: "re.Match") -> str:
@@ -36,6 +40,7 @@ def lint_file(display_path, read_path, pre_tells, post_tells):
         return [], False
 
     findings = []
+    is_mdx = display_path.endswith(".mdx")
     in_fence = False
     fence_marker = ""
     fence_len = 0
@@ -66,6 +71,9 @@ def lint_file(display_path, read_path, pre_tells, post_tells):
                 in_fence, fence_marker, fence_len = False, "", 0
             continue
         if in_fence:
+            continue
+
+        if is_mdx and MDX_ESM.match(line):
             continue
 
         masked = INLINE_CODE.sub(_blank, line)

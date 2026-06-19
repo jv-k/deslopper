@@ -43,8 +43,8 @@ Pin a version in CI for reproducible builds:
     deslopper rules [--config P]              # list the active tells
     deslopper init                            # write a starter config
 
-With no paths, deslopper lints the configured Markdown globs, through `git ls-files` in a
-work tree or a filesystem walk otherwise.
+With no paths, deslopper lints the configured Markdown and MDX globs, through `git ls-files`
+in a work tree or a filesystem walk otherwise.
 
 ## Tiers and exit codes
 
@@ -81,7 +81,7 @@ backlog does not block every commit:
     fetch-depth: 0
 - uses: astral-sh/setup-uv@v8.2.0
 - run: |
-    files=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- '*.md' '*.markdown')
+    files=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- '*.md' '*.markdown' '*.mdx')
     [ -z "$files" ] && exit 0
     uvx --from git+https://github.com/jv-k/deslopper@main deslopper lint --format github $files
 ```
