@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Tag and push a deslopper release. Bump the version and commit it first (see scripts/bump.py).
-# The pushed tag triggers .github/workflows/release.yml, which builds and publishes to PyPI.
+# Runs the same gates as .github/workflows/release.yml (tests, lint, version check) so a
+# failure surfaces before the tag exists, then pushes the branch and the tag. The pushed tag
+# triggers release.yml, which builds and publishes to PyPI.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -15,10 +17,19 @@ if [ -z "$version" ]; then
   exit 1
 fi
 
-if [ -x .venv/bin/pytest ]; then
-  .venv/bin/pytest -q
+if [ -x .venv/bin/python ]; then
+  py=.venv/bin/python
 else
-  python3 -m pytest -q
+  py=python3
+fi
+
+"$py" -m pytest -q
+"$py" -m deslopper lint
+
+module_version="$("$py" -c 'import deslopper; print(deslopper.__version__)')"
+if [ "$module_version" != "$version" ]; then
+  echo "pyproject.toml has $version but deslopper.__version__ is $module_version; run scripts/bump.py" >&2
+  exit 1
 fi
 
 tag="v$version"
@@ -28,6 +39,7 @@ if git rev-parse "$tag" >/dev/null 2>&1; then
 fi
 
 echo "Releasing $tag"
+git push origin HEAD
 git tag "$tag"
 git push origin "$tag"
-echo "Pushed $tag. release.yml will build and publish to PyPI."
+echo "Pushed the branch and $tag. release.yml will build and publish to PyPI."
