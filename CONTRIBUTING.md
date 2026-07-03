@@ -8,7 +8,7 @@ tell, a new preset, or a code change. This guide covers all three.
 ```bash
 git clone https://github.com/jv-k/deslopper
 cd deslopper
-python -m venv .venv && . .venv/bin/activate
+python3 -m venv .venv && . .venv/bin/activate
 pip install -e . pytest pre-commit
 pre-commit install --hook-type pre-commit --hook-type commit-msg
 ```
@@ -50,7 +50,7 @@ green.
 ## Commits and pull requests
 
 - Commit subjects and the PR title follow [Conventional Commits](https://www.conventionalcommits.org):
-  `type(scope): summary`. CI checks both.
+  `type(scope): summary`. CI checks the PR title and every commit subject in the PR.
 - Lead the PR body with what changed and why. Link the issue it closes.
 - The repo lints its own Markdown with deslopper, so keep prose within the rules. Run
   `deslopper lint` before you push.

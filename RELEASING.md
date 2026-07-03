@@ -11,24 +11,34 @@ PyPI Trusted Publishing lets the release workflow publish without a stored token
 2. Under the project's publishing settings, add a GitHub publisher: owner `jv-k`, repo
    `deslopper`, workflow `release.yml`, environment `pypi`.
 
-For Homebrew, create the tap repo `jv-k/homebrew-tap` once. Its `Formula/deslopper.rb` is a
-copy of `packaging/homebrew/deslopper.rb` with `url` and `sha256` filled from the published
-sdist.
+For Homebrew, create the tap repo `jv-k/homebrew-tap` once. Each release, a maintainer
+copies `packaging/homebrew/deslopper.rb` into it, as described under After publishing.
 
 ## Cut a release
+
+The steps use `pnpm`, but any runner works: `npm run <script>`, or the scripts directly
+(`python3 scripts/bump.py patch`, `bash scripts/release.sh`).
 
 1. Bump the version with `pnpm bump:patch`, `pnpm bump:minor`, or `pnpm bump:major`. The
    script edits `pyproject.toml`, `src/deslopper/__init__.py`, and `package.json` together
    and prints the new version.
-2. Move the unreleased `CHANGELOG.md` entries under the new version heading.
+2. In `CHANGELOG.md`, retitle the `(unreleased)` heading to the new version, so the
+   entries sit under a heading that matches the tag.
 3. Commit as `chore(release): vX.Y.Z`.
-4. Run `pnpm release`. It checks the tree is clean, runs the tests, tags `vX.Y.Z`, and
-   pushes the tag. The tag triggers `release.yml`, which builds the package and publishes it
-   to PyPI.
+4. Run `pnpm release` on `main`. It runs the pre-tag gates (a clean tree, the version
+   check, the tests, the lint, and a build), then pushes `main` and the tag `vX.Y.Z` in one
+   atomic push. The tag triggers `release.yml`, which repeats the gates and publishes to
+   PyPI.
+
+If `release.yml` fails before the upload to PyPI, delete the tag with `git tag -d vX.Y.Z`
+and `git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and run `pnpm release`
+again. If it fails during or after the upload, PyPI will not accept the same version a
+second time: bump a new patch version and release that instead.
 
 ## After publishing
 
-- Update the Homebrew tap: set the new `url` and `sha256` in `Formula/deslopper.rb` (a plain
-  edit, or `brew bump-formula-pr`).
+- Update the Homebrew formula: set the new `url` and `sha256` from the published sdist in
+  `packaging/homebrew/deslopper.rb` (the source of truth), then copy it into the tap as
+  `Formula/deslopper.rb`, by hand or with `brew bump-formula-pr`.
 - Move consumers off the git ref. In a repo that pins `uvx --from git+...@main`, change it to
   `uvx deslopper@X.Y.Z`.
