@@ -5,3 +5,7 @@ dist/
 build/
 *.egg-info/
 .venv/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
