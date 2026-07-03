@@ -16,19 +16,21 @@ copies `packaging/homebrew/deslopper.rb` into it, as described under After publi
 
 ## Cut a release
 
-The steps use `pnpm`, but any runner works: `npm run <script>`, or the scripts directly
-(`python3 scripts/bump.py patch`, `bash scripts/release.sh`).
+Make sure `CHANGELOG.md` has an `(unreleased)` section listing the changes, then run, on
+`main`:
 
-1. Bump the version with `pnpm bump:patch`, `pnpm bump:minor`, or `pnpm bump:major`. The
-   script edits `pyproject.toml`, `src/deslopper/__init__.py`, and `package.json` together
-   and prints the new version.
-2. In `CHANGELOG.md`, retitle the `(unreleased)` heading to the new version, so the
-   entries sit under a heading that matches the tag.
-3. Commit as `chore(release): vX.Y.Z`.
-4. Run `pnpm release` on `main`. It runs the pre-tag gates (a clean tree, the version
-   check, the tests, the lint, and a build), then pushes `main` and the tag `vX.Y.Z` in one
-   atomic push. The tag triggers `release.yml`, which repeats the gates and publishes to
-   PyPI.
+    pnpm bump-release [patch|minor|major]    # default: patch
+
+It bumps the version (`pyproject.toml`, `src/deslopper/__init__.py`, and `package.json`,
+kept in sync by `scripts/bump.py`), retitles the changelog heading to the new version,
+commits `chore(release): vX.Y.Z`, and hands off to `scripts/release.sh`, which runs the
+pre-tag gates (a clean tree, the version check, the tests, the lint, and a build), then
+pushes `main` and the tag `vX.Y.Z` in one atomic push. The tag triggers `release.yml`,
+which repeats the gates and publishes to PyPI.
+
+The pieces run individually too: `pnpm bump:patch|minor|major`, then a manual changelog
+retitle and `chore(release)` commit, then `pnpm release`. Any runner works in place of
+`pnpm`: `npm run <script>`, or the scripts directly.
 
 If `release.yml` fails before the upload to PyPI, delete the tag with `git tag -d vX.Y.Z`
 and `git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and run `pnpm release`

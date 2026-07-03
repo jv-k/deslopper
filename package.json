@@ -7,6 +7,7 @@
     "bump:patch": "python3 scripts/bump.py patch",
     "bump:minor": "python3 scripts/bump.py minor",
     "bump:major": "python3 scripts/bump.py major",
+    "bump-release": "bash scripts/bump-release.sh",
     "release": "bash scripts/release.sh"
   }
 }
