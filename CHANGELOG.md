@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0
 
 - The deterministic lint core, ported byte-for-byte from the engineering-playbook scripts.
 - The bundled `recommended` rule set (twelve tells, error and warn tiers).
