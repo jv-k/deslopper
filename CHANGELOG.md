@@ -1,7 +1,6 @@
 # Changelog
 
-## 0.1.1 (unreleased)
-
+## 0.1.1
 - Test coverage: a realistic slop-corpus regression test and subprocess end-to-end tests
   that drive `python -m deslopper` directly.
 - `pnpm bump-release`: one task that bumps the version, retitles this changelog, commits,
