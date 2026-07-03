@@ -8,7 +8,7 @@ tell, a new preset, or a code change. This guide covers all three.
 ```bash
 git clone https://github.com/jv-k/deslopper
 cd deslopper
-python -m venv .venv && . .venv/bin/activate
+python3 -m venv .venv && . .venv/bin/activate
 pip install -e . pytest pre-commit
 pre-commit install --hook-type pre-commit --hook-type commit-msg
 ```
