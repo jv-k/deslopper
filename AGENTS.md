@@ -28,9 +28,9 @@ Write docs, comments, commit messages, and PR text plainly, like a sharp enginee
 machine-generated tells. Run `deslopper rules` for the set.
 
 Before finishing any change that touches Markdown, run `deslopper lint` and fix every
-error-tier finding. For an intentional example that must contain a tell, use a disable
-directive (`deslop-lint-disable`, `deslop-lint-enable`, `deslop-lint-disable-line`). The
-exact forms are in README.md under Disable directives.
+error-tier finding. For an intentional example that must contain a tell, wrap it in
+`<!-- deslop-lint-disable -->` and `<!-- deslop-lint-enable -->`, or put
+`<!-- deslop-lint-disable-line -->` on the offending line.
 
 ## Commits
 

@@ -50,7 +50,7 @@ green.
 ## Commits and pull requests
 
 - Commit subjects and the PR title follow [Conventional Commits](https://www.conventionalcommits.org):
-  `type(scope): summary`. CI checks both.
+  `type(scope): summary`. CI checks the PR title and every commit subject in the PR.
 - Lead the PR body with what changed and why. Link the issue it closes.
 - The repo lints its own Markdown with deslopper, so keep prose within the rules. Run
   `deslopper lint` before you push.

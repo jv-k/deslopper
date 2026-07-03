@@ -11,8 +11,8 @@ PyPI Trusted Publishing lets the release workflow publish without a stored token
 2. Under the project's publishing settings, add a GitHub publisher: owner `jv-k`, repo
    `deslopper`, workflow `release.yml`, environment `pypi`.
 
-For Homebrew, create the tap repo `jv-k/homebrew-tap` once. Each release copies
-`packaging/homebrew/deslopper.rb` into it, as described under After publishing.
+For Homebrew, create the tap repo `jv-k/homebrew-tap` once. Each release, a maintainer
+copies `packaging/homebrew/deslopper.rb` into it, as described under After publishing.
 
 ## Cut a release
 
@@ -25,13 +25,15 @@ The steps use `pnpm`, but any runner works: `npm run <script>`, or the scripts d
 2. In `CHANGELOG.md`, retitle the `(unreleased)` heading to the new version, so the
    entries sit under a heading that matches the tag.
 3. Commit as `chore(release): vX.Y.Z`.
-4. Run `pnpm release`. It checks the tree is clean, runs the tests, the lint, and the
-   version check that `release.yml` will repeat, pushes the branch, then tags `vX.Y.Z` and
-   pushes the tag. The tag triggers `release.yml`, which builds the package and publishes it
-   to PyPI.
+4. Run `pnpm release` on `main`. It runs the pre-tag gates (a clean tree, the version
+   check, the tests, the lint, and a build), then pushes `main` and the tag `vX.Y.Z` in one
+   atomic push. The tag triggers `release.yml`, which repeats the gates and publishes to
+   PyPI.
 
-If `release.yml` fails after the tag is pushed, delete the tag with `git tag -d vX.Y.Z` and
-`git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and run `pnpm release` again.
+If `release.yml` fails before the upload to PyPI, delete the tag with `git tag -d vX.Y.Z`
+and `git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and run `pnpm release`
+again. If it fails during or after the upload, PyPI will not accept the same version a
+second time: bump a new patch version and release that instead.
 
 ## After publishing
 

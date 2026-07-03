@@ -3,8 +3,7 @@
 
 Usage: python3 scripts/bump.py [patch|minor|major]   (default: patch)
 
-Edits the files in place and prints the new version. Review the diff, update CHANGELOG.md,
-commit as `chore(release): vX.Y.Z`, then run `pnpm release` to tag and publish.
+Edits the files in place and prints the new version. RELEASING.md has the release steps.
 """
 
 import json
