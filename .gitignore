@@ -9,3 +9,5 @@ build/
 .coverage.*
 htmlcov/
 coverage.xml
+node_modules/
+pnpm-lock.yaml
