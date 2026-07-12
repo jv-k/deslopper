@@ -58,6 +58,7 @@ def test_every_tell_fires_across_the_corpus(tmp_path):
     names = {f["name"] for f in json.loads(proc.stdout)["findings"]}
     expected = {
         "em-dash",
+        "middle-dot",
         "section-sign",
         "bold-bullet-lead",
         "semicolon",

@@ -19,7 +19,7 @@
       "name": "middle-dot",
       "tier": "error",
       "phase": "pre-entity",
-      "pattern": "&middot;|&bull;|&#0*183;|&#0*8226;|&#[xX]0*[bB]7;|&#[xX]0*2022;",
+      "pattern": "&middot;|&centerdot;|&CenterDot;|&bull;|&bullet;|&#0*183;|&#0*8226;|&#[xX]0*[bB]7;|&#[xX]0*2022;",
       "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
     },
     {
@@ -37,8 +37,8 @@
     {
       "name": "middle-dot",
       "tier": "error",
-      "pattern": "[\\u00B7\\u2022]",
-      "message": "middle-dot separator ('panel · home'), join the items with a comma or plain words"
+      "pattern": "[\\u00B7\\u2022\\u2219\\u22C5\\u2027\\u30FB]",
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
     },
     {
       "name": "bold-bullet-lead",

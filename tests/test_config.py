@@ -40,7 +40,7 @@ def names(cfg):
 def test_no_config_uses_recommended_and_default_files(tmp_path):
     cfg, path = load_config(None, str(tmp_path))
     assert path == ""
-    assert len(cfg.tells) == 14
+    assert len(cfg.tells) == len(load_builtin("recommended")["tells"])
     assert cfg.strict is False
     assert cfg.include == DEFAULT_INCLUDE
     assert cfg.exclude == DEFAULT_EXCLUDE
@@ -50,7 +50,7 @@ def test_disable_by_unique_name(tmp_path):
     write_config(tmp_path, {"tells": {"disable": ["semicolon"]}})
     cfg, _ = load_config(None, str(tmp_path))
     assert "semicolon" not in names(cfg)
-    assert len(cfg.tells) == 13
+    assert len(cfg.tells) == len(load_builtin("recommended")["tells"]) - 1
 
 
 def test_disable_ambiguous_bare_name_is_error(tmp_path):

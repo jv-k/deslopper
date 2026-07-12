@@ -30,7 +30,7 @@
       "col": 20,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle-dot separator ('panel \u00b7 home'), join the items with a comma or plain words"
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
     },
     {
       "path": "comprehensive.md",
@@ -38,7 +38,15 @@
       "col": 40,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle-dot separator ('panel \u00b7 home'), join the items with a comma or plain words"
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 10,
+      "col": 57,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
     },
     {
       "path": "comprehensive.md",
@@ -315,7 +323,7 @@
   ],
   "unreadable": [],
   "summary": {
-    "errors": 19,
+    "errors": 20,
     "warnings": 20,
     "unreadable": 0
   }

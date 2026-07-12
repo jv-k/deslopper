@@ -1,8 +1,9 @@
 comprehensive.md:6:27 [warn] semicolon: semicolon in prose, prefer a full stop
 comprehensive.md:8:23 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
 comprehensive.md:8:44 [error] section-sign: section sign, write 'section'
-comprehensive.md:10:20 [error] middle-dot: middle-dot separator ('panel · home'), join the items with a comma or plain words
-comprehensive.md:10:40 [error] middle-dot: middle-dot separator ('panel · home'), join the items with a comma or plain words
+comprehensive.md:10:20 [error] middle-dot: middle dot or bullet in prose, join the items with a comma or plain words
+comprehensive.md:10:40 [error] middle-dot: middle dot or bullet in prose, join the items with a comma or plain words
+comprehensive.md:10:57 [error] middle-dot: middle dot or bullet in prose, join the items with a comma or plain words
 comprehensive.md:12:11 [error] em-dash: em dash as an HTML entity, write it out plainly
 comprehensive.md:12:23 [error] em-dash: em dash as an HTML entity, write it out plainly
 comprehensive.md:12:35 [error] em-dash: em dash as an HTML entity, write it out plainly
