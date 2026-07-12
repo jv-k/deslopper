@@ -1,19 +1,22 @@
 from deslopper.presets import load_builtin, available
 
 
-def test_recommended_has_twelve_tells_including_both_phase_variants():
+def test_recommended_has_fourteen_tells_including_both_phase_variants():
     fragment = load_builtin("recommended")
     tells = fragment["tells"]
-    assert len(tells) == 12
+    assert len(tells) == 14
     names = [t["name"] for t in tells]
     assert names.count("em-dash") == 2
     assert names.count("section-sign") == 2
+    assert names.count("middle-dot") == 2
     # both phases present for the duplicated names
     phases = {(t["name"], t.get("phase", "post-entity")) for t in tells}
     assert ("em-dash", "pre-entity") in phases
     assert ("em-dash", "post-entity") in phases
     assert ("section-sign", "pre-entity") in phases
     assert ("section-sign", "post-entity") in phases
+    assert ("middle-dot", "pre-entity") in phases
+    assert ("middle-dot", "post-entity") in phases
 
 
 import json
@@ -37,7 +40,7 @@ def names(cfg):
 def test_no_config_uses_recommended_and_default_files(tmp_path):
     cfg, path = load_config(None, str(tmp_path))
     assert path == ""
-    assert len(cfg.tells) == 12
+    assert len(cfg.tells) == len(load_builtin("recommended")["tells"])
     assert cfg.strict is False
     assert cfg.include == DEFAULT_INCLUDE
     assert cfg.exclude == DEFAULT_EXCLUDE
@@ -47,7 +50,7 @@ def test_disable_by_unique_name(tmp_path):
     write_config(tmp_path, {"tells": {"disable": ["semicolon"]}})
     cfg, _ = load_config(None, str(tmp_path))
     assert "semicolon" not in names(cfg)
-    assert len(cfg.tells) == 11
+    assert len(cfg.tells) == len(load_builtin("recommended")["tells"]) - 1
 
 
 def test_disable_ambiguous_bare_name_is_error(tmp_path):

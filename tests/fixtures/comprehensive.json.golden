@@ -27,6 +27,30 @@
     {
       "path": "comprehensive.md",
       "line": 10,
+      "col": 20,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 10,
+      "col": 40,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 10,
+      "col": 57,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 12,
       "col": 11,
       "tier": "error",
       "name": "em-dash",
@@ -34,7 +58,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 10,
+      "line": 12,
       "col": 23,
       "tier": "error",
       "name": "em-dash",
@@ -42,7 +66,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 10,
+      "line": 12,
       "col": 35,
       "tier": "error",
       "name": "em-dash",
@@ -50,7 +74,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 10,
+      "line": 12,
       "col": 48,
       "tier": "error",
       "name": "section-sign",
@@ -58,7 +82,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 10,
+      "line": 12,
       "col": 59,
       "tier": "error",
       "name": "section-sign",
@@ -66,7 +90,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 10,
+      "line": 12,
       "col": 70,
       "tier": "error",
       "name": "section-sign",
@@ -74,7 +98,55 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 12,
+      "line": 14,
+      "col": 16,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 14,
+      "col": 29,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 14,
+      "col": 41,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 14,
+      "col": 52,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 14,
+      "col": 63,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 14,
+      "col": 75,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 16,
       "col": 15,
       "tier": "error",
       "name": "em-dash",
@@ -82,7 +154,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 12,
+      "line": 16,
       "col": 20,
       "tier": "error",
       "name": "em-dash",
@@ -90,7 +162,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 14,
+      "line": 18,
       "col": 3,
       "tier": "warn",
       "name": "bold-bullet-lead",
@@ -98,7 +170,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 17,
+      "line": 21,
       "col": 4,
       "tier": "warn",
       "name": "bold-bullet-lead",
@@ -106,7 +178,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 19,
+      "line": 23,
       "col": 6,
       "tier": "warn",
       "name": "filler-verb",
@@ -114,7 +186,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 19,
+      "line": 23,
       "col": 20,
       "tier": "warn",
       "name": "filler-verb",
@@ -122,7 +194,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 19,
+      "line": 23,
       "col": 32,
       "tier": "warn",
       "name": "filler-verb",
@@ -130,7 +202,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 21,
+      "line": 25,
       "col": 3,
       "tier": "warn",
       "name": "marketing-adjective",
@@ -138,7 +210,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 21,
+      "line": 25,
       "col": 13,
       "tier": "warn",
       "name": "marketing-adjective",
@@ -146,7 +218,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 21,
+      "line": 25,
       "col": 21,
       "tier": "warn",
       "name": "marketing-adjective",
@@ -154,7 +226,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 23,
+      "line": 27,
       "col": 1,
       "tier": "warn",
       "name": "throat-clearing",
@@ -162,7 +234,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 25,
+      "line": 29,
       "col": 1,
       "tier": "warn",
       "name": "throat-clearing",
@@ -170,7 +242,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 25,
+      "line": 29,
       "col": 21,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -178,7 +250,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 25,
+      "line": 29,
       "col": 26,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -186,7 +258,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 25,
+      "line": 29,
       "col": 33,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -194,7 +266,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 25,
+      "line": 29,
       "col": 39,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -202,7 +274,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 27,
+      "line": 31,
       "col": 9,
       "tier": "warn",
       "name": "not-just-x-but-y",
@@ -210,7 +282,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 33,
       "col": 12,
       "tier": "warn",
       "name": "emoji",
@@ -218,7 +290,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 33,
       "col": 31,
       "tier": "warn",
       "name": "emoji",
@@ -226,7 +298,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 33,
       "col": 44,
       "tier": "warn",
       "name": "emoji",
@@ -234,7 +306,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 45,
+      "line": 49,
       "col": 9,
       "tier": "error",
       "name": "em-dash",
@@ -242,7 +314,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 45,
+      "line": 49,
       "col": 17,
       "tier": "warn",
       "name": "filler-verb",
@@ -251,7 +323,7 @@
   ],
   "unreadable": [],
   "summary": {
-    "errors": 11,
+    "errors": 20,
     "warnings": 20,
     "unreadable": 0
   }
