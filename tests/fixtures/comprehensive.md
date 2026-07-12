@@ -7,7 +7,11 @@ note: section § sign here is skipped too
 
 Prose with an em dash — and a section sign §.
 
+A crumb line panel · home and a bullet • separator.
+
 Entities: &mdash; and &#8212; and &#x2014; and &sect; and &#167; and &#xA7;.
+
+More entities: &middot; and &#0183; and &#xB7; and &bull; and &#8226; and &#x2022;.
 
 Two em dashes — on — one line.
 
