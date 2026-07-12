@@ -1,3 +1,7 @@
+## 0.1.2 (July 12, 2026)
+- chore: updated package.json, updated CHANGELOG.md, bumped 0.1.1 -> 0.1.2
+- feat(rules): add middle-dot tell (#5)
+
 # Changelog
 
 ## 0.1.1
