@@ -1,31 +1,40 @@
 ::warning file=comprehensive.md,line=6,col=27::semicolon - semicolon in prose, prefer a full stop
 ::error file=comprehensive.md,line=8,col=23::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
 ::error file=comprehensive.md,line=8,col=44::section-sign - section sign, write 'section'
-::error file=comprehensive.md,line=10,col=11::em-dash - em dash as an HTML entity, write it out plainly
-::error file=comprehensive.md,line=10,col=23::em-dash - em dash as an HTML entity, write it out plainly
-::error file=comprehensive.md,line=10,col=35::em-dash - em dash as an HTML entity, write it out plainly
-::error file=comprehensive.md,line=10,col=48::section-sign - section sign as an HTML entity, write 'section'
-::error file=comprehensive.md,line=10,col=59::section-sign - section sign as an HTML entity, write 'section'
-::error file=comprehensive.md,line=10,col=70::section-sign - section sign as an HTML entity, write 'section'
-::error file=comprehensive.md,line=12,col=15::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::error file=comprehensive.md,line=12,col=20::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::warning file=comprehensive.md,line=14,col=3::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
-::warning file=comprehensive.md,line=17,col=4::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
-::warning file=comprehensive.md,line=19,col=6::filler-verb - filler verb, use a plain verb or cut
-::warning file=comprehensive.md,line=19,col=20::filler-verb - filler verb, use a plain verb or cut
-::warning file=comprehensive.md,line=19,col=32::filler-verb - filler verb, use a plain verb or cut
-::warning file=comprehensive.md,line=21,col=3::marketing-adjective - marketing adjective, say what is true
-::warning file=comprehensive.md,line=21,col=13::marketing-adjective - marketing adjective, say what is true
-::warning file=comprehensive.md,line=21,col=21::marketing-adjective - marketing adjective, say what is true
-::warning file=comprehensive.md,line=23,col=1::throat-clearing - throat-clearing or transition opener, start with the point
-::warning file=comprehensive.md,line=25,col=1::throat-clearing - throat-clearing or transition opener, start with the point
-::warning file=comprehensive.md,line=25,col=21::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=25,col=26::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=25,col=33::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=25,col=39::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=27,col=9::not-just-x-but-y - "not just X but Y" padding, make the point once
-::warning file=comprehensive.md,line=29,col=12::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=29,col=31::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=29,col=44::emoji - emoji or decorative checkmark in body text
-::error file=comprehensive.md,line=45,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::warning file=comprehensive.md,line=45,col=17::filler-verb - filler verb, use a plain verb or cut
+::error file=comprehensive.md,line=10,col=20::middle-dot - middle dot or bullet in prose, join the items with a comma or plain words
+::error file=comprehensive.md,line=10,col=40::middle-dot - middle dot or bullet in prose, join the items with a comma or plain words
+::error file=comprehensive.md,line=10,col=57::middle-dot - middle dot or bullet in prose, join the items with a comma or plain words
+::error file=comprehensive.md,line=12,col=11::em-dash - em dash as an HTML entity, write it out plainly
+::error file=comprehensive.md,line=12,col=23::em-dash - em dash as an HTML entity, write it out plainly
+::error file=comprehensive.md,line=12,col=35::em-dash - em dash as an HTML entity, write it out plainly
+::error file=comprehensive.md,line=12,col=48::section-sign - section sign as an HTML entity, write 'section'
+::error file=comprehensive.md,line=12,col=59::section-sign - section sign as an HTML entity, write 'section'
+::error file=comprehensive.md,line=12,col=70::section-sign - section sign as an HTML entity, write 'section'
+::error file=comprehensive.md,line=14,col=16::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
+::error file=comprehensive.md,line=14,col=29::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
+::error file=comprehensive.md,line=14,col=41::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
+::error file=comprehensive.md,line=14,col=52::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
+::error file=comprehensive.md,line=14,col=63::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
+::error file=comprehensive.md,line=14,col=75::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
+::error file=comprehensive.md,line=16,col=15::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::error file=comprehensive.md,line=16,col=20::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::warning file=comprehensive.md,line=18,col=3::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
+::warning file=comprehensive.md,line=21,col=4::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
+::warning file=comprehensive.md,line=23,col=6::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=23,col=20::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=23,col=32::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=25,col=3::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=25,col=13::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=25,col=21::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=27,col=1::throat-clearing - throat-clearing or transition opener, start with the point
+::warning file=comprehensive.md,line=29,col=1::throat-clearing - throat-clearing or transition opener, start with the point
+::warning file=comprehensive.md,line=29,col=21::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=29,col=26::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=29,col=33::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=29,col=39::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=31,col=9::not-just-x-but-y - "not just X but Y" padding, make the point once
+::warning file=comprehensive.md,line=33,col=12::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=33,col=31::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=33,col=44::emoji - emoji or decorative checkmark in body text
+::error file=comprehensive.md,line=49,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::warning file=comprehensive.md,line=49,col=17::filler-verb - filler verb, use a plain verb or cut

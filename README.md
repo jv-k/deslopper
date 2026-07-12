@@ -48,9 +48,9 @@ in a work tree or a filesystem walk otherwise.
 
 ## Tiers and exit codes
 
-The error tier (em dashes, the section sign) fails the run. The warn tier prints but passes
-unless you add `--strict`. Exit codes: 0 clean, 1 a failing-tier finding or an unreadable
-file, 2 a usage or configuration error.
+The error tier (em dashes, the section sign, middle-dot separators) fails the run. The warn
+tier prints but passes unless you add `--strict`. Exit codes: 0 clean, 1 a failing-tier
+finding or an unreadable file, 2 a usage or configuration error.
 
 ## Use it in CI
 

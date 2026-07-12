@@ -1,13 +1,17 @@
 ---
 title: front matter with an em dash — should be skipped
-note: section § sign here is skipped too
+note: section § sign and a · dot here are skipped too
 ---
 
 # Heading with a semicolon; should flag
 
 Prose with an em dash — and a section sign §.
 
+A crumb line panel · home and a bullet • and a katakana ・ separator.
+
 Entities: &mdash; and &#8212; and &#x2014; and &sect; and &#167; and &#xA7;.
+
+More entities: &middot; and &#0183; and &#xB7; and &bull; and &#8226; and &#x2022;.
 
 Two em dashes — on — one line.
 
@@ -28,18 +32,18 @@ This is not just fast but also clean padding.
 
 Emoji line 🚀 with a checkmark ✅ and a star ⭐.
 
-Inline `code with — em dash and ; semicolon` is masked.
+Inline `code with — em dash and · dot and ; semicolon` is masked.
 
-Inline `&mdash;` entity inside code is masked too.
+Inline `&mdash;` and `&middot;` entities inside code are masked too.
 
 ```text
-fenced block with — em dash and ; semicolon and leverages, all skipped
+fenced block with — em dash and · dot and ; semicolon and leverages, all skipped
 ```
 
 This em dash — flags. <!-- deslop-lint-disable-line -->
 
 <!-- deslop-lint-disable -->
-This whole block — has a § and leverages but is disabled.
+This whole block — has a § and a · and leverages but is disabled.
 <!-- deslop-lint-enable -->
 
 Back on — after enable, flags again.

@@ -1,5 +1,7 @@
 # Unlocking the Future of Productivity 🚀
 
+Dashboard · Reports · Insights — everything your team needs in one place.
+
 In today's fast-paced world, teams need tools that just work. Our platform is a game-changing, cutting-edge solution that empowers organizations to do more with less — and that's just the beginning.
 
 At its core, the product leverages state-of-the-art AI to deliver a seamless, intuitive experience. It's worth noting that this isn't just another app; it's a comprehensive ecosystem.

@@ -14,6 +14,7 @@ from deslopper.engine import lint_files
 
 PROSE_TELLS = {
     "em-dash",
+    "middle-dot",
     "semicolon",
     "bold-bullet-lead",
     "not-just-x-but-y",
