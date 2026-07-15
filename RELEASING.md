@@ -3,11 +3,11 @@
 A release tags a version and lets CI publish it. The version lives in three files, kept in
 sync by the bump script.
 
-Bump with `scripts/bump.py` (or `pnpm bump:*`), never with a generic Node version tool. This
-repo has a `package.json` for its scripts, but the package is Python: a tool that bumps only
-`package.json` leaves `pyproject.toml` behind, and the tag then fails the version check in
-`release.yml` once it is already public. `scripts/release.sh` checks the three files agree
-before it tags anything.
+Bump with `scripts/bump.py` (or `pnpm bump:patch|minor|major`), never with a generic Node
+version tool. This repo has a `package.json` for its scripts, but the package is Python: a
+tool that bumps only `package.json` leaves `pyproject.toml` behind, and the tag then fails
+the version check in `release.yml` once it is already public. `scripts/release.sh` checks the
+three files agree before it tags anything.
 
 ## One-time setup
 
