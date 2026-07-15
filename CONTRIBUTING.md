@@ -22,7 +22,7 @@ Tells live in `src/deslopper/presets/recommended.json`, one JSON object each. A 
 - `name`: a short label, shown in the finding. Names need not be unique across phases.
 - `tier`: `error` (fails the run) or `warn` (prints, and fails only under `--strict`).
 - `phase`: `pre-entity` (runs before HTML entities are masked) or `post-entity` (the default).
-- `kind`: `regex` or `bold-bullet`. Omit it for `regex`.
+- `kind`: `regex`, `bold-bullet`, or `id-label`. Omit it for `regex`.
 - `pattern` or `words`: a regex, or a word list compiled to a boundaried alternation.
 - `message`: the text printed after the name.
 - `flags`: an optional string of regex flags. Only `i` is supported today.

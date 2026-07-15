@@ -48,6 +48,13 @@
       "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
     },
     {
+      "name": "id-label-lead",
+      "tier": "warn",
+      "kind": "id-label",
+      "pattern": "^(\\s*(?:[-*+]|\\d+[.)])\\s+)(\\*\\*|__)?([A-Z]{1,4}-?\\d{1,2}(?:\\.\\d{1,2})?)(.*)$",
+      "message": "id label on a list item, number the list plainly"
+    },
+    {
       "name": "semicolon",
       "tier": "warn",
       "pattern": ";",

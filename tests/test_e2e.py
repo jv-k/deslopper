@@ -61,6 +61,7 @@ def test_every_tell_fires_across_the_corpus(tmp_path):
         "middle-dot",
         "section-sign",
         "bold-bullet-lead",
+        "id-label-lead",
         "semicolon",
         "not-just-x-but-y",
         "filler-verb",
