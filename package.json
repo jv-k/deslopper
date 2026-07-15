@@ -4,6 +4,6 @@
   "private": true,
   "description": "Dev and release scripts for the deslopper Python package.",
   "scripts": {
-    "bump-release": "ver-bump --help 2>&1 | grep -q -- '--bump' || { echo 'This ver-bump has no --bump targets: it would bump package.json alone and leave pyproject.toml behind. See RELEASING.md.' >&2; exit 1; } && .venv/bin/pytest -q && .venv/bin/deslopper lint && .venv/bin/python -m build --outdir \"$(mktemp -d)\" >/dev/null && ver-bump -c -p origin && git push --follow-tags && gh release create \"v$(npm pkg get version | tr -d '\\\"')\" --generate-notes"
+    "bump-release": "bash scripts/preflight.sh && ver-bump -c -p origin && git push --follow-tags && gh release create \"v$(npm pkg get version | tr -d '\\\"')\" --generate-notes"
   }
 }
