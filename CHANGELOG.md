@@ -8,6 +8,10 @@
 - `filler-verb` leaves `Delve` the Go debugger alone, and still flags `delve` the verb.
 - A tell whose kind reads capture groups by number (`bold-bullet`, `id-label`) now reports a
   malformed pattern as a config error at compile time, instead of failing mid-lint.
+- Releases are cut with [ver-bump](https://github.com/jv-k/ver-bump), driven by `.ver-bumprc`,
+  the same way the engineering-playbook cuts its own. `scripts/bump.py`, `bump-release.sh`
+  and `release.sh` are gone. `pnpm bump-release` runs the gates and hands off. The version
+  files are checked by a test now, so drift fails in CI rather than after the tag is public.
 
 ## 0.1.1
 - Test coverage: a realistic slop-corpus regression test and subprocess end-to-end tests

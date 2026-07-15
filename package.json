@@ -4,10 +4,6 @@
   "private": true,
   "description": "Dev and release scripts for the deslopper Python package.",
   "scripts": {
-    "bump:patch": "python3 scripts/bump.py patch",
-    "bump:minor": "python3 scripts/bump.py minor",
-    "bump:major": "python3 scripts/bump.py major",
-    "bump-release": "bash scripts/bump-release.sh",
-    "release": "bash scripts/release.sh"
+    "bump-release": "bash scripts/preflight.sh && ver-bump -c -p origin && git push --follow-tags && gh release create \"v$(npm pkg get version | tr -d '\\\"')\" --generate-notes"
   }
 }

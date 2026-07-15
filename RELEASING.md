@@ -1,13 +1,18 @@
 # Releasing deslopper
 
-A release tags a version and lets CI publish it. The version lives in three files, kept in
-sync by the bump script.
+A release tags a version and lets CI publish it.
+[ver-bump](https://github.com/jv-k/ver-bump) cuts it, the same way the engineering-playbook
+cuts its own.
 
-Bump with `scripts/bump.py` (or `pnpm bump:patch|minor|major`), never with a generic Node
-version tool. This repo has a `package.json` for its scripts, but the package is Python: a
-tool that bumps only `package.json` leaves `pyproject.toml` behind, and the tag then fails
-the version check in `release.yml` once it is already public. `scripts/release.sh` checks the
-three files agree before it tags anything.
+The version lives in three files. `package.json` is the source ver-bump reads and bumps.
+`.ver-bumprc` names the other two as `BUMP_FILES`, so `pyproject.toml` and
+`src/deslopper/__init__.py` move in lock-step. Bumping any of them by hand, or with a tool
+that only knows `package.json`, leaves the tag pointing at the wrong version, and
+`release.yml` only catches that once the tag is public. That is what happened to v0.1.2.
+`tests/test_version.py` fails on any drift, in CI and in the release gates.
+
+ver-bump needs the `--bump` targets feature for the two non-JSON files. Nothing older than
+that can cut a release here.
 
 ## One-time setup
 
@@ -22,26 +27,29 @@ copies `packaging/homebrew/deslopper.rb` into it, as described under After publi
 
 ## Cut a release
 
-Make sure `CHANGELOG.md` has an `(unreleased)` section listing the changes, then run, on
-`main`:
+Write the `CHANGELOG.md` section for the version you are about to cut, under the
+`# Changelog` title, headed `## X.Y.Z`. ver-bump runs with `-c` and leaves the changelog
+alone: its generated entries are raw commit subjects, which land above the title and carry
+em dashes that deslopper's own lint rejects. The commit subjects still reach the GitHub
+release, which `--generate-notes` writes.
 
-    pnpm bump-release [patch|minor|major]    # default: patch
+Then, on `main`, with the venv installed (`pip install -e . pytest build`):
 
-It bumps the version (`pyproject.toml`, `src/deslopper/__init__.py`, and `package.json`,
-kept in sync by `scripts/bump.py`), retitles the changelog heading to the new version,
-commits `chore(release): vX.Y.Z`, and hands off to `scripts/release.sh`, which runs the
-pre-tag gates (a clean tree, the version check, the tests, the lint, and a build), then
-pushes `main` and the tag `vX.Y.Z` in one atomic push. The tag triggers `release.yml`,
-which repeats the gates and publishes to PyPI.
+    pnpm bump-release
 
-The pieces run individually too: `pnpm bump:patch|minor|major`, then a manual changelog
-retitle and `chore(release)` commit, then `pnpm release`. Any runner works in place of
-`pnpm`: `npm run <script>`, or the scripts directly.
+It runs the pre-tag gates (the tests, the lint, and a build), then hands off to ver-bump,
+which prompts for the version, bumps the three files, commits, tags `vX.Y.Z`, and pushes to
+`origin`. Enter the same version the changelog section names. The tag triggers `release.yml`,
+which repeats the gates and publishes to PyPI. `gh release create --generate-notes` writes
+the GitHub release last.
+
+Any runner works in place of `pnpm`: `npm run bump-release`, or the command itself.
 
 If `release.yml` fails before the upload to PyPI, delete the tag with `git tag -d vX.Y.Z`
-and `git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and run `pnpm release`
-again. If it fails during or after the upload, PyPI will not accept the same version a
-second time: bump a new patch version and release that instead.
+and `git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and re-cut the same
+version with `ver-bump -c -p origin -v X.Y.Z`. If it fails during or after the upload, PyPI
+will not accept the same version a second time: bump a new patch version and release that
+instead.
 
 ## After publishing
 

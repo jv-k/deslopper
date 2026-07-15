@@ -1,0 +1,5 @@
+# ver-bump config. The version lives in three files: package.json is the source
+# (ver-bump reads and bumps it), and these two are kept in lock-step. Text patterns
+# rather than @dotted paths, so no tomlq is needed.
+BUMP_FILES="pyproject.toml:version = \"{{version}}\"
+src/deslopper/__init__.py:__version__ = \"{{version}}\""
