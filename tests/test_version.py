@@ -3,6 +3,10 @@
 A tool that bumps one and not the others leaves the tag pointing at the wrong version,
 which release.yml only catches once the tag is public. That happened to v0.1.2. This runs
 in CI and in the release gates, so it holds whichever tool does the bumping.
+
+Each version line also has to be the only one of its shape in the file. .ver-bumprc bumps
+pyproject.toml and __init__.py by literal text pattern, so a second matching line would
+leave ver-bump a choice of targets.
 """
 
 import json
@@ -12,14 +16,19 @@ import re
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
+def _sole_match(rel_path, pattern):
+    text = (ROOT / rel_path).read_text(encoding="utf-8")
+    found = re.findall(pattern, text, re.M)
+    assert len(found) == 1, f"{rel_path}: expected one {pattern} line, found {len(found)}: {found}"
+    return found[0]
+
+
 def _pyproject_version():
-    text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    return re.search(r'^version = "([^"]+)"', text, re.M).group(1)
+    return _sole_match("pyproject.toml", r'^version = "([^"]+)"')
 
 
 def _module_version():
-    text = (ROOT / "src" / "deslopper" / "__init__.py").read_text(encoding="utf-8")
-    return re.search(r'^__version__ = "([^"]+)"', text, re.M).group(1)
+    return _sole_match("src/deslopper/__init__.py", r'^__version__ = "([^"]+)"')
 
 
 def _package_json_version():
