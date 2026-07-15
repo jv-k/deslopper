@@ -179,6 +179,38 @@
     {
       "path": "comprehensive.md",
       "line": 23,
+      "col": 3,
+      "tier": "warn",
+      "name": "id-label-lead",
+      "message": "id label on a list item, number the list plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 24,
+      "col": 3,
+      "tier": "warn",
+      "name": "bold-bullet-lead",
+      "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 24,
+      "col": 3,
+      "tier": "warn",
+      "name": "id-label-lead",
+      "message": "id label on a list item, number the list plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 25,
+      "col": 4,
+      "tier": "warn",
+      "name": "id-label-lead",
+      "message": "id label on a list item, number the list plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 29,
       "col": 6,
       "tier": "warn",
       "name": "filler-verb",
@@ -186,7 +218,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 23,
+      "line": 29,
       "col": 20,
       "tier": "warn",
       "name": "filler-verb",
@@ -194,7 +226,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 23,
+      "line": 29,
       "col": 32,
       "tier": "warn",
       "name": "filler-verb",
@@ -202,7 +234,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 25,
+      "line": 31,
       "col": 3,
       "tier": "warn",
       "name": "marketing-adjective",
@@ -210,7 +242,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 25,
+      "line": 31,
       "col": 13,
       "tier": "warn",
       "name": "marketing-adjective",
@@ -218,7 +250,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 25,
+      "line": 31,
       "col": 21,
       "tier": "warn",
       "name": "marketing-adjective",
@@ -226,7 +258,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 27,
+      "line": 33,
       "col": 1,
       "tier": "warn",
       "name": "throat-clearing",
@@ -234,7 +266,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 35,
       "col": 1,
       "tier": "warn",
       "name": "throat-clearing",
@@ -242,7 +274,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 35,
       "col": 21,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -250,7 +282,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 35,
       "col": 26,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -258,7 +290,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 35,
       "col": 33,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -266,7 +298,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 35,
       "col": 39,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -274,7 +306,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 31,
+      "line": 37,
       "col": 9,
       "tier": "warn",
       "name": "not-just-x-but-y",
@@ -282,7 +314,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 33,
+      "line": 39,
       "col": 12,
       "tier": "warn",
       "name": "emoji",
@@ -290,7 +322,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 33,
+      "line": 39,
       "col": 31,
       "tier": "warn",
       "name": "emoji",
@@ -298,7 +330,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 33,
+      "line": 39,
       "col": 44,
       "tier": "warn",
       "name": "emoji",
@@ -306,7 +338,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 49,
+      "line": 55,
       "col": 9,
       "tier": "error",
       "name": "em-dash",
@@ -314,7 +346,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 49,
+      "line": 55,
       "col": 17,
       "tier": "warn",
       "name": "filler-verb",
@@ -324,7 +356,7 @@
   "unreadable": [],
   "summary": {
     "errors": 20,
-    "warnings": 20,
+    "warnings": 24,
     "unreadable": 0
   }
 }

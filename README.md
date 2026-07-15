@@ -6,8 +6,9 @@ model, no network: it runs in CI and pre-commit and fails the build on a banned 
 ## Why?
 
 Machine-generated prose has tells: the em-dash aside, the filler verb, the marketing
-adjective, the `not just X but Y` padding, the throat-clearing opener. A model can rewrite
-them away, but that costs a model call on every check and gives a different result each run.
+adjective, the `not just X but Y` padding, the throat-clearing opener, the `G1`/`NG2` label
+stapled to every item of a list. A model can rewrite them away, but that costs a model call
+on every check and gives a different result each run.
 deslopper catches the mechanical tells with plain patterns, so the check is free, instant,
 and identical every time. That makes it safe as a gate in CI and pre-commit, where a model
 pass does not belong. Use it for the deterministic floor, and leave the model rewrite for

@@ -20,21 +20,25 @@
 ::error file=comprehensive.md,line=16,col=20::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
 ::warning file=comprehensive.md,line=18,col=3::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
 ::warning file=comprehensive.md,line=21,col=4::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
-::warning file=comprehensive.md,line=23,col=6::filler-verb - filler verb, use a plain verb or cut
-::warning file=comprehensive.md,line=23,col=20::filler-verb - filler verb, use a plain verb or cut
-::warning file=comprehensive.md,line=23,col=32::filler-verb - filler verb, use a plain verb or cut
-::warning file=comprehensive.md,line=25,col=3::marketing-adjective - marketing adjective, say what is true
-::warning file=comprehensive.md,line=25,col=13::marketing-adjective - marketing adjective, say what is true
-::warning file=comprehensive.md,line=25,col=21::marketing-adjective - marketing adjective, say what is true
-::warning file=comprehensive.md,line=27,col=1::throat-clearing - throat-clearing or transition opener, start with the point
-::warning file=comprehensive.md,line=29,col=1::throat-clearing - throat-clearing or transition opener, start with the point
-::warning file=comprehensive.md,line=29,col=21::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=29,col=26::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=29,col=33::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=29,col=39::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=31,col=9::not-just-x-but-y - "not just X but Y" padding, make the point once
-::warning file=comprehensive.md,line=33,col=12::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=33,col=31::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=33,col=44::emoji - emoji or decorative checkmark in body text
-::error file=comprehensive.md,line=49,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::warning file=comprehensive.md,line=49,col=17::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=23,col=3::id-label-lead - id label on a list item, number the list plainly
+::warning file=comprehensive.md,line=24,col=3::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
+::warning file=comprehensive.md,line=24,col=3::id-label-lead - id label on a list item, number the list plainly
+::warning file=comprehensive.md,line=25,col=4::id-label-lead - id label on a list item, number the list plainly
+::warning file=comprehensive.md,line=29,col=6::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=29,col=20::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=29,col=32::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=31,col=3::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=31,col=13::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=31,col=21::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=33,col=1::throat-clearing - throat-clearing or transition opener, start with the point
+::warning file=comprehensive.md,line=35,col=1::throat-clearing - throat-clearing or transition opener, start with the point
+::warning file=comprehensive.md,line=35,col=21::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=35,col=26::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=35,col=33::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=35,col=39::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=37,col=9::not-just-x-but-y - "not just X but Y" padding, make the point once
+::warning file=comprehensive.md,line=39,col=12::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=39,col=31::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=39,col=44::emoji - emoji or decorative checkmark in body text
+::error file=comprehensive.md,line=55,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::warning file=comprehensive.md,line=55,col=17::filler-verb - filler verb, use a plain verb or cut

@@ -16,6 +16,12 @@ When it comes to collaboration, we've got you covered. Our robust, powerful engi
 
 The dashboard surfaces actionable insights and drives measurable results. Furthermore, it streamlines your workflow and unlocks new levels of efficiency. ✅
 
+## What's Next on the Roadmap
+
+- **G1** Unified dashboard across every workspace you own
+- **G2** Deeper integrations with the tools your team already uses
+- **NG1** Native mobile apps are out of scope for this release
+
 ## The Bottom Line
 
 This is not just a tool but a partner in your journey. It's really very powerful, and the results speak for themselves. Moreover, our solution utilizes machine learning to continuously improve.

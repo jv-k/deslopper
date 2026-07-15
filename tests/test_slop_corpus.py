@@ -17,6 +17,7 @@ PROSE_TELLS = {
     "middle-dot",
     "semicolon",
     "bold-bullet-lead",
+    "id-label-lead",
     "not-just-x-but-y",
     "filler-verb",
     "marketing-adjective",
