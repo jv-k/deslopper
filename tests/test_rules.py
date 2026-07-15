@@ -103,6 +103,15 @@ def test_invalid_regex_is_config_error():
                       "pattern": "(", "message": "m"})
 
 
+@pytest.mark.parametrize("kind", ["bold-bullet", "id-label"])
+def test_kind_needing_groups_rejects_a_pattern_without_them(kind):
+    # These kinds read their capture groups by number. A pattern that lacks them used to
+    # raise IndexError mid-lint; a malformed tell has to be a ConfigError (exit 2) instead.
+    with pytest.raises(ConfigError):
+        compile_tell({"name": "x", "tier": "warn", "kind": kind,
+                      "pattern": "foo", "message": "m"})
+
+
 @pytest.mark.parametrize("text", [
     "This article delves into the details",
     "Let's delve into the internals",

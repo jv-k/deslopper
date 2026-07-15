@@ -41,6 +41,17 @@ def _parse_flags(spec_flags: str) -> int:
     return flags
 
 
+def _compile_with_groups(spec: dict, flags: int, n: int) -> "re.Pattern":
+    """Compile a pattern for a kind that reads its capture groups by number."""
+    rx = re.compile(spec["pattern"], flags)
+    if rx.groups < n:
+        raise ConfigError(
+            f"tell {spec.get('name', '<unnamed>')!r} of kind {spec.get('kind')!r} needs "
+            f"{n} capture groups, its pattern has {rx.groups}"
+        )
+    return rx
+
+
 def _regex_matcher(spec: dict, flags: int) -> Matcher:
     rx = re.compile(spec["pattern"], flags)
 
@@ -52,7 +63,7 @@ def _regex_matcher(spec: dict, flags: int) -> Matcher:
 
 
 def _bold_bullet_matcher(spec: dict, flags: int) -> Matcher:
-    rx = re.compile(spec["pattern"], flags)
+    rx = _compile_with_groups(spec, flags, 4)
 
     def match(text: str):
         m = rx.search(text)
@@ -63,7 +74,7 @@ def _bold_bullet_matcher(spec: dict, flags: int) -> Matcher:
 
 
 def _id_label_matcher(spec: dict, flags: int) -> Matcher:
-    rx = re.compile(spec["pattern"], flags)
+    rx = _compile_with_groups(spec, flags, 4)
 
     def match(text: str):
         m = rx.search(text)
