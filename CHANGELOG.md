@@ -1,8 +1,13 @@
-## 0.1.2 (July 12, 2026)
-- chore: updated package.json, updated CHANGELOG.md, bumped 0.1.1 -> 0.1.2
-- feat(rules): add middle-dot tell (#5)
-
 # Changelog
+
+## 0.1.2 (unreleased)
+
+- `middle-dot`: flag the interpunct and bullet separators, both as characters and as the
+  HTML entity spellings. Error tier.
+- `id-label-lead`: flag the `G1` or `NG2` id label stapled to a list item. Warn tier.
+- `filler-verb` leaves `Delve` the Go debugger alone, and still flags `delve` the verb.
+- A tell whose kind reads capture groups by number (`bold-bullet`, `id-label`) now reports a
+  malformed pattern as a config error at compile time, instead of failing mid-lint.
 
 ## 0.1.1
 - Test coverage: a realistic slop-corpus regression test and subprocess end-to-end tests
