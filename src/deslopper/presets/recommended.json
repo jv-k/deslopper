@@ -65,7 +65,7 @@
       "name": "filler-verb",
       "tier": "warn",
       "flags": "i",
-      "words": ["surfaces", "leverages?", "enables?", "powers", "facilitates?", "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?", "streamlines?", "empowers?", "showcases?", "delves?"],
+      "words": ["surfaces", "leverages?", "enables?", "powers", "facilitates?", "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?", "streamlines?", "empowers?", "showcases?", "(?-i:delve)s?", "(?-i:Delve)s?(?=\\s+(?:into|deeper))"],
       "message": "filler verb, use a plain verb or cut"
     },
     {
