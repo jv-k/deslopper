@@ -2,6 +2,7 @@ import pytest
 
 from deslopper.rules import compile_tell
 from deslopper.errors import ConfigError
+from deslopper.presets import load_builtin
 
 
 def offsets(tell, text):
@@ -69,17 +70,10 @@ def test_invalid_regex_is_config_error():
 def _filler_verb_tell():
     """The real filler-verb tell out of the shipped preset.
 
-    Loaded rather than hand-copied, so this regresses if the preset does.
+    Loaded through the same loader the app uses, rather than hand-copied,
+    so this regresses if the preset does and survives a layout change.
     """
-    import json
-    import os
-
-    preset = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "src", "deslopper", "presets", "recommended.json",
-    )
-    with open(preset, encoding="utf-8") as fh:
-        raw = json.load(fh)
+    raw = load_builtin("recommended")
     tell = next(t for t in raw["tells"] if t["name"] == "filler-verb")
     return compile_tell(tell)
 
