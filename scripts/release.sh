@@ -36,6 +36,15 @@ if [ "$module_version" != "$version" ]; then
   exit 1
 fi
 
+# scripts/bump.py writes all three files. A tool that bumps only some of them leaves the
+# tag pointing at the wrong version, which the release workflow rejects after the tag is
+# already public. Catch the drift here, before anything is pushed.
+pkg_version="$("$py" -c 'import json; print(json.load(open("package.json"))["version"])')"
+if [ "$pkg_version" != "$version" ]; then
+  echo "pyproject.toml has $version but package.json has $pkg_version; run scripts/bump.py" >&2
+  exit 1
+fi
+
 tag="v$version"
 if git rev-parse "$tag" >/dev/null 2>&1; then
   echo "tag $tag already exists locally" >&2
