@@ -16,6 +16,9 @@ Matcher = Callable[[str], Iterable[int]]
 FLAG_CHARS = {"i": re.IGNORECASE}
 BOLD_TERMINAL = re.compile(r"[.:?!]$")
 NON_SPACE = re.compile(r"\S")
+# What has to follow an id label for it to read as a tag on the item rather than the
+# subject of the sentence: an optional separator, then item text that opens capitalised.
+ID_LABEL_TAIL = re.compile(r"[:).]?\s+(?:[-\u2013\u2014]\s*)?[*_\"']?[A-Z]")
 
 
 @dataclass(frozen=True)
@@ -38,6 +41,17 @@ def _parse_flags(spec_flags: str) -> int:
     return flags
 
 
+def _compile_with_groups(spec: dict, flags: int, n: int) -> "re.Pattern":
+    """Compile a pattern for a kind that reads its capture groups by number."""
+    rx = re.compile(spec["pattern"], flags)
+    if rx.groups < n:
+        raise ConfigError(
+            f"tell {spec.get('name', '<unnamed>')!r} of kind {spec.get('kind')!r} needs "
+            f"{n} capture groups, its pattern has {rx.groups}"
+        )
+    return rx
+
+
 def _regex_matcher(spec: dict, flags: int) -> Matcher:
     rx = re.compile(spec["pattern"], flags)
 
@@ -49,7 +63,7 @@ def _regex_matcher(spec: dict, flags: int) -> Matcher:
 
 
 def _bold_bullet_matcher(spec: dict, flags: int) -> Matcher:
-    rx = re.compile(spec["pattern"], flags)
+    rx = _compile_with_groups(spec, flags, 4)
 
     def match(text: str):
         m = rx.search(text)
@@ -59,9 +73,30 @@ def _bold_bullet_matcher(spec: dict, flags: int) -> Matcher:
     return match
 
 
+def _id_label_matcher(spec: dict, flags: int) -> Matcher:
+    rx = _compile_with_groups(spec, flags, 4)
+
+    def match(text: str):
+        m = rx.search(text)
+        if not m:
+            return
+        marker, bold, rest = m.group(1), m.group(2), m.group(4)
+        if bold:
+            # A bold run has to close on the label itself. '**S3 Node:**' names a thing;
+            # '**G1**' tags an item.
+            if not rest.startswith(bold):
+                return
+            rest = rest[len(bold):]
+        if ID_LABEL_TAIL.match(rest):
+            yield len(marker)
+
+    return match
+
+
 BUILTIN_KINDS = {
     "regex": _regex_matcher,
     "bold-bullet": _bold_bullet_matcher,
+    "id-label": _id_label_matcher,
 }
 
 

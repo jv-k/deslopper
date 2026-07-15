@@ -1,10 +1,10 @@
 from deslopper.presets import load_builtin, available
 
 
-def test_recommended_has_fourteen_tells_including_both_phase_variants():
+def test_recommended_has_fifteen_tells_including_both_phase_variants():
     fragment = load_builtin("recommended")
     tells = fragment["tells"]
-    assert len(tells) == 14
+    assert len(tells) == 15
     names = [t["name"] for t in tells]
     assert names.count("em-dash") == 2
     assert names.count("section-sign") == 2
