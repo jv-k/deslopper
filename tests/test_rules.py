@@ -44,6 +44,42 @@ def test_bold_bullet_flags_label_then_prose_only():
     assert offsets(t, "1. **N** then prose") == [3]        # numbered lead len 3
 
 
+def _preset_tell(name):
+    """A real tell out of the shipped preset.
+
+    Loaded through the same loader the app uses, rather than hand-copied, so these
+    regress if the preset does and survive a layout change.
+    """
+    raw = load_builtin("recommended")
+    return compile_tell(next(t for t in raw["tells"] if t["name"] == name))
+
+
+@pytest.mark.parametrize("text,col", [
+    ("- G1 Unified view of every package", 2),
+    ("- **G1** Unified view of every package", 2),
+    ("- **NG2** Windows support", 2),
+    ("1. FR-3.1 Read the manifest", 3),
+    ("  * __AC1__: The suite reports zero failures", 4),
+    ("1. **US-1** - *As a maintainer*, I run it", 3),
+])
+def test_id_label_flags_a_labelled_list_item(text, col):
+    assert offsets(_preset_tell("id-label-lead"), text) == [col], f"should flag: {text!r}"
+
+
+@pytest.mark.parametrize("text", [
+    "- S3 buckets are cheap",             # lowercase tail: a subject, not a label
+    "- MP4 exports are supported",
+    "- **S3 Node:** Consider the option",  # bold running past the label names a thing
+    "- Speed delivers performance",        # no digits, no label
+    "- G1",                                # nothing labelled
+    "G1 Unified view of every package",    # not a list item
+    "| G1 | Unified view of every package |",  # a table cell, not a list
+    "### G1 Unified view of every package",    # a heading, not a list
+])
+def test_id_label_exempts_prose_that_merely_starts_with_a_name_and_digit(text):
+    assert not offsets(_preset_tell("id-label-lead"), text), f"false positive: {text!r}"
+
+
 def test_unknown_kind_is_config_error():
     with pytest.raises(ConfigError):
         compile_tell({"name": "x", "tier": "warn", "kind": "nope",
@@ -67,17 +103,6 @@ def test_invalid_regex_is_config_error():
                       "pattern": "(", "message": "m"})
 
 
-def _filler_verb_tell():
-    """The real filler-verb tell out of the shipped preset.
-
-    Loaded through the same loader the app uses, rather than hand-copied,
-    so this regresses if the preset does and survives a layout change.
-    """
-    raw = load_builtin("recommended")
-    tell = next(t for t in raw["tells"] if t["name"] == "filler-verb")
-    return compile_tell(tell)
-
-
 @pytest.mark.parametrize("text", [
     "This article delves into the details",
     "Let's delve into the internals",
@@ -86,7 +111,7 @@ def _filler_verb_tell():
     "We delve deeper here",
 ])
 def test_filler_verb_flags_delve_as_a_verb(text):
-    assert offsets(_filler_verb_tell(), text), f"should flag: {text!r}"
+    assert offsets(_preset_tell("filler-verb"), text), f"should flag: {text!r}"
 
 
 @pytest.mark.parametrize("text", [
@@ -97,4 +122,4 @@ def test_filler_verb_flags_delve_as_a_verb(text):
 def test_filler_verb_leaves_delve_the_proper_noun_alone(text):
     # `delve` is a filler verb; `Delve` is a tool. Capitalised and not followed
     # by into/deeper, it is the proper noun, so the tell must not fire.
-    assert not offsets(_filler_verb_tell(), text), f"false positive: {text!r}"
+    assert not offsets(_preset_tell("filler-verb"), text), f"false positive: {text!r}"

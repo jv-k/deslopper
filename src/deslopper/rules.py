@@ -16,6 +16,9 @@ Matcher = Callable[[str], Iterable[int]]
 FLAG_CHARS = {"i": re.IGNORECASE}
 BOLD_TERMINAL = re.compile(r"[.:?!]$")
 NON_SPACE = re.compile(r"\S")
+# What has to follow an id label for it to read as a tag on the item rather than the
+# subject of the sentence: an optional separator, then item text that opens capitalised.
+ID_LABEL_TAIL = re.compile(r"[:).]?\s+(?:[-\u2013\u2014]\s*)?[*_\"']?[A-Z]")
 
 
 @dataclass(frozen=True)
@@ -59,9 +62,30 @@ def _bold_bullet_matcher(spec: dict, flags: int) -> Matcher:
     return match
 
 
+def _id_label_matcher(spec: dict, flags: int) -> Matcher:
+    rx = re.compile(spec["pattern"], flags)
+
+    def match(text: str):
+        m = rx.search(text)
+        if not m:
+            return
+        marker, bold, rest = m.group(1), m.group(2), m.group(4)
+        if bold:
+            # A bold run has to close on the label itself. '**S3 Node:**' names a thing;
+            # '**G1**' tags an item.
+            if not rest.startswith(bold):
+                return
+            rest = rest[len(bold):]
+        if ID_LABEL_TAIL.match(rest):
+            yield len(marker)
+
+    return match
+
+
 BUILTIN_KINDS = {
     "regex": _regex_matcher,
     "bold-bullet": _bold_bullet_matcher,
+    "id-label": _id_label_matcher,
 }
 
 

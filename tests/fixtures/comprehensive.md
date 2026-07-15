@@ -20,6 +20,12 @@ Two em dashes — on — one line.
 - **Whole bold item**
 1. **Numbered bold lead** then trailing prose flags
 
+- G1 Bare id label on a list item flags
+- **NG2** Bolded id label flags too
+1. FR-3.1 Numbered item with a dotted label flags
+- S3 buckets are cheap, a lowercase tail is exempt
+- **S3 Node:** Bold running past the label is exempt
+
 This leverages and enables and surfaces three filler verbs.
 
 A seamless, robust, powerful set of marketing adjectives.
