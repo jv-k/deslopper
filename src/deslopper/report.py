@@ -2,7 +2,7 @@
 
 import json
 
-_LEVEL = {"error": "error", "warn": "warning"}
+from . import tiers
 
 
 def format_text(result) -> str:
@@ -20,7 +20,7 @@ def _encode(message: str) -> str:
 def format_github(result) -> str:
     lines = []
     for f in result.findings:
-        level = _LEVEL[f.tier]
+        level = tiers.github_level(f.tier)
         lines.append(
             f"::{level} file={f.path},line={f.line},col={f.col}::"
             f"{f.name} - {_encode(f.message)}"
@@ -54,5 +54,7 @@ def summary_line(result, strict: bool) -> str:
 
 
 def exit_code(result, strict: bool) -> int:
-    fail = result.errors > 0 or bool(result.unreadable) or (strict and result.warnings > 0)
+    fail = bool(result.unreadable) or any(
+        tiers.is_failing(f.tier, strict) for f in result.findings
+    )
     return 1 if fail else 0
