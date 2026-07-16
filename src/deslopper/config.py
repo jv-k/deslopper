@@ -54,6 +54,21 @@ def _resolve_target(raw_tells, token, op):
     return idx[0]
 
 
+def _merge_tell(raw: list, tell: dict) -> None:
+    """Insert or replace a tell in raw, matched by (name, phase).
+
+    Stores a copy, so a later override's .update() writes to raw and never back to a
+    preset dict or the caller's config.
+    """
+    tell = dict(tell)
+    key = f"{tell['name']}@{tell.get('phase', 'post-entity')}"
+    idx = _match_indices(raw, key)
+    if idx:
+        raw[idx[0]] = tell
+    else:
+        raw.append(tell)
+
+
 def _resolve_raw_tells(config: dict) -> list:
     extends = config.get("extends", [RECOMMENDED])
     if not isinstance(extends, list):
@@ -71,22 +86,11 @@ def _resolve_raw_tells(config: dict) -> list:
                 "third-party presets are not available in this version"
             )
         for tell in load_builtin(ref[len("deslopper:"):])["tells"]:
-            key = f"{tell['name']}@{tell.get('phase', 'post-entity')}"
-            idx = _match_indices(raw, key)
-            if idx:
-                raw[idx[0]] = tell
-            else:
-                raw.append(tell)
+            _merge_tell(raw, tell)
 
     tells = config.get("tells", {})
     for add in tells.get("add", []):
-        # Copy, so a later `override` .update() writes to our list, not the caller's dict.
-        tell = dict(add)
-        idx = _match_indices(raw, f"{tell['name']}@{tell.get('phase', 'post-entity')}")
-        if idx:
-            raw[idx[0]] = tell
-        else:
-            raw.append(tell)
+        _merge_tell(raw, add)
     for token, patch in tells.get("override", {}).items():
         raw[_resolve_target(raw, token, "override")].update(patch)
     for token in tells.get("disable", []):
