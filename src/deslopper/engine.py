@@ -1,6 +1,12 @@
-"""The line scanner. A faithful port of the verified deslop-lint core."""
+"""The line scanner. A faithful port of the verified deslop-lint core.
+
+`scan_prose` owns the block structure: it decides which lines are prose (not front
+matter, not fenced or inline code, not MDX ESM, not inside a disable region) and masks
+what a tell must not see. `lint_file` is then a thin runner over the prose lines.
+"""
 
 import re
+from dataclasses import dataclass
 
 from .findings import Finding, LintResult
 
@@ -22,25 +28,24 @@ def _blank(match: "re.Match") -> str:
     return " " * len(match.group(0))
 
 
-def _run_tells(tells, text, path, ln):
-    for tell in tells:
-        n = 0
-        for off in tell.matcher(text):
-            yield Finding(path, ln, off + 1, tell.tier, tell.name, tell.message)
-            n += 1
-            if tell.scope == "first":
-                break
+@dataclass(frozen=True)
+class ProseLine:
+    """One prose line a tell sees: its 1-based number and the masked text for each phase.
+
+    `pre_entity` has inline code blanked; `post_entity` has HTML entities blanked too.
+    Both keep the original length, so a match offset is still the source column.
+    """
+    lineno: int
+    pre_entity: str
+    post_entity: str
 
 
-def lint_file(display_path, read_path, pre_tells, post_tells):
-    try:
-        with open(read_path, encoding="utf-8", newline="\n") as fh:
-            raw_lines = fh.readlines()
-    except OSError:
-        return [], False
+def scan_prose(raw_lines, is_mdx=False):
+    """Yield a ProseLine for each line that is prose, in order.
 
-    findings = []
-    is_mdx = display_path.endswith(".mdx")
+    Skips front matter, fenced code, MDX ESM statements, and disable regions, and masks
+    inline code and HTML entities. Line endings on the input are tolerated, not required.
+    """
     in_fence = False
     fence_marker = ""
     fence_len = 0
@@ -89,10 +94,28 @@ def lint_file(display_path, read_path, pre_tells, post_tells):
         if disabled:
             continue
 
-        findings.extend(_run_tells(pre_tells, masked, display_path, ln))
-        masked = ENTITY.sub(_blank, masked)
-        findings.extend(_run_tells(post_tells, masked, display_path, ln))
+        yield ProseLine(ln, masked, ENTITY.sub(_blank, masked))
 
+
+def _run_tells(tells, text, path, ln):
+    for tell in tells:
+        for off in tell.matcher(text):
+            yield Finding(path, ln, off + 1, tell.tier, tell.name, tell.message)
+            if tell.scope == "first":
+                break
+
+
+def lint_file(display_path, read_path, pre_tells, post_tells):
+    try:
+        with open(read_path, encoding="utf-8", newline="\n") as fh:
+            raw_lines = fh.readlines()
+    except OSError:
+        return [], False
+
+    findings = []
+    for prose in scan_prose(raw_lines, display_path.endswith(".mdx")):
+        findings.extend(_run_tells(pre_tells, prose.pre_entity, display_path, prose.lineno))
+        findings.extend(_run_tells(post_tells, prose.post_entity, display_path, prose.lineno))
     return findings, True
 
 
