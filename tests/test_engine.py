@@ -79,6 +79,13 @@ def test_scan_prose_disable_suffix_does_not_disable_the_file():
     assert [p.lineno for p in scan(text)] == [1, 2, 3]
 
 
+def test_scan_prose_disable_line_suffix_is_not_a_directive():
+    # A -disable-line suffix is not the -disable-line directive, so it suppresses nothing.
+    text = ("keep one\n"
+            "keep two <!-- deslop-lint-disable-line-foo -->\n")
+    assert [p.lineno for p in scan(text)] == [1, 2]
+
+
 SEMI = {"name": "semicolon", "tier": "warn", "kind": "regex", "pattern": ";", "message": "semi"}
 EM_ENTITY = {"name": "em-dash", "tier": "error", "phase": "pre-entity", "kind": "regex",
              "pattern": r"&mdash;|&#0*8212;", "message": "entity"}

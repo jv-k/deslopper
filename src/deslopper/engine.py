@@ -18,8 +18,8 @@ FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 INLINE_CODE = re.compile(r"(`+).*?\1")
 ENTITY = re.compile(r"&#?[0-9a-zA-Z]+;")
 # The directive is exactly `-disable-line`, `-disable`, or `-enable`; the lookaheads stop
-# an unknown suffix like `-disable-next-line` from matching the block-level `-disable`.
-DISABLE_LINE = re.compile(r"<!--\s*deslop-lint-disable-line\b[^>]*-->")
+# an unknown suffix (`-disable-next-line`, `-disable-line-foo`) from matching any of them.
+DISABLE_LINE = re.compile(r"<!--\s*deslop-lint-disable-line(?![-\w])[^>]*-->")
 DISABLE = re.compile(r"<!--\s*deslop-lint-disable(?![-\w])[^>]*-->")
 ENABLE = re.compile(r"<!--\s*deslop-lint-enable(?![-\w])[^>]*-->")
 # In .mdx, a top-level line that starts with import/export is an ESM statement,
