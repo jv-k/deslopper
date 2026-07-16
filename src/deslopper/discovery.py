@@ -1,7 +1,7 @@
 """File and config discovery, and the path base for emitted findings."""
 
-import fnmatch
 import os
+import re
 import subprocess
 
 CONFIG_NAME = "deslopper.config.json"
@@ -38,15 +38,48 @@ def discovery_root(config_path, start_dir: str) -> str:
     return top if top else os.path.abspath(start_dir)
 
 
+_GLOB_CACHE = {}
+
+
+def _glob_to_regex(pat: str):
+    """Compile a glob to a regex over a slash-separated path.
+
+    `*` matches a run of non-slash characters, `?` one such character, and `**` as a whole
+    path segment spans zero or more segments (`**/` at the start or middle) or the rest of
+    the path (trailing `**`). Unlike fnmatch, `*` never crosses a slash.
+    """
+    rx = _GLOB_CACHE.get(pat)
+    if rx is None:
+        i, n, out = 0, len(pat), []
+        while i < n:
+            ch = pat[i]
+            if ch == "*":
+                j = i
+                while j < n and pat[j] == "*":
+                    j += 1
+                stars, prev, nxt = j - i, pat[i - 1] if i else "", pat[j] if j < n else ""
+                if stars >= 2 and prev in ("", "/") and nxt in ("", "/"):
+                    if nxt == "/":
+                        out.append("(?:[^/]+/)*")   # **/ : zero or more path segments
+                        j += 1                        # absorb the slash
+                    else:
+                        out.append(".*")              # trailing ** : the rest of the path
+                else:
+                    out.append("[^/]*")               # * : a run of non-slash
+                i = j
+            elif ch == "?":
+                out.append("[^/]")
+                i += 1
+            else:
+                out.append(re.escape(ch))
+                i += 1
+        rx = re.compile("^" + "".join(out) + "$")
+        _GLOB_CACHE[pat] = rx
+    return rx
+
+
 def _match_glob(rel: str, pat: str) -> bool:
-    """Match a relative path against a glob pattern, handling ** as a recursive wildcard."""
-    if fnmatch.fnmatch(rel, pat):
-        return True
-    # If the pattern starts with **/, also try matching without the leading **/
-    # so that e.g. **/vendor/** matches vendor/d.md at the tree root.
-    if pat.startswith("**/"):
-        return fnmatch.fnmatch(rel, pat[3:])
-    return False
+    return _glob_to_regex(pat).match(rel) is not None
 
 
 def _excluded(rel: str, exclude) -> bool:
@@ -100,6 +133,10 @@ def resolve_inputs(paths, root: str, start_dir: str, include, exclude) -> list:
         for p in paths:
             full = p if os.path.isabs(p) else os.path.join(start_dir, p)
             display = os.path.relpath(full, root).replace(os.sep, "/")
+            # A file outside root relpaths to ../.., which is not a usable finding path;
+            # fall back to the absolute path so the finding still points somewhere real.
+            if display == ".." or display.startswith("../"):
+                display = os.path.abspath(full).replace(os.sep, "/")
             items.append((display, full))
         return items
     rels = discover_files(root, include, exclude)
