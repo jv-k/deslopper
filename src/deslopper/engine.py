@@ -15,7 +15,10 @@ FRONT_CLOSE = re.compile(r"^(---|\.\.\.)\s*$")
 # A fence is indented at most 3 spaces (4+ is indented code, not a fence); the rest of
 # the line is the info string. `scan_prose` applies the CommonMark opener/closer rules.
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
-INLINE_CODE = re.compile(r"(`+).*?\1")
+# A code span opens on a maximal backtick run and closes on a run of the exact same
+# length. The lookarounds keep the closer maximal, so a 2-backtick opener is not closed
+# by two of a longer run, which would mask the prose between as code.
+INLINE_CODE = re.compile(r"(?<!`)(`+).*?(?<!`)\1(?!`)")
 ENTITY = re.compile(r"&#?[0-9a-zA-Z]+;")
 # The directive is exactly `-disable-line`, `-disable`, or `-enable`; the lookaheads stop
 # an unknown suffix (`-disable-next-line`, `-disable-line-foo`) from matching any of them.
