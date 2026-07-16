@@ -7,9 +7,8 @@ hardcoding the tier names.
 """
 
 _GITHUB_LEVEL = {"error": "error", "warn": "warning"}
-# Tiers that fail a lint on their own, and those that fail only when strict is set.
-_ALWAYS_FAIL = frozenset({"error"})
-_STRICT_FAIL = frozenset({"warn"})
+# Tiers that fail a lint only when strict is set; every other known tier fails on its own.
+_STRICT_ONLY = frozenset({"warn"})
 
 KNOWN = frozenset(_GITHUB_LEVEL)
 
@@ -24,4 +23,4 @@ def github_level(tier: str) -> str:
 
 def is_failing(tier: str, strict: bool) -> bool:
     """Whether a finding of this tier fails the lint, given the strict flag."""
-    return tier in _ALWAYS_FAIL or (strict and tier in _STRICT_FAIL)
+    return strict or tier not in _STRICT_ONLY
