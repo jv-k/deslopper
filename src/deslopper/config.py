@@ -97,8 +97,11 @@ def resolve(config: dict) -> ResolvedConfig:
     compiled = [compile_tell(t) for t in raw]
     files = config.get("files", {})
     include = files.get("include", DEFAULT_INCLUDE)
-    user_exclude = files.get("exclude", BUILTIN_EXCLUDE if "files" not in config else [])
-    exclude = list(dict.fromkeys(user_exclude + BUILTIN_EXCLUDE))
+    # BUILTIN_EXCLUDE is the default a user can replace; ALWAYS_EXCLUDE is the floor that
+    # always applies, so `exclude: []` still skips node_modules and .git while freeing
+    # vendor and reference.
+    user_exclude = files["exclude"] if "exclude" in files else BUILTIN_EXCLUDE
+    exclude = list(dict.fromkeys(user_exclude + ALWAYS_EXCLUDE))
     rewrite = config.get("rewrite", {})
     return ResolvedConfig(
         tells=compiled,
