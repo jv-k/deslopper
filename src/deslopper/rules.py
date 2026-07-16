@@ -9,6 +9,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Iterable, Optional
 
+from . import tiers
 from .errors import ConfigError
 
 Matcher = Callable[[str], Iterable[int]]
@@ -105,6 +106,11 @@ def compile_tell(raw: dict, extra_kinds: Optional[dict] = None) -> CompiledTell:
     if extra_kinds:
         kinds.update(extra_kinds)
     name = raw.get("name", "<unnamed>")
+    tier = raw.get("tier")
+    if not tiers.is_known(tier):
+        raise ConfigError(
+            f"tell {name!r} has tier {tier!r}; tiers are {', '.join(sorted(tiers.KNOWN))}"
+        )
     kind = raw.get("kind", "regex")
     if kind not in kinds:
         raise ConfigError(f"tell {name!r} uses unknown kind {kind!r}")
@@ -123,7 +129,7 @@ def compile_tell(raw: dict, extra_kinds: Optional[dict] = None) -> CompiledTell:
     phase = raw.get("phase", "post-entity")
     return CompiledTell(
         name=name,
-        tier=raw["tier"],
+        tier=tier,
         phase=phase,
         scope=raw.get("scope", "all"),
         message=raw["message"],
