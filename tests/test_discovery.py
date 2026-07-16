@@ -36,7 +36,7 @@ def test_discover_files_uses_git_when_present(tmp_path):
 
 def test_resolve_inputs_explicit_paths(tmp_path):
     make_files(str(tmp_path), ["a.md", "b.md"])
-    items = resolve_inputs(["a.md"], str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    items = resolve_inputs(["a.md"], str(tmp_path), str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
     assert items == [("a.md", os.path.join(str(tmp_path), "a.md"))]
 
 
@@ -62,11 +62,16 @@ def test_resolve_worklist_roots_at_config_dir_not_start_dir(tmp_path):
     assert all(read.startswith(str(proj)) for _, read in items)
 
 
-def test_resolve_worklist_explicit_paths_join_the_root(tmp_path):
-    # Current behavior: an explicit relative path is resolved against the root, and
-    # include/exclude are not applied to it.
-    cfg = tmp_path / "deslopper.config.json"
+def test_resolve_worklist_relative_path_reads_from_cwd_not_root(tmp_path):
+    # A relative explicit path means "relative to where the tool was run" (start_dir),
+    # not the discovery root. Regression: it used to be read from the root, so running
+    # from a subdirectory linted a same-named file higher up and passed silently.
+    proj = tmp_path / "proj"
+    sub = proj / "sub"
+    sub.mkdir(parents=True)
+    cfg = proj / "deslopper.config.json"
     cfg.write_text("{}", encoding="utf-8")
-    make_files(str(tmp_path), ["a.md"])
-    items = resolve_worklist(["a.md"], str(cfg), str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
-    assert items == [("a.md", os.path.join(str(tmp_path), "a.md"))]
+    make_files(str(proj), ["note.md", "sub/note.md"])   # same name at two levels
+    items = resolve_worklist(["note.md"], str(cfg), str(sub), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    # reads the note.md in the cwd (sub/), displayed relative to the root (proj/)
+    assert items == [("sub/note.md", os.path.join(str(sub), "note.md"))]
