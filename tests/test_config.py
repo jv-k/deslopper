@@ -46,6 +46,25 @@ def test_no_config_uses_recommended_and_default_files(tmp_path):
     assert cfg.exclude == DEFAULT_EXCLUDE
 
 
+def test_empty_exclude_drops_the_default_extras_but_keeps_the_floor(tmp_path):
+    # `exclude: []` narrows to the mandatory floor: node_modules and .git stay excluded,
+    # but the replaceable defaults (vendor, reference) become lintable.
+    write_config(tmp_path, {"files": {"exclude": []}})
+    cfg, _ = load_config(None, str(tmp_path))
+    assert "**/node_modules/**" in cfg.exclude
+    assert "**/.git/**" in cfg.exclude
+    assert "**/vendor/**" not in cfg.exclude
+    assert "**/reference/**" not in cfg.exclude
+
+
+def test_user_exclude_replaces_the_defaults_not_unions_them(tmp_path):
+    write_config(tmp_path, {"files": {"exclude": ["build/**"]}})
+    cfg, _ = load_config(None, str(tmp_path))
+    assert "build/**" in cfg.exclude
+    assert "**/node_modules/**" in cfg.exclude      # floor still applied
+    assert "**/vendor/**" not in cfg.exclude         # default replaced, not unioned
+
+
 def test_disable_by_unique_name(tmp_path):
     write_config(tmp_path, {"tells": {"disable": ["semicolon"]}})
     cfg, _ = load_config(None, str(tmp_path))

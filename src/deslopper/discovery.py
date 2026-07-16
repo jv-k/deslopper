@@ -89,16 +89,20 @@ def discover_files(root: str, include, exclude) -> list:
     return [r for r in rels if _included(r, include) and not _excluded(r, exclude)]
 
 
-def resolve_inputs(paths, root: str, include, exclude) -> list:
+def resolve_inputs(paths, root: str, start_dir: str, include, exclude) -> list:
+    """Map inputs to (display, read) items: the display path is relative to root.
+
+    An explicit relative path is resolved against start_dir, the directory the tool was
+    run from — not root — so running from a subdirectory reads the file the user named.
+    """
     if paths:
-        rels = []
+        items = []
         for p in paths:
-            if os.path.isabs(p):
-                rels.append(os.path.relpath(p, root).replace(os.sep, "/"))
-            else:
-                rels.append(p.replace(os.sep, "/"))
-    else:
-        rels = discover_files(root, include, exclude)
+            full = p if os.path.isabs(p) else os.path.join(start_dir, p)
+            display = os.path.relpath(full, root).replace(os.sep, "/")
+            items.append((display, full))
+        return items
+    rels = discover_files(root, include, exclude)
     return [(rel, os.path.join(root, rel)) for rel in rels]
 
 
@@ -110,4 +114,4 @@ def resolve_worklist(paths, config_path, start_dir: str, include, exclude) -> li
     apply; without them, the tracked or walked tree is filtered by both.
     """
     root = discovery_root(config_path, start_dir)
-    return resolve_inputs(paths, root, include, exclude)
+    return resolve_inputs(paths, root, start_dir, include, exclude)
