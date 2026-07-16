@@ -17,12 +17,18 @@ def _encode(message: str) -> str:
     return message.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
 
 
+def _encode_prop(value: str) -> str:
+    # A property value escapes as the data does, plus the ':' and ',' that delimit the
+    # command's properties. A path with either would otherwise truncate the annotation.
+    return _encode(value).replace(":", "%3A").replace(",", "%2C")
+
+
 def format_github(result) -> str:
     lines = []
     for f in result.findings:
         level = tiers.github_level(f.tier)
         lines.append(
-            f"::{level} file={f.path},line={f.line},col={f.col}::"
+            f"::{level} file={_encode_prop(f.path)},line={f.line},col={f.col}::"
             f"{f.name} - {_encode(f.message)}"
         )
     return "\n".join(lines) + ("\n" if lines else "")
