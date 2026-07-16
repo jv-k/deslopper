@@ -80,11 +80,13 @@ def _resolve_raw_tells(config: dict) -> list:
 
     tells = config.get("tells", {})
     for add in tells.get("add", []):
-        idx = _match_indices(raw, f"{add['name']}@{add.get('phase', 'post-entity')}")
+        # Copy, so a later `override` .update() writes to our list, not the caller's dict.
+        tell = dict(add)
+        idx = _match_indices(raw, f"{tell['name']}@{tell.get('phase', 'post-entity')}")
         if idx:
-            raw[idx[0]] = add
+            raw[idx[0]] = tell
         else:
-            raw.append(add)
+            raw.append(tell)
     for token, patch in tells.get("override", {}).items():
         raw[_resolve_target(raw, token, "override")].update(patch)
     for token in tells.get("disable", []):

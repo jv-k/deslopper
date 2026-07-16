@@ -23,8 +23,19 @@ import json
 
 import pytest
 
-from deslopper.config import load_config, DEFAULT_INCLUDE, DEFAULT_EXCLUDE
+from deslopper.config import load_config, resolve, DEFAULT_INCLUDE, DEFAULT_EXCLUDE
 from deslopper.errors import ConfigError
+
+
+def test_resolve_does_not_mutate_the_caller_config():
+    # `add` used to be inserted by reference and `override` wrote through it, mutating the
+    # caller's dict so a second resolve() saw a changed input.
+    config = {"tells": {
+        "add": [{"name": "mine", "tier": "warn", "pattern": "x", "message": "m"}],
+        "override": {"mine": {"tier": "error"}},
+    }}
+    resolve(config)
+    assert config["tells"]["add"][0]["tier"] == "warn"
 
 
 def write_config(tmp_path, obj):
