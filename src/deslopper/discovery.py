@@ -100,3 +100,14 @@ def resolve_inputs(paths, root: str, include, exclude) -> list:
     else:
         rels = discover_files(root, include, exclude)
     return [(rel, os.path.join(root, rel)) for rel in rels]
+
+
+def resolve_worklist(paths, config_path, start_dir: str, include, exclude) -> list:
+    """Turn CLI inputs into the work list of (display, read) items.
+
+    Owns the discovery root — a config directory, else the git top level, else start_dir —
+    so callers never compute or pass it. With explicit paths, include and exclude do not
+    apply; without them, the tracked or walked tree is filtered by both.
+    """
+    root = discovery_root(config_path, start_dir)
+    return resolve_inputs(paths, root, include, exclude)

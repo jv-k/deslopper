@@ -9,7 +9,7 @@ from . import __version__
 from .config import (
     load_config, DEFAULT_INCLUDE, CONFIG_NAME, RECOMMENDED,
 )
-from .discovery import discovery_root, resolve_inputs
+from .discovery import resolve_worklist
 from .engine import lint_files
 from .errors import ConfigError, UsageError
 from . import report
@@ -44,11 +44,9 @@ def _build_parser():
     return parser
 
 
-def _lint_command(args, strict_allowed=True):
+def _lint_command(args):
     cfg, config_path = load_config(getattr(args, "config", None), os.getcwd())
-    root = discovery_root(config_path or None, os.getcwd())
-    include = cfg.include
-    items = resolve_inputs(args.paths, root, include, cfg.exclude)
+    items = resolve_worklist(args.paths, config_path or None, os.getcwd(), cfg.include, cfg.exclude)
     result = lint_files(items, cfg.tells)
     return cfg, result
 
