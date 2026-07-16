@@ -34,6 +34,17 @@ def test_discover_files_uses_git_when_present(tmp_path):
     assert found == ["a.md"]   # untracked.md is not tracked
 
 
+def test_discover_skips_a_tracked_file_deleted_from_the_worktree(tmp_path):
+    # git ls-files lists index entries, so a tracked-but-deleted file would be handed to
+    # the reader and reported unreadable, failing an otherwise-clean tree.
+    make_files(str(tmp_path), ["kept.md", "gone.md"])
+    subprocess.run(["git", "init", "-q"], cwd=str(tmp_path), check=True)
+    subprocess.run(["git", "add", "kept.md", "gone.md"], cwd=str(tmp_path), check=True)
+    os.remove(os.path.join(str(tmp_path), "gone.md"))
+    found = discover_files(str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    assert found == ["kept.md"]
+
+
 def test_resolve_inputs_explicit_paths(tmp_path):
     make_files(str(tmp_path), ["a.md", "b.md"])
     items = resolve_inputs(["a.md"], str(tmp_path), str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
