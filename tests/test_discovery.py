@@ -40,10 +40,46 @@ def test_resolve_inputs_explicit_paths(tmp_path):
     assert items == [("a.md", os.path.join(str(tmp_path), "a.md"))]
 
 
+def test_resolve_inputs_path_outside_root_shows_absolute_not_dotdot(tmp_path):
+    # A file outside the discovery root would render as ../../x.md, which is not a usable
+    # finding path (github annotations reject it). Show the absolute path instead.
+    root = tmp_path / "proj"
+    outside = tmp_path / "outside"
+    root.mkdir()
+    outside.mkdir()
+    (outside / "x.md").write_text("x\n", encoding="utf-8")
+    target = str(outside / "x.md")
+    (display, read) = resolve_inputs([target], str(root), str(root), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)[0]
+    assert not display.startswith("../")
+    assert display == target.replace(os.sep, "/")
+    assert read == target
+
+
 def test_discover_files_includes_mdx(tmp_path):
     make_files(str(tmp_path), ["a.md", "b.mdx", "docs/c.mdx", "d.txt"])
     found = discover_files(str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
     assert sorted(found) == ["a.md", "b.mdx", "docs/c.mdx"]
+
+
+# Glob matching follows the ** / * conventions: * stops at a slash, ** spans zero or more
+# path segments. fnmatch got both wrong.
+
+def test_include_star_does_not_cross_a_slash(tmp_path):
+    make_files(str(tmp_path), ["docs/a.md", "docs/deep/b.md"])
+    found = discover_files(str(tmp_path), ["docs/*.md"], [])
+    assert found == ["docs/a.md"]           # deep/b.md is one level too deep
+
+
+def test_include_globstar_spans_zero_or_more_segments(tmp_path):
+    make_files(str(tmp_path), ["docs/a.md", "docs/deep/b.md"])
+    found = discover_files(str(tmp_path), ["docs/**/*.md"], [])
+    assert sorted(found) == ["docs/a.md", "docs/deep/b.md"]   # top-level a.md included
+
+
+def test_exclude_star_does_not_cross_a_slash(tmp_path):
+    make_files(str(tmp_path), ["docs/index.md", "docs/guide/intro.md"])
+    found = discover_files(str(tmp_path), DEFAULT_INCLUDE, ["docs/*.md"])
+    assert found == ["docs/guide/intro.md"]  # only the top-level file is excluded
 
 
 # resolve_worklist owns the discovery root, so callers never handle it. These pin the

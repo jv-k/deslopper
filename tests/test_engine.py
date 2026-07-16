@@ -86,6 +86,24 @@ def test_scan_prose_disable_line_suffix_is_not_a_directive():
     assert [p.lineno for p in scan(text)] == [1, 2]
 
 
+def test_scan_prose_backtick_run_pairs_only_with_equal_length():
+    # A 2-backtick opener has no equal-length closer here (``` is a 3-run), so nothing is
+    # masked as code and the semicolon stays visible as prose.
+    (p,) = scan("`` ; ``` x\n")
+    assert ";" in p.post_entity
+
+
+def test_scan_prose_equal_length_backticks_still_mask():
+    # Guard against over-relaxing: a real ``...`` span is still masked.
+    (p,) = scan("a ``x; y`` b ;\n")
+    assert p.post_entity.count(";") == 1     # the span's ; is masked, the trailing ; is not
+
+
+def test_shorter_opener_does_not_mask_following_prose(tmp_path):
+    r = lint_text(tmp_path, "`` ; ``` x\n", [compile_tell(SEMI)])
+    assert [f.line for f in r.findings] == [1]   # the ; is seen, not swallowed as code
+
+
 SEMI = {"name": "semicolon", "tier": "warn", "kind": "regex", "pattern": ";", "message": "semi"}
 EM_ENTITY = {"name": "em-dash", "tier": "error", "phase": "pre-entity", "kind": "regex",
              "pattern": r"&mdash;|&#0*8212;", "message": "entity"}
