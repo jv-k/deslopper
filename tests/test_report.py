@@ -27,6 +27,13 @@ def test_format_github_maps_tier_and_encodes():
     assert lines[1] == "::warning file=a.md,line=4,col=1::semicolon - semi: a%25b%0Anext"
 
 
+def test_format_github_escapes_delimiters_in_the_path():
+    # , and : delimit workflow-command properties, so a path carrying them must escape
+    # them or the annotation points nowhere.
+    r = LintResult(findings=[Finding("a,b:c.md", 1, 2, "error", "x", "m")])
+    assert format_github(r).strip() == "::error file=a%2Cb%3Ac.md,line=1,col=2::x - m"
+
+
 def test_format_json_envelope():
     out = json.loads(format_json(sample()))
     assert out["summary"] == {"errors": 1, "warnings": 1, "unreadable": 1}

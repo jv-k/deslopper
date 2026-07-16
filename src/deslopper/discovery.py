@@ -119,7 +119,10 @@ def discover_files(root: str, include, exclude) -> list:
     if candidates is None:
         candidates = _walk_files(root)
     rels = sorted(c.replace(os.sep, "/") for c in candidates)
-    return [r for r in rels if _included(r, include) and not _excluded(r, exclude)]
+    kept = [r for r in rels if _included(r, include) and not _excluded(r, exclude)]
+    # git ls-files lists index entries, so a tracked file deleted from the worktree would
+    # otherwise reach the reader and be reported unreadable. Keep only what is on disk.
+    return [r for r in kept if os.path.isfile(os.path.join(root, r))]
 
 
 def resolve_inputs(paths, root: str, start_dir: str, include, exclude) -> list:
