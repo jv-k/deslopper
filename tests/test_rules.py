@@ -103,6 +103,18 @@ def test_invalid_regex_is_config_error():
                       "pattern": "(", "message": "m"})
 
 
+def test_unknown_tier_is_config_error():
+    # Tier is closed to error/warn. An unknown tier used to pass silently and then crash
+    # the github formatter; it is now rejected at compile time (exit 2).
+    with pytest.raises(ConfigError):
+        compile_tell({"name": "x", "tier": "info", "pattern": ".", "message": "m"})
+
+
+def test_missing_tier_is_config_error():
+    with pytest.raises(ConfigError):
+        compile_tell({"name": "x", "pattern": ".", "message": "m"})
+
+
 @pytest.mark.parametrize("kind", ["bold-bullet", "id-label"])
 def test_kind_needing_groups_rejects_a_pattern_without_them(kind):
     # These kinds read their capture groups by number. A pattern that lacks them used to

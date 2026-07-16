@@ -1,4 +1,4 @@
-from deslopper.engine import lint_files
+from deslopper.engine import lint_files, scan_prose
 from deslopper.rules import compile_tell
 
 
@@ -6,6 +6,46 @@ def lint_text(tmp_path, text, tells):
     p = tmp_path / "doc.md"
     p.write_text(text, encoding="utf-8")
     return lint_files([("doc.md", str(p))], tells)
+
+
+def scan(text, is_mdx=False):
+    return list(scan_prose(text.splitlines(keepends=True), is_mdx))
+
+
+# scan_prose is the seam under lint_file: raw lines in, the prose lines that tells
+# actually see out. Testing it directly pins the block-structure and masking rules
+# without routing every case through a crafted tell.
+
+def test_scan_prose_yields_only_prose_lines():
+    text = ("---\ntitle: a\n---\n"       # front matter, lines 1-3
+            "prose one\n"                 # line 4
+            "```\nfenced ;\n```\n"        # fence, lines 5-7
+            "prose two\n")                # line 8
+    assert [(p.lineno, p.pre_entity) for p in scan(text)] == [(4, "prose one"), (8, "prose two")]
+
+
+def test_scan_prose_masks_inline_code_then_entities():
+    (p,) = scan("use `@@@` and &amp; here\n")
+    assert p.lineno == 1
+    assert "@" not in p.pre_entity            # inline code masked in both phases
+    assert "&amp;" in p.pre_entity            # entity still visible pre-entity
+    assert "&" not in p.post_entity           # entity masked post-entity
+    assert len(p.pre_entity) == len("use `@@@` and &amp; here")   # columns preserved
+
+
+def test_scan_prose_honours_disable_region():
+    text = ("keep one\n"
+            "<!-- deslop-lint-disable -->\n"
+            "dropped\n"
+            "<!-- deslop-lint-enable -->\n"
+            "keep two\n")
+    assert [p.lineno for p in scan(text)] == [1, 5]
+
+
+def test_scan_prose_skips_mdx_esm_only_when_mdx():
+    text = "import x from 'y';\n; body\n"
+    assert [p.lineno for p in scan(text, is_mdx=True)] == [2]
+    assert [p.lineno for p in scan(text, is_mdx=False)] == [1, 2]
 
 
 SEMI = {"name": "semicolon", "tier": "warn", "kind": "regex", "pattern": ";", "message": "semi"}
