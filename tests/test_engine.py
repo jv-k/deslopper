@@ -48,6 +48,37 @@ def test_scan_prose_skips_mdx_esm_only_when_mdx():
     assert [p.lineno for p in scan(text, is_mdx=False)] == [1, 2]
 
 
+# Fence handling follows CommonMark's block rules. Each of these used to open or close a
+# fence wrongly and silently swallow the rest of the file.
+
+def test_scan_prose_indented_fence_is_not_a_fence():
+    # A run indented 4+ spaces is an indented-code line, not a fence opener; it must not
+    # start a block that eats everything after it.
+    text = "prose a\n    ```\nprose b\n"
+    assert [p.lineno for p in scan(text)] == [1, 2, 3]
+
+
+def test_scan_prose_closer_with_info_string_does_not_close():
+    # A closer carries no info string, so ```lang keeps the fence open until a bare ```.
+    text = "```\ncode ;\n```lang\nstill code ;\n```\nprose\n"
+    assert [p.lineno for p in scan(text)] == [6]
+
+
+def test_scan_prose_backtick_in_info_string_is_not_a_fence_opener():
+    # A backtick fence's info string may not contain a backtick, so this line is prose.
+    text = "```js `x`\nprose two\n"
+    assert [p.lineno for p in scan(text)] == [1, 2]
+
+
+def test_scan_prose_disable_suffix_does_not_disable_the_file():
+    # An unrecognised directive (eslint's disable-next-line) must not switch on the
+    # block-level disable and swallow the rest of the file.
+    text = ("keep one\n"
+            "<!-- deslop-lint-disable-next-line -->\n"
+            "keep two\n")
+    assert [p.lineno for p in scan(text)] == [1, 2, 3]
+
+
 SEMI = {"name": "semicolon", "tier": "warn", "kind": "regex", "pattern": ";", "message": "semi"}
 EM_ENTITY = {"name": "em-dash", "tier": "error", "phase": "pre-entity", "kind": "regex",
              "pattern": r"&mdash;|&#0*8212;", "message": "entity"}

@@ -12,12 +12,16 @@ from .findings import Finding, LintResult
 
 FRONT_OPEN = re.compile(r"^---\s*$")
 FRONT_CLOSE = re.compile(r"^(---|\.\.\.)\s*$")
-FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+# A fence is indented at most 3 spaces (4+ is indented code, not a fence); the rest of
+# the line is the info string. `scan_prose` applies the CommonMark opener/closer rules.
+FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 INLINE_CODE = re.compile(r"(`+).*?\1")
 ENTITY = re.compile(r"&#?[0-9a-zA-Z]+;")
+# The directive is exactly `-disable-line`, `-disable`, or `-enable`; the lookaheads stop
+# an unknown suffix like `-disable-next-line` from matching the block-level `-disable`.
 DISABLE_LINE = re.compile(r"<!--\s*deslop-lint-disable-line\b[^>]*-->")
-DISABLE = re.compile(r"<!--\s*deslop-lint-disable\b[^>]*-->")
-ENABLE = re.compile(r"<!--\s*deslop-lint-enable\b[^>]*-->")
+DISABLE = re.compile(r"<!--\s*deslop-lint-disable(?![-\w])[^>]*-->")
+ENABLE = re.compile(r"<!--\s*deslop-lint-enable(?![-\w])[^>]*-->")
 # In .mdx, a top-level line that starts with import/export is an ESM statement,
 # not prose. Skip those lines so their punctuation is not scanned. JSX is left
 # alone: it wraps rendered prose that should still be linted.
@@ -68,13 +72,18 @@ def scan_prose(raw_lines, is_mdx=False):
 
         fence = FENCE.match(line)
         if fence:
-            run = fence.group(1)
+            run, rest = fence.group(1), fence.group(2)
             ch, length = run[0], len(run)
-            if not in_fence:
+            if in_fence:
+                # Only a bare run of the same char, at least as long, closes the block.
+                if ch == fence_marker and length >= fence_len and not rest.strip():
+                    in_fence, fence_marker, fence_len = False, "", 0
+                continue
+            # Opening: a backtick fence may not carry a backtick in its info string.
+            if ch != "`" or "`" not in rest:
                 in_fence, fence_marker, fence_len = True, ch, length
-            elif ch == fence_marker and length >= fence_len:
-                in_fence, fence_marker, fence_len = False, "", 0
-            continue
+                continue
+            # Not a valid opener: fall through and treat the line as prose.
         if in_fence:
             continue
 
