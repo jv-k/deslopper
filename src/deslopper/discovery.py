@@ -90,7 +90,7 @@ def discover_files(root: str, include, exclude) -> list:
 
 
 def resolve_inputs(paths, root: str, start_dir: str, include, exclude) -> list:
-    """Map inputs to (display, read) items: display relative to root, read absolute.
+    """Map inputs to (display, read) items: the display path is relative to root.
 
     An explicit relative path is resolved against start_dir, the directory the tool was
     run from — not root — so running from a subdirectory reads the file the user named.

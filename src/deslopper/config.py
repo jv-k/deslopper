@@ -10,9 +10,9 @@ from .presets import load_builtin
 from .rules import compile_tell
 
 DEFAULT_INCLUDE = ["**/*.md", "**/*.markdown", "**/*.mdx"]
-BUILTIN_EXCLUDE = ["**/node_modules/**", "**/.git/**", "**/vendor/**", "**/reference/**"]
-DEFAULT_EXCLUDE = list(BUILTIN_EXCLUDE)
 ALWAYS_EXCLUDE = ["**/node_modules/**", "**/.git/**"]
+BUILTIN_EXCLUDE = ALWAYS_EXCLUDE + ["**/vendor/**", "**/reference/**"]
+DEFAULT_EXCLUDE = list(BUILTIN_EXCLUDE)
 CONFIG_NAME = "deslopper.config.json"
 RECOMMENDED = "deslopper:recommended"
 
