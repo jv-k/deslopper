@@ -4,6 +4,6 @@
   "private": true,
   "description": "Dev and release scripts for the deslopper Python package.",
   "scripts": {
-    "bump-release": "bash scripts/preflight.sh && ver-bump -c -p origin && git push --follow-tags && gh release create \"v$(npm pkg get version | tr -d '\\\"')\" --generate-notes"
+    "bump-release": "bash scripts/preflight.sh && ver-bump -c && bash scripts/postflight.sh && git push --follow-tags && gh release create \"v$(npm pkg get version | tr -d '\\\"')\" --generate-notes"
   }
 }
