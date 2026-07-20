@@ -8,11 +8,11 @@ root.
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repo root, or
-- **`CONTEXT-MAP.md`** at the repo root if it exists. It points at one `CONTEXT.md` per
+- `CONTEXT.md` at the repo root, or
+- `CONTEXT-MAP.md` at the repo root if it exists. It points at one `CONTEXT.md` per
   context. Read each one relevant to the topic.
-- **`docs/adr/`** for the ADRs that touch the area you are about to work in. In
-  multi-context repos, also check `src/<context>/docs/adr/` for context-scoped decisions.
+- `docs/adr/` for the ADRs that touch the area you are about to work in. In multi-context
+  repos, also check `src/<context>/docs/adr/` for context-scoped decisions.
 
 If any of these files do not exist, **proceed silently**. Do not flag their absence, and do
 not suggest creating them upfront. The `/domain-modeling` skill (reached via
@@ -23,7 +23,7 @@ decisions actually get resolved.
 
 Single-context repo, which is most repos and this one:
 
-```
+```text
 /
 ├── CONTEXT.md
 ├── docs/adr/
@@ -33,7 +33,7 @@ Single-context repo, which is most repos and this one:
 
 Multi-context repo, marked by a `CONTEXT-MAP.md` at the root:
 
-```
+```text
 /
 ├── CONTEXT-MAP.md
 ├── docs/adr/                          system-wide decisions
