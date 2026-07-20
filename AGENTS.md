@@ -36,3 +36,20 @@ error-tier finding. For an intentional example that must contain a tell, wrap it
 
 Commit subjects and PR titles follow Conventional Commits (`type(scope): summary`), checked
 by CI. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub issues in `jv-k/deslopper`, driven by the `gh` CLI.
+See [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md).
+
+### Triage labels
+
+The five canonical triage roles, each label string named for its role.
+See [docs/agents/triage-labels.md](docs/agents/triage-labels.md).
+
+### Domain docs
+
+Single-context: `CONTEXT.md` and `docs/adr/` at the repo root.
+See [docs/agents/domain.md](docs/agents/domain.md).
