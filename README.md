@@ -89,6 +89,19 @@ backlog does not block every commit:
 
 For a local gate, add a pre-commit hook that runs the same command on staged Markdown.
 
+## Use it as an agent skill
+
+The repo ships a skill in [skills/deslopper/](skills/deslopper/) that teaches a coding
+agent to write within the rules and to lint the Markdown it touches before finishing. The
+skill runs `deslopper rules` to pick up the live tell list, so it follows your config and
+presets. Install it with the skills CLI:
+
+    npx skills add jv-k/deslopper
+
+Or copy `skills/deslopper/` into `~/.claude/skills/` for every project, or into a repo's
+`.claude/skills/` for that repo alone. The skill is the model-side complement to the CI
+gate, and the gate stays the deterministic floor.
+
 ## Configure
 
 Drop a `deslopper.config.json` to retune the bundled `recommended` rule set:
