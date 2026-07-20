@@ -1,46 +1,8 @@
-## 0.2.0 (2026-07-17)
-- chore: updated package.json, updated pyproject.toml, updated src/deslopper/__init__.py, updated CHANGELOG.md, bumped 0.1.1 -> 0.2.0
-- Merge pull request #14 from jv-k/fix/edge-hardening
-- refactor(config): merge tells through one copying helper
-- fix(report): escape delimiters in the github annotation path
-- fix(discovery): skip a tracked file deleted from the worktree
-- fix(config): copy added tells so resolve does not mutate the caller
-- Merge pull request #13 from jv-k/fix/glob-and-scanner-edges
-- fix(engine): pair a backtick run only with an equal-length run
-- fix(discovery): match globs by segment and show out-of-root paths absolutely
-- Merge pull request #12 from jv-k/fix/review-findings
-- fix(engine): guard disable-line against unknown suffixes too
-- refactor: dedup the exclude floor and correct a docstring
-- fix(engine): bound fences to CommonMark and stop a disable suffix disabling the file
-- fix(discovery): resolve explicit relative paths against the cwd
-- fix(config): let files.exclude narrow the default excludes
-- Merge pull request #11 from jv-k/refactor/deepen-modules
-- Merge pull request #10 from jv-k/docs/domain-model
-- refactor(tiers): collapse the two failure sets into one
-- fix(rules): reject an unknown tier at compile time
-- refactor(tiers): read tier behaviour from one table
-- refactor(discovery): move the work-list behind resolve_worklist
-- refactor(engine): split the prose scanner from the tell runner
-- docs(context): add the domain glossary and the words-are-regex ADR
-- Merge pull request #9 from jv-k/chore/adopt-ver-bump
-- chore(release): address review — restore the tree and branch gates
-- chore(release): cut releases with ver-bump
-- Merge pull request #8 from jv-k/chore/release-plumbing
-- docs(releasing): address review — name the bump scripts
-- docs(changelog): repair the 0.1.2 section
-- fix(scripts): gate the release on package.json too
-- Merge pull request #7 from jv-k/feat/id-label-tell
-- fix(rules): reject a group-indexing pattern that has no groups
-- feat(rules): add id-label tell
-- Merge pull request #6 from jv-k/fix/delve-proper-noun-false-positive
-- test(rules): address review — load the preset through the app's loader
-- fix(preset): stop filler-verb flagging Delve the debugger
-- chore: updated package.json, updated CHANGELOG.md, bumped 0.1.1 -> 0.1.2
-- feat(rules): add middle-dot tell (#5)
-
 # Changelog
 
-## 0.1.2 (unreleased)
+## 0.2.0 (2026-07-17)
+
+Carries everything that was staged for 0.1.2, which was bumped but never tagged.
 
 - `middle-dot`: flag the interpunct and bullet separators, both as characters and as the
   HTML entity spellings. Error tier.
@@ -52,8 +14,34 @@
   the same way the engineering-playbook cuts its own. `scripts/bump.py`, `bump-release.sh`
   and `release.sh` are gone. `pnpm bump-release` runs the gates and hands off. The version
   files are checked by a test now, so drift fails in CI rather than after the tag is public.
+- The scanner splits in two. `scan_prose` owns the block structure, which is front matter,
+  fences, MDX ESM lines, disable regions, and masking, and the tell runner reads the prose
+  lines it yields. The block rules are testable on their own for the first time.
+- File discovery sits behind one `resolve_worklist` call that owns the discovery root, so
+  the command line no longer threads it.
+- `tier` is a closed set of `error` and `warn`, read from one table. An unknown tier is a
+  config error at compile time rather than a finding that can never fail a lint.
+- Fences follow the CommonMark block rules: at most three spaces of indent, a bare closing
+  run of the same character, and no backtick inside a backtick fence's info string. Each of
+  those used to open or close a block wrongly and skip the rest of the file.
+- A `deslop-lint-disable` directive with an unknown suffix, such as the `-next-line` spelling
+  borrowed from eslint, no longer switches off the rest of the file.
+- Inline code pairs a backtick run only with a run of the same length, so prose between two
+  mismatched runs is linted rather than masked as code.
+- Globs match by path segment. `*` stops at a slash and `**` spans zero or more segments, so
+  `docs/*.md` no longer reaches nested files and `docs/**/*.md` no longer misses top-level
+  ones.
+- `files.exclude` narrows the defaults instead of only widening them. `node_modules` and
+  `.git` stay excluded, and a config that replaces the list frees `vendor` and `reference`.
+- A relative path on the command line resolves against the working directory rather than the
+  discovery root, so linting from a subdirectory reads the file that was named.
+- A file outside the discovery root reports an absolute path, and the github annotation
+  escapes the delimiters a path can carry.
+- A tracked file deleted from the worktree is skipped rather than reported unreadable.
+- `resolve()` copies the tells it is given, so it no longer mutates the caller's config.
 
 ## 0.1.1
+
 - Test coverage: a realistic slop-corpus regression test and subprocess end-to-end tests
   that drive `python -m deslopper` directly.
 - `pnpm bump-release`: one task that bumps the version, retitles this changelog, commits,
