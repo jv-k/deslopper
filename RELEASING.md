@@ -11,8 +11,9 @@ that only knows `package.json`, leaves the tag pointing at the wrong version, an
 `release.yml` only catches that once the tag is public. That is what happened to v0.1.2.
 `tests/test_version.py` fails on any drift, in CI and in the release gates.
 
-ver-bump needs the `--bump` targets feature for the two non-JSON files. Nothing older than
-that can cut a release here.
+Whether a given ver-bump actually moved all three is a fact about the result, not about the
+tool's help text, so `scripts/postflight.sh` asserts it after the bump and before the push.
+A ver-bump that only knows `package.json` fails there, while the tag is still local.
 
 ## One-time setup
 
@@ -37,19 +38,28 @@ Then, on `main`, with the venv installed (`pip install -e . pytest build`):
 
     pnpm bump-release
 
-It runs the pre-tag gates (the tests, the lint, and a build), then hands off to ver-bump,
-which prompts for the version, bumps the three files, commits, tags `vX.Y.Z`, and pushes to
-`origin`. Enter the same version the changelog section names. The tag triggers `release.yml`,
-which repeats the gates and publishes to PyPI. `gh release create --generate-notes` writes
-the GitHub release last.
+The task runs in four steps, and nothing leaves the machine until the third one passes:
+
+1. `scripts/preflight.sh` checks a clean tree on `main`, then runs the tests, the lint, and
+   a build.
+2. ver-bump prompts for the version, bumps the three files, commits, and tags `vX.Y.Z`.
+   Enter the same version the changelog section names. It runs with `-c` and does not push.
+3. `scripts/postflight.sh` checks what the bump produced: a clean tree, `HEAD` tagged to
+   match `package.json`, the three version files in agreement, a lint that still passes,
+   and the tests.
+4. The tag and commit are pushed, then `gh release create --generate-notes` writes the
+   GitHub release. The tag triggers `release.yml`, which repeats the gates and publishes to
+   PyPI.
 
 Any runner works in place of `pnpm`: `npm run bump-release`, or the command itself.
 
+If step 3 fails, nothing is public. Undo the bump locally with `git reset --hard HEAD~1`
+and `git tag -d vX.Y.Z`, fix the cause, and start again.
+
 If `release.yml` fails before the upload to PyPI, delete the tag with `git tag -d vX.Y.Z`
 and `git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and re-cut the same
-version with `ver-bump -c -p origin -v X.Y.Z`. If it fails during or after the upload, PyPI
-will not accept the same version a second time: bump a new patch version and release that
-instead.
+version with `ver-bump -c -v X.Y.Z`. If it fails during or after the upload, PyPI will not
+accept the same version a second time: bump a new patch version and release that instead.
 
 ## After publishing
 
