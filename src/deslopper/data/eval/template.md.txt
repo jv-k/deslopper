@@ -1,0 +1,24 @@
+---
+title: Weekly report
+owner: platform-team
+tags: [report, weekly]
+---
+
+# Weekly report template
+
+Fill in each section below&#183; keep it short &mdash; see &sect;3 of the
+[handbook](https://example.com/handbook).
+
+## Highlights
+
+Additionally, list the wins; keep them concrete and impactful.
+
+- **Shipped**: what landed this week
+- **Learned**: what the team utilizes going forward
+
+## Risks
+
+When it comes to risks, be honest. This section is not just a list but a commitment to
+follow up.
+
+Moreover, the outcomes really speak for themselves 🎉.

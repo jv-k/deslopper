@@ -70,6 +70,13 @@ def test_rules_lists_tells(tmp_path, capsys):
     assert "bold-bullet-lead" in out
 
 
+def test_eval_runs_the_harness_against_the_command(tmp_path, capsys):
+    code, out, err = run(["eval", "true"], str(tmp_path), capsys)
+    assert code == 1
+    assert "em-dash" in out
+    assert "FAIL (efficacy)" in err
+
+
 def test_init_writes_then_refuses(tmp_path, capsys):
     code, _, _ = run(["init"], str(tmp_path), capsys)
     assert code == 0
