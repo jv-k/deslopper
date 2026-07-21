@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Pre-bump gates for `pnpm bump-release`. Everything here has to pass before ver-bump runs.
-# What ver-bump itself does is checked afterwards by postflight.sh, which runs before
+# Pre-bump gates for `pnpm bump-release`. Everything here has to pass before VerBump runs.
+# What VerBump itself does is checked afterwards by postflight.sh, which runs before
 # anything is pushed, so a bad bump is still local and cheap to undo.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -16,8 +16,8 @@ if [ "$branch" != "main" ]; then
   exit 1
 fi
 
-# There used to be a check here that grepped `ver-bump --help` for a `--bump` flag, meaning
-# to refuse a ver-bump that would bump package.json and leave pyproject.toml behind. It was
+# There used to be a check here that grepped `VerBump --help` for a `--bump` flag, meaning
+# to refuse a VerBump that would bump package.json and leave pyproject.toml behind. It was
 # checking an invalid invocation (the flag is -h), so it matched the error text instead of
 # the help and refused every release, including correct ones. Whether the bump touched all
 # three version files is a fact about the result, not about the help text, so postflight.sh
