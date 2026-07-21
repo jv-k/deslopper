@@ -41,3 +41,6 @@ Enter
 Sleep 2s
 
 Screenshot img/screenshot.png
+# The trailing Sleep keeps the frame on screen while the Screenshot flushes —
+# without it vhs sometimes exits before writing the PNG.
+Sleep 1s
