@@ -35,6 +35,37 @@ def _blank(match: "re.Match") -> str:
     return " " * len(match.group(0))
 
 
+class FenceTracker:
+    """The fenced-code state machine, shared by the scanner and the digest.
+
+    Feed lines in order; each is classified as 'open', 'inside', 'close', or
+    'prose'. An invalid opener (a backtick fence with a backtick in its info
+    string) classifies as prose, per CommonMark.
+    """
+
+    def __init__(self):
+        self.active = False
+        self._marker = ""
+        self._length = 0
+
+    def feed(self, line: str) -> str:
+        fence = FENCE.match(line)
+        if self.active:
+            if fence:
+                run, rest = fence.group(1), fence.group(2)
+                # Only a bare run of the same char, at least as long, closes the block.
+                if run[0] == self._marker and len(run) >= self._length and not rest.strip():
+                    self.active = False
+                    return "close"
+            return "inside"
+        if fence:
+            run, rest = fence.group(1), fence.group(2)
+            if run[0] != "`" or "`" not in rest:
+                self.active, self._marker, self._length = True, run[0], len(run)
+                return "open"
+        return "prose"
+
+
 @dataclass(frozen=True)
 class ProseLine:
     """One prose line a tell sees: its 1-based number and the masked text for each phase.
@@ -53,9 +84,7 @@ def scan_prose(raw_lines, is_mdx=False):
     Skips front matter, fenced code, MDX ESM statements, and disable regions, and masks
     inline code and HTML entities. Line endings on the input are tolerated, not required.
     """
-    in_fence = False
-    fence_marker = ""
-    fence_len = 0
+    fences = FenceTracker()
     in_front = False
     disabled = False
     first = True
@@ -73,21 +102,7 @@ def scan_prose(raw_lines, is_mdx=False):
                 in_front = False
             continue
 
-        fence = FENCE.match(line)
-        if fence:
-            run, rest = fence.group(1), fence.group(2)
-            ch, length = run[0], len(run)
-            if in_fence:
-                # Only a bare run of the same char, at least as long, closes the block.
-                if ch == fence_marker and length >= fence_len and not rest.strip():
-                    in_fence, fence_marker, fence_len = False, "", 0
-                continue
-            # Opening: a backtick fence may not carry a backtick in its info string.
-            if ch != "`" or "`" not in rest:
-                in_fence, fence_marker, fence_len = True, ch, length
-                continue
-            # Not a valid opener: fall through and treat the line as prose.
-        if in_fence:
+        if fences.feed(line) != "prose":
             continue
 
         if is_mdx and MDX_ESM.match(line):

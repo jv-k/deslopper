@@ -8,8 +8,9 @@ exactly.
 
 import re
 from dataclasses import dataclass
+from typing import List, Optional
 
-from .engine import FENCE, FRONT_CLOSE, FRONT_OPEN
+from .engine import FRONT_CLOSE, FRONT_OPEN, FenceTracker
 
 HEADING = re.compile(r"^ {0,3}#{1,6}\s")
 TABLE_ROW = re.compile(r"^\s*\|.*\|\s*$")
@@ -19,11 +20,11 @@ LINK_DEST = re.compile(r"\]\(\s*([^)\s]+)[^)]*\)")
 
 @dataclass(frozen=True)
 class Digest:
-    front_matter: object  # str | None
-    headings: list
-    fences: list
-    table_rows: list
-    links: list
+    front_matter: Optional[str]
+    headings: List[str]
+    fences: List[str]
+    table_rows: List[List[str]]
+    links: List[str]
 
 
 # Field name to the label a preservation report prints, in report order.
@@ -58,24 +59,16 @@ def digest_text(text: str) -> Digest:
         front = "\n".join(lines[: j + 1])
         i = j + 1
 
-    in_fence = False
-    fence_marker, fence_len, block = "", 0, []
+    tracker = FenceTracker()
+    block = []
     for line in lines[i:]:
-        fence = FENCE.match(line)
-        if in_fence:
+        kind = tracker.feed(line)
+        if kind != "prose":
             block.append(line)
-            if fence:
-                run, rest = fence.group(1), fence.group(2)
-                if run[0] == fence_marker and len(run) >= fence_len and not rest.strip():
-                    fences.append("\n".join(block))
-                    in_fence, block = False, []
+            if kind == "close":
+                fences.append("\n".join(block))
+                block = []
             continue
-        if fence:
-            run, rest = fence.group(1), fence.group(2)
-            if run[0] != "`" or "`" not in rest:
-                in_fence, fence_marker, fence_len = True, run[0], len(run)
-                block = [line]
-                continue
         if HEADING.match(line):
             headings.append(line)
             continue
@@ -85,7 +78,7 @@ def digest_text(text: str) -> Digest:
                 rows.append(cells)
             continue
         links.extend(LINK_DEST.findall(line))
-    if in_fence:
+    if tracker.active:
         fences.append("\n".join(block))
 
     return Digest(front, headings, fences, rows, links)
