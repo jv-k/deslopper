@@ -31,11 +31,28 @@ clean() {
   for p in "$@"; do rm -rf -- "$p"; done
 }
 
+# render_help — the help screenshot's height depends on how many lines the
+# help renders, which changes as commands and options are added. Measure the
+# real output and rewrite the tape's fallback Height so the window always
+# wraps the content snugly: rows (help + typed command + trailing prompt) x
+# 21px cells at FontSize 15, plus window bar (40) + padding (24) + slack.
+# COLUMNS=108 matches the tape's 1000px width at FontSize 15, so wrapping in
+# the measurement matches wrapping in the frame.
+render_help() {
+  local dsl="deslopper"
+  [ -x .venv/bin/deslopper ] && dsl=".venv/bin/deslopper"
+  local rows height
+  rows=$(( $(COLUMNS=108 "$dsl" --help | wc -l | tr -d ' ') + 2 ))
+  height=$(( rows * 21 + 70 ))
+  sed "s/^Set Height .*/Set Height ${height}/" scripts/help.tape > img/tmp/help.tape
+  vhs img/tmp/help.tape
+}
+
 target="${1:-all}"
 case "$target" in
   help)
     clean img/screenshot.png img/tmp/help.gif
-    vhs scripts/help.tape
+    render_help
   ;;
   demo)
     clean img/deslopper-demo.gif img/deslopper-demo-final.png
@@ -44,7 +61,7 @@ case "$target" in
   all)
     clean img/screenshot.png img/deslopper-demo.gif \
           img/deslopper-demo-final.png img/tmp/help.gif
-    vhs scripts/help.tape
+    render_help
     vhs scripts/demo.tape
   ;;
   *)

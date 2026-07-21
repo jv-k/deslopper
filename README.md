@@ -1,17 +1,11 @@
 # deslopper
 
-A deterministic prose linter for the mechanical tells of machine-generated writing. No
-model, no network: it runs in CI and pre-commit and fails the build on a banned tell.
-
 <div align="center">
   <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/screenshot.png" alt="A bare deslopper run: the rainbow wordmark logo, the version pill, and the USAGE, COMMANDS, OPTIONS, and EXAMPLES sections of the help.">
 </div>
 
-## Demo
-
-<div align="center">
-  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/deslopper-demo.gif" alt="Animated demo: deslopper lint reports an em-dash error and four warnings on a sloppy file, then passes clean after a rewrite.">
-</div>
+A deterministic prose linter for the mechanical tells of machine-generated writing. No
+model, no network: it runs in CI and pre-commit and fails the build on a banned tell.
 
 ## Why?
 
@@ -47,6 +41,12 @@ Pin a version in CI for reproducible builds:
 
     uvx deslopper@0.1.0 lint --format github
 
+## Demo
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/deslopper-demo.gif" alt="Animated demo: deslopper lint reports an em-dash error and four warnings on a sloppy file, then passes clean after a rewrite.">
+</div>
+
 ## Commands
 
     deslopper lint  [PATHS...] [--strict] [--config P] [--format text|github|json]
@@ -62,6 +62,10 @@ in a work tree or a filesystem walk otherwise.
 Tab completion comes from `deslopper completions`, which detects your shell from `$SHELL`
 when you leave the argument off. Run `deslopper completions --help` for where each shell
 expects the script.
+
+Output is coloured on a terminal and plain when piped. `NO_COLOR` turns styling off
+everywhere, `FORCE_COLOR=1` turns it on without a terminal, and the `github` and `json`
+formats are never styled.
 
 ## Tiers and exit codes
 
