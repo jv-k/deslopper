@@ -43,6 +43,7 @@ Pin a version in CI for reproducible builds:
     deslopper check [PATHS...] [--config P]   # report only, exits 0 on findings
     deslopper rules [--config P]              # list the active tells
     deslopper init                            # write a starter config
+    deslopper eval 'COMMAND' [--keep]         # judge a rewrite command, see below
 
 With no paths, deslopper lints the configured Markdown and MDX globs, through `git ls-files`
 in a work tree or a filesystem walk otherwise.
@@ -52,6 +53,32 @@ in a work tree or a filesystem walk otherwise.
 The error tier (em dashes, the section sign, middle-dot separators) fails the run. The warn
 tier prints but passes unless you add `--strict`. Exit codes: 0 clean, 1 a failing-tier
 finding or an unreadable file, 2 a usage or configuration error.
+
+## Eval a rewrite pass
+
+The linter is the deterministic floor. The rewrite that clears a backlog is a model pass,
+and `deslopper eval` tests whether yours works: it seeds a temporary sandbox with slop
+fixtures that trip every tell in the recommended preset, runs your rewrite command over the
+sandbox, and judges the result.
+
+    deslopper eval 'my-rewrite {dir}'
+    deslopper eval ./scripts/deslop.sh    # the sandbox path is appended when {dir} is absent
+
+Two judges rule on the outcome. Efficacy lints the rewritten fixtures: zero error-tier
+findings is the hard gate, and the warn count must land strictly below the raw baseline,
+which leaves the model some room without letting it tread water. Preservation extracts a
+digest of the protected content (fenced code and front matter verbatim, the heading
+outline, table rows, link destinations) before and after the rewrite, and any difference
+fails the run. As a self-check, the raw fixtures are linted first: if they produce no
+errors the harness is broken and the run aborts before spending tokens.
+
+Exit codes: 0 pass, 1 efficacy failure, 2 usage or configuration error, 3 preservation
+failure, 4 broken harness or a rewrite command that exited nonzero. A failure names the
+surviving findings by file and line. Pass `--keep` to keep the sandbox for inspection.
+
+An eval run invokes your rewrite command for real, with the minutes and tokens that
+implies. Run it on demand when you change the rewrite prompt or model. It has no place as
+a per-commit or per-PR gate.
 
 ## Use it in CI
 

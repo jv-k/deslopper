@@ -1,0 +1,27 @@
+# Reference
+
+This page covers the CLI; see § 2 for the config schema.
+
+## Commands
+
+| Command | Purpose           |
+| ------- | ----------------- |
+| init    | write a config    |
+| run     | run the jobs      |
+| report  | print the summary |
+
+The table above is exhaustive · nothing else ships today.
+
+## Flags
+
+- R1 Force: `--force` overwrites the config; use with care
+- R2 Quiet: `--quiet` significantly reduces output
+- **Verbose**: `--verbose` prints quite a lot more
+
+Each flag maps to an environment variable — see the
+[environment guide](https://example.com/env) for the mapping.
+
+```text
+Protected fence: the — and § below must survive the rewrite.
+retry — twice, then fail per § 9
+```
