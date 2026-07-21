@@ -13,6 +13,7 @@ from .discovery import resolve_worklist
 from .engine import lint_files
 from .errors import ConfigError, UsageError
 from .evaluate import run_eval
+from . import completions
 from . import help as help_screen
 from . import report, ui
 
@@ -39,7 +40,10 @@ def _build_parser():
     lint.add_argument("paths", nargs="*")
     lint.add_argument("--strict", action="store_true")
     lint.add_argument("--config")
-    lint.add_argument("--format", choices=["text", "github", "json"], default="text")
+    # --format choices come from the help table, the single source the
+    # completion scripts also render from.
+    lint.add_argument("--format", default="text",
+                      choices=list(help_screen.COMMANDS["lint"]["choices"]["--format"]))
 
     check = command("check")
     check.add_argument("paths", nargs="*")
@@ -47,7 +51,8 @@ def _build_parser():
 
     rules = command("rules")
     rules.add_argument("--config")
-    rules.add_argument("--format", choices=["text", "json"], default="text")
+    rules.add_argument("--format", default="text",
+                       choices=list(help_screen.COMMANDS["rules"]["choices"]["--format"]))
 
     init = command("init")
     init.add_argument("--force", action="store_true")
@@ -57,6 +62,11 @@ def _build_parser():
                     help="shell command under test; {dir} receives the sandbox path")
     ev.add_argument("--keep", action="store_true",
                     help="leave the sandbox on disk and print its path")
+
+    comp = command("completions")
+    # nargs="?" without choices: an unknown shell goes through UsageError for
+    # the same styled error path as every other usage mistake.
+    comp.add_argument("shell", nargs="?")
     return parser
 
 
@@ -145,12 +155,18 @@ def _do_eval(args, pal):
     return run_eval(args.rewrite_command, keep=args.keep, pal=pal)
 
 
+def _do_completions(args, pal):
+    sys.stdout.write(completions.script(args.shell or completions.detect()))
+    return 0
+
+
 _COMMANDS = {
     "lint": _do_lint,
     "check": _do_check,
     "rules": _do_rules,
     "init": _do_init,
     "eval": _do_eval,
+    "completions": _do_completions,
 }
 
 
