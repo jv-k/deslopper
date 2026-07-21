@@ -60,6 +60,18 @@ and keep the suite green.
 - The repo lints its own Markdown with deslopper, so keep prose within the rules. Run
   `deslopper lint` before you push.
 
+## Releases
+
+Pushing a `v*` tag runs the release workflow. It runs the test suite and checks the tag
+against the package version, then publishes to PyPI and bumps the Homebrew formula in
+[jv-k/homebrew-tap](https://github.com/jv-k/homebrew-tap). The two publish jobs are
+independent, so a PyPI failure does not block the tap.
+
+The formula's `url` and `sha256` are rewritten by the workflow on every release.
+Do not hand-edit them in the tap, because the next release would overwrite the change. The tap push
+authenticates with the `HOMEBREW_TAP_TOKEN` repository secret, a token with write access to
+the tap repo.
+
 ## Reporting
 
 Open an issue with one of the forms: a bug report for a false positive or a crash, a feature
