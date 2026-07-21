@@ -16,6 +16,9 @@ Find a runnable deslopper, in this order:
 1. `deslopper` on PATH, which respects a project venv or a pinned install
 2. `uvx deslopper`, or `pipx run deslopper`
 
+Use the runner you found for every deslopper command in this skill. A command written as
+`deslopper rules` here means that runner's spelling, for example `uvx deslopper rules`.
+
 Run `deslopper rules` once when the skill activates. The output is the live tell list for
 this project, including its own config and presets. Keep those tells out of every piece of
 prose you produce while the skill is active. Write plainly, like a sharp engineer.
@@ -31,8 +34,8 @@ path:
 
     deslopper lint docs/guide.md README.md
 
-Never run a bare `deslopper lint` on your own: it sweeps every configured glob in the repo
-and drags pre-existing findings into your diff.
+Never run a lint without explicit paths, whichever runner you use: a bare lint sweeps
+every configured glob in the repo and drags pre-existing findings into your diff.
 
 Handle the findings by tier:
 
