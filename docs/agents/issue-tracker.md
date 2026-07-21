@@ -25,7 +25,7 @@ When set to `yes`, PRs run through the same labels and states as issues, using t
 equivalents:
 
 - **Read a PR:** `gh pr view <number> --comments` and `gh pr diff <number>` for the diff.
-- **List external PRs for triage:** `gh pr list --state open --json number,title,body,labels,author,authorAssociation,comments` then keep only `authorAssociation` of `CONTRIBUTOR`, `FIRST_TIME_CONTRIBUTOR`, or `NONE` (drop `OWNER`, `MEMBER`, `COLLABORATOR`).
+- **List external PRs for triage:** `gh api 'repos/{owner}/{repo}/pulls?state=open&per_page=100' --jq '.[] | select(.author_association | IN("CONTRIBUTOR","FIRST_TIME_CONTRIBUTOR","NONE")) | "#\(.number)\t\(.user.login)\t\(.title)"'`, keeping those three associations and dropping `OWNER`, `MEMBER`, and `COLLABORATOR`. Author association comes from the REST API, because `gh pr list --json` has no `authorAssociation` field. Then `gh pr view <number>` for the body, labels, and comments of each hit.
 - **Comment, label, close:** `gh pr comment`, `gh pr edit --add-label` or `--remove-label`,
   `gh pr close`.
 
