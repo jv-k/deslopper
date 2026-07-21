@@ -1,5 +1,5 @@
 # vhs tape — renders deslopper --help as a single PNG (macOS-window look).
-# Run with: vhs dev/help.tape   (or: pnpm screenshots:help)
+# Run with: vhs scripts/help.tape   (or: pnpm screenshots:help)
 #
 # vhs emits a full animated GIF for any tape — we don't use it here, so it
 # lands in img/tmp/help.gif (gitignored). The single PNG we care about comes

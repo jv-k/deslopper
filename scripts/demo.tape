@@ -1,6 +1,6 @@
 # vhs tape — records a real deslopper lint over a sloppy file: findings,
 # then the ✖ summary, then the clean ✔ run after a rewrite.
-# Run with: vhs dev/demo.tape   (or: pnpm screenshots:demo)
+# Run with: vhs scripts/demo.tape   (or: pnpm screenshots:demo)
 #
 # The sandbox is a throwaway temp dir seeded off-camera; the recording shows
 # only clean `deslopper …` commands. The finished ✔ frame is also saved as a

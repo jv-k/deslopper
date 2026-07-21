@@ -5,8 +5,8 @@
   "description": "Dev and release scripts for the deslopper Python package.",
   "scripts": {
     "bump-release": "bash scripts/preflight.sh && ver-bump -c && bash scripts/postflight.sh && git push --follow-tags && gh release create \"v$(npm pkg get version | tr -d '\\\"')\" --generate-notes",
-    "screenshots": "bash dev/screenshots.sh",
-    "screenshots:help": "bash dev/screenshots.sh help",
-    "screenshots:demo": "bash dev/screenshots.sh demo"
+    "screenshots": "bash scripts/screenshots.sh",
+    "screenshots:help": "bash scripts/screenshots.sh help",
+    "screenshots:demo": "bash scripts/screenshots.sh demo"
   }
 }
