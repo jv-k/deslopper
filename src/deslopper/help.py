@@ -53,10 +53,16 @@ OPT_COL = 30
 
 # One entry per subcommand: the synopsis after "deslopper <name>", the
 # description, the option rows (short, long, arg, description), and examples.
+# The completion scripts render from this same table, through the extra
+# machine-readable keys the help itself ignores: "choices" enumerates a flag's
+# values, "paths" marks a file-path positional, and "positional_choices"
+# enumerates a positional. A flag whose arg is "<file>" completes as a path.
 COMMANDS = {
     "lint": {
         "synopsis": "[paths...] [options]",
         "description": "Lint files and fail on findings.",
+        "paths": True,
+        "choices": {"--format": ("text", "github", "json")},
         "options": [
             ("", "--strict", "", "Fail on warn-tier findings too."),
             ("", "--config", "<file>", "Use this config file instead of discovering one."),
@@ -72,6 +78,7 @@ COMMANDS = {
     "check": {
         "synopsis": "[paths...] [options]",
         "description": "Report findings, always exit 0.",
+        "paths": True,
         "options": [
             ("", "--config", "<file>", "Use this config file instead of discovering one."),
         ],
@@ -82,6 +89,7 @@ COMMANDS = {
     "rules": {
         "synopsis": "[options]",
         "description": "List the active tells.",
+        "choices": {"--format": ("text", "json")},
         "options": [
             ("", "--config", "<file>", "Use this config file instead of discovering one."),
             ("", "--format", "<fmt>", "Output format: text (default) or json."),
@@ -108,6 +116,18 @@ COMMANDS = {
         ],
         "examples": [
             ("deslopper eval 'my-rewriter {dir}'", "Seed a sandbox, rewrite it, judge the result."),
+        ],
+    },
+    "completions": {
+        "synopsis": "[shell] [options]",
+        "description": "Print a shell completion script.",
+        "positional_choices": ("bash", "zsh", "fish"),
+        "options": [],
+        "examples": [
+            ("deslopper completions", "Print the script for the shell named in $SHELL."),
+            ("deslopper completions bash >> ~/.bash_completion", "Install for bash."),
+            ("deslopper completions zsh > ~/.zfunc/_deslopper", "Install for zsh, with ~/.zfunc in fpath."),
+            ("deslopper completions fish > ~/.config/fish/completions/deslopper.fish", "Install for fish."),
         ],
     },
 }
