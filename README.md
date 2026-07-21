@@ -22,11 +22,11 @@ and identical every time. That makes it safe as a gate in CI and pre-commit, whe
 pass does not belong. Use it for the deterministic floor, and leave the model rewrite for
 the judgement a regex cannot make.
 
-Vale and proselint lint prose style at large, covering spelling, house style, and
-readability. deslopper is narrower on purpose. It targets the tells of machine-generated
-writing, ships as one Python package with no dependencies, and gives the same answer on
-every run. If you already run a style linter, deslopper sits beside it as the
-machine-prose gate.
+Vale and proselint check spelling, house style, and readability. deslopper has a narrower
+scope: it detects the tells of machine-generated writing. It ships as a single Python
+package with no dependencies, and its checks are deterministic, so the same input always
+produces the same findings. If you already run a style linter, deslopper complements it
+rather than replacing it.
 
 ## Install and run
 
@@ -57,6 +57,26 @@ Pin a version in CI for reproducible builds:
 
     uvx deslopper@0.2.0 lint --format github
 
+## Agent skill
+
+The repo ships a skill in [skills/deslopper/](skills/deslopper/) for coding agents that
+follow the skills convention, such as Claude Code.
+
+Install it with the skills CLI:
+
+    npx skills add jv-k/deslopper
+
+Or copy `skills/deslopper/` into `~/.claude/skills/` to have it in every project, or into
+a repo's `.claude/skills/` for that repo alone.
+
+The skill activates when the agent writes or edits Markdown or MDX, or when you ask it to
+de-slop existing text. On activation the agent runs `deslopper rules` to load the live
+tell list, so it follows your config and presets, writes within those rules, and lints the
+files it touched before finishing. Error-tier findings are fixed and re-linted until
+clean. Warn-tier findings are fixed only when the rewrite is clearly better, and are
+otherwise reported to you. The skill is the model-side complement to the CI gate, and the
+gate stays the deterministic floor.
+
 ## Demo
 
 <div align="center">
@@ -77,8 +97,8 @@ in a work tree or a filesystem walk otherwise.
 
 Tab completion comes from `deslopper completions`, which detects your shell from `$SHELL`
 when you leave the argument off. Run `deslopper completions --help` for where each shell
-expects the script. The Homebrew install sets up completions for bash, zsh, and fish on
-its own, so this command is only for the pip, pipx, and uv installs.
+expects the script. Homebrew installs the bash, zsh, and fish completions automatically,
+so this command is only needed for the pip, pipx, and uv installs.
 
 Output is coloured on a terminal and plain when piped. `NO_COLOR` turns styling off
 everywhere, `FORCE_COLOR=1` turns it on without a terminal, and the `github` and `json`
@@ -224,19 +244,6 @@ pipx or Homebrew. `pass_filenames: false` makes the hook lint the configured glo
 than the staged paths, which keeps the local verdict identical to CI. Explicit paths are
 linted as given, skipping the config excludes, so a staged-files hook would flag files
 your config meant to leave alone.
-
-## Use it as an agent skill
-
-The repo ships a skill in [skills/deslopper/](skills/deslopper/) that teaches a coding
-agent to write within the rules and to lint the Markdown it touches before finishing. The
-skill runs `deslopper rules` to pick up the live tell list, so it follows your config and
-presets. Install it with the skills CLI:
-
-    npx skills add jv-k/deslopper
-
-Or copy `skills/deslopper/` into `~/.claude/skills/` for every project, or into a repo's
-`.claude/skills/` for that repo alone. The skill is the model-side complement to the CI
-gate, and the gate stays the deterministic floor.
 
 ## Configure
 
