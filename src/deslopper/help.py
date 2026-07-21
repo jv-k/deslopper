@@ -9,6 +9,7 @@ stable single-line layout (width 0 disables wrapping, the gate strips colour).
 
 import os
 import sys
+from importlib import metadata as importlib_metadata
 
 from . import __version__, ui
 
@@ -19,12 +20,32 @@ WORDMARK = (
     ("╺┻┛", "┗━╸", "┗━┛", "┗━╸", "┗━┛", "╹  ", "╹  ", "┗━╸", "╹┗╸"),
 )
 
-AUTHOR = "John Valai"
-HOMEPAGE = "https://github.com/jv-k/deslopper"
-TAGLINE = (
+_AUTHOR = "John Valai"
+_HOMEPAGE = "https://github.com/jv-k/deslopper"
+_TAGLINE = (
     "A deterministic prose linter for the mechanical tells of "
     "machine-generated writing."
 )
+
+
+def _package_facts():
+    """Tagline, author, homepage from the installed package metadata.
+
+    The literals above are fallbacks so the banner never renders a blank field
+    (e.g. running from a source tree that was never pip-installed).
+    """
+    tagline, author, homepage = _TAGLINE, _AUTHOR, _HOMEPAGE
+    try:
+        meta = importlib_metadata.metadata("deslopper")
+    except importlib_metadata.PackageNotFoundError:
+        return tagline, author, homepage
+    tagline = meta.get("Summary") or tagline
+    author = meta.get("Author") or author
+    for url in meta.get_all("Project-URL") or []:
+        label, _, dest = url.partition(",")
+        if label.strip().lower() == "homepage" and dest.strip():
+            homepage = dest.strip()
+    return tagline, author, homepage
 
 # Label column for option/command/example rows, VerBump's OPT_COL pattern:
 # a label that reaches the column stacks instead of crowding the description.
@@ -100,8 +121,10 @@ def _term_cols(stream) -> int:
     cols = os.environ.get("COLUMNS", "")
     if cols.isdigit() and int(cols) > 0:
         return int(cols)
+    # Ask the controlling terminal, not the stream: a redirected fd misreads.
     try:
-        return os.get_terminal_size(stream.fileno()).columns
+        with open("/dev/tty") as tty:
+            return os.get_terminal_size(tty.fileno()).columns
     except (OSError, ValueError):
         return 80
 
@@ -147,7 +170,8 @@ class _Renderer:
             desc_open, desc_close = pal.dim, pal.reset
         else:
             desc_open = desc_close = ""
-        if len(label_plain) >= OPT_COL:
+        # Stack once the label would leave less than the 2-space gutter.
+        if len(label_plain) > OPT_COL - 2:
             self.line(label_styled)
             for wline in self._flow(desc):
                 self.line(f"{' ' * OPT_COL}{desc_open}{wline}{desc_close}")
@@ -199,15 +223,16 @@ def _example_row(rend, command, desc):
 
 def _banner(rend):
     pal = rend.pal
+    tagline, author, homepage = _package_facts()
     for row in WORDMARK:
         chunks = [f"{colour}{chunk}" for colour, chunk in zip(pal.rainbow, row)]
         rend.line("".join(chunks) + pal.reset)
     rend.line()
     rend.line(ui.pill(pal, pal.hdr_green, f"deslopper v{__version__}"))
-    rend.line(f" {pal.bullet}{ui.I_BULLET}{pal.reset} Author:   {AUTHOR}")
-    rend.line(f" {pal.bullet}{ui.I_BULLET}{pal.reset} Homepage: {HOMEPAGE}")
+    rend.line(f" {pal.bullet}{ui.I_BULLET}{pal.reset} Author:   {author}")
+    rend.line(f" {pal.bullet}{ui.I_BULLET}{pal.reset} Homepage: {homepage}")
     rend.line()
-    rend.prose(TAGLINE)
+    rend.prose(tagline)
 
 
 def render_root(stream=None, pal=None):
@@ -278,7 +303,8 @@ def maybe_help(argv):
         if arg == "--":
             break
         visible.append(arg)
-    if not argv:
+    if not visible:
+        # Bare `deslopper` (or `deslopper --`): orientation, but still an error.
         render_root(sys.stderr)
         return 2
     if visible and visible[0] in ("-h", "--help"):

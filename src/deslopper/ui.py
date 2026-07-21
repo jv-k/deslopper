@@ -45,16 +45,13 @@ class Palette:
         self.dim = seq("\033[2m")
         self.ok = seq("\033[0;32m")
         self.error = seq("\033[0;31m")
-        self.attn = seq("\033[1;33m")
+        self.warn = seq("\033[1;33m")
         self.info = seq("\033[0;36m")
         self.bullet = seq("\033[0;35m")
         # A pill is one combined sequence: the standalone fg codes above start
         # with a reset, which would cancel a preceding invert + bold.
         self.hdr_cyan = seq("\033[7;1;36m")
         self.hdr_green = seq("\033[7;1;32m")
-        self.hdr_yellow = seq("\033[7;1;33m")
-        self.hdr_red = seq("\033[7;1;31m")
-        self.hdr_gray = seq("\033[7;2;37m")
         self.rainbow = tuple(seq(f"\033[38;5;{stop}m") for stop in RAINBOW_STOPS)
 
 
@@ -79,10 +76,6 @@ def trace_line(pal: Palette, message: str) -> str:
 
 def log_success(pal, message, stream=None):
     print(status_line(pal, pal.ok, I_OK, message), file=stream or sys.stdout)
-
-
-def log_warn(pal, message, stream=None):
-    print(status_line(pal, pal.attn, I_WARN, message), file=stream or sys.stdout)
 
 
 def log_error(pal, message, stream=None):

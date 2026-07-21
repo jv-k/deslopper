@@ -29,25 +29,30 @@ def _build_parser():
     parser.add_argument("--version", action="version", version=f"deslopper {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    lint = sub.add_parser("lint", help="lint files and fail on findings", add_help=False)
+    # Command descriptions live once, on the help screen's table.
+    def command(name):
+        return sub.add_parser(
+            name, help=help_screen.COMMANDS[name]["description"], add_help=False
+        )
+
+    lint = command("lint")
     lint.add_argument("paths", nargs="*")
     lint.add_argument("--strict", action="store_true")
     lint.add_argument("--config")
     lint.add_argument("--format", choices=["text", "github", "json"], default="text")
 
-    check = sub.add_parser("check", help="report findings, always exit 0", add_help=False)
+    check = command("check")
     check.add_argument("paths", nargs="*")
     check.add_argument("--config")
 
-    rules = sub.add_parser("rules", help="list the active tells", add_help=False)
+    rules = command("rules")
     rules.add_argument("--config")
     rules.add_argument("--format", choices=["text", "json"], default="text")
 
-    init = sub.add_parser("init", help="write a starter config", add_help=False)
+    init = command("init")
     init.add_argument("--force", action="store_true")
 
-    ev = sub.add_parser("eval", help="judge a rewrite command against the slop fixtures",
-                        add_help=False)
+    ev = command("eval")
     ev.add_argument("rewrite_command", metavar="command",
                     help="shell command under test; {dir} receives the sandbox path")
     ev.add_argument("--keep", action="store_true",
@@ -78,24 +83,22 @@ def _finish(result, strict, pal):
     print(report.summary_line(result, strict, pal), file=sys.stderr)
 
 
-def _do_lint(args):
+def _do_lint(args, pal):
     cfg, result = _lint_command(args)
     strict = bool(getattr(args, "strict", False) or cfg.strict)
-    pal = ui.palette()
     _emit(result, args.format, pal)
     _finish(result, strict, pal)
     return report.exit_code(result, strict)
 
 
-def _do_check(args):
+def _do_check(args, pal):
     cfg, result = _lint_command(args)
-    pal = ui.palette()
     sys.stdout.write(report.format_text(result, pal))
     _finish(result, cfg.strict, pal)
     return 0
 
 
-def _do_rules(args):
+def _do_rules(args, pal):
     cfg, _ = load_config(getattr(args, "config", None), os.getcwd())
     if args.format == "json":
         payload = [
@@ -103,38 +106,35 @@ def _do_rules(args):
             for t in cfg.tells
         ]
         print(json.dumps(payload, indent=2))
+    elif pal.enabled:
+        # Aligned, tier-coloured columns for eyes; the piped TSV below is the
+        # stable machine-side layout.
+        name_w = max(len(t.name) for t in cfg.tells)
+        for t in cfg.tells:
+            print(
+                f"  {pal.bold}{t.name:<{name_w}}{pal.reset}  "
+                f"{report.tier_style(pal, t.tier)}{t.tier:<5}{pal.reset}  "
+                f"{pal.dim}{t.phase:<11} {t.scope:<5}{pal.reset}  {t.message}"
+            )
     else:
-        pal = ui.palette()
-        if pal.enabled:
-            # Aligned, tier-coloured columns for eyes; the piped TSV below is
-            # the stable machine-side layout.
-            name_w = max(len(t.name) for t in cfg.tells)
-            for t in cfg.tells:
-                tier_style = pal.error if t.tier == "error" else pal.attn
-                print(
-                    f"  {pal.bold}{t.name:<{name_w}}{pal.reset}  "
-                    f"{tier_style}{t.tier:<5}{pal.reset}  "
-                    f"{pal.dim}{t.phase:<11} {t.scope:<5}{pal.reset}  {t.message}"
-                )
-        else:
-            for t in cfg.tells:
-                print(f"{t.name}\t{t.tier}\t{t.phase}\t{t.scope}\t{t.message}")
+        for t in cfg.tells:
+            print(f"{t.name}\t{t.tier}\t{t.phase}\t{t.scope}\t{t.message}")
     return 0
 
 
-def _do_init(args):
+def _do_init(args, pal):
     target = os.path.join(os.getcwd(), CONFIG_NAME)
     if os.path.exists(target) and not args.force:
         raise UsageError(f"{CONFIG_NAME} already exists; pass --force to overwrite")
     with open(target, "w", encoding="utf-8") as fh:
         json.dump(STARTER, fh, indent=2)
         fh.write("\n")
-    ui.log_success(ui.palette(), f"wrote {CONFIG_NAME}")
+    ui.log_success(pal, f"wrote {CONFIG_NAME}")
     return 0
 
 
-def _do_eval(args):
-    return run_eval(args.rewrite_command, keep=args.keep)
+def _do_eval(args, pal):
+    return run_eval(args.rewrite_command, keep=args.keep, pal=pal)
 
 
 _COMMANDS = {
@@ -153,10 +153,11 @@ def main(argv=None) -> int:
         return helped
     parser = _build_parser()
     args = parser.parse_args(argv)
+    pal = ui.palette()
     try:
-        return _COMMANDS[args.command](args)
+        return _COMMANDS[args.command](args, pal)
     except (ConfigError, UsageError) as exc:
-        ui.log_error(ui.palette(), str(exc))
+        ui.log_error(pal, str(exc))
         return 2
 
 

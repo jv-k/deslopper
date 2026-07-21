@@ -56,17 +56,18 @@ def _read(sandbox, name):
         return fh.read()
 
 
-def _broken(why: str) -> int:
-    ui.log_error(ui.palette(), f"eval harness broken: {why}")
+def _broken(pal, why: str) -> int:
+    ui.log_error(pal, f"eval harness broken: {why}")
     return EXIT_HARNESS_BROKEN
 
 
-def run_eval(command: str, keep: bool = False) -> int:
+def run_eval(command: str, keep: bool = False, pal=None) -> int:
     """Seed a sandbox, run the rewrite command over it, judge the result.
 
     The command runs through the shell. A `{dir}` placeholder receives the
     sandbox path; without one the path is appended as the final argument.
     """
+    pal = ui.palette() if pal is None else pal
     tells = resolve({}).tells
     sandbox = tempfile.mkdtemp(prefix="deslopper-eval-")
     try:
@@ -74,14 +75,14 @@ def run_eval(command: str, keep: bool = False) -> int:
 
         baseline = _lint_sandbox(sandbox, names, tells)
         if baseline.errors == 0:
-            return _broken("the raw fixtures produced no error-tier findings")
+            return _broken(pal, "the raw fixtures produced no error-tier findings")
         if baseline.warnings == 0:
             # The strictly-below warn gate needs headroom, so a warnless baseline
             # could never pass either.
-            return _broken("the raw fixtures produced no warn-tier findings")
+            return _broken(pal, "the raw fixtures produced no warn-tier findings")
         before = {n: digest_text(_read(sandbox, n)) for n in names}
         ui.log_info(
-            ui.palette(),
+            pal,
             f"seeded {len(names)} fixture(s), baseline "
             f"{baseline.errors} error(s), {baseline.warnings} warning(s)",
             stream=sys.stderr,
@@ -95,7 +96,7 @@ def run_eval(command: str, keep: bool = False) -> int:
         proc = subprocess.run(shell_command, shell=True)
 
         result = _lint_sandbox(sandbox, names, tells)
-        sys.stdout.write(report.format_text(result, ui.palette()))
+        sys.stdout.write(report.format_text(result, pal))
         efficacy_failures = []
         if result.errors:
             efficacy_failures.append(f"{result.errors} error(s) remain")
@@ -114,7 +115,7 @@ def run_eval(command: str, keep: bool = False) -> int:
         # A nonzero command exit is judged and reported like any run, but the
         # broken-harness code wins over both judges.
         if proc.returncode != 0:
-            return _broken(f"the rewrite command exited {proc.returncode}")
+            return _broken(pal, f"the rewrite command exited {proc.returncode}")
 
         if preservation_failures:
             verdict, code = "FAIL (preservation)", EXIT_PRESERVATION
@@ -126,12 +127,12 @@ def run_eval(command: str, keep: bool = False) -> int:
             f"0 error(s), {result.warnings} warning(s) < baseline {baseline.warnings}"
         )
         if code == EXIT_PASS:
-            ui.log_success(ui.palette(), f"eval {verdict}: {detail}", stream=sys.stderr)
+            ui.log_success(pal, f"eval {verdict}: {detail}", stream=sys.stderr)
         else:
-            ui.log_error(ui.palette(), f"eval {verdict}: {detail}")
+            ui.log_error(pal, f"eval {verdict}: {detail}")
         return code
     finally:
         if keep:
-            ui.log_info(ui.palette(), f"sandbox kept at {sandbox}", stream=sys.stderr)
+            ui.log_info(pal, f"sandbox kept at {sandbox}", stream=sys.stderr)
         else:
             shutil.rmtree(sandbox, ignore_errors=True)
