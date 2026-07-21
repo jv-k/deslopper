@@ -34,6 +34,14 @@ def test_script_names_every_flag_and_format_value(shell, capsys):
         assert value in out
 
 
+@pytest.mark.parametrize("shell", SHELLS)
+def test_format_values_stay_per_command(shell, capsys):
+    """Each command completes its own --format set, never a shared superset."""
+    _, out, _ = run(["completions", shell], capsys)
+    assert "text github json" in out
+    assert "text json" in out
+
+
 def test_each_shell_gets_its_own_dialect(capsys):
     _, bash, _ = run(["completions", "bash"], capsys)
     assert "complete -o filenames -F _deslopper deslopper" in bash
@@ -117,3 +125,14 @@ def test_command_table_covers_every_parser_flag():
             long for _short, long, _arg, _desc in help_screen.COMMANDS[name]["options"]
         }
         assert parser_flags == table_flags, name
+        parser_choices = {
+            opt: tuple(action.choices)
+            for action in subparser._actions
+            if action.choices and action.option_strings
+            for opt in action.option_strings
+        }
+        table_choices = {
+            flag: tuple(values)
+            for flag, values in help_screen.COMMANDS[name].get("choices", {}).items()
+        }
+        assert parser_choices == table_choices, name

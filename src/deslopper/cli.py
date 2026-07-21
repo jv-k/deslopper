@@ -40,7 +40,10 @@ def _build_parser():
     lint.add_argument("paths", nargs="*")
     lint.add_argument("--strict", action="store_true")
     lint.add_argument("--config")
-    lint.add_argument("--format", choices=["text", "github", "json"], default="text")
+    # --format choices come from the help table, the single source the
+    # completion scripts also render from.
+    lint.add_argument("--format", default="text",
+                      choices=list(help_screen.COMMANDS["lint"]["choices"]["--format"]))
 
     check = command("check")
     check.add_argument("paths", nargs="*")
@@ -48,7 +51,8 @@ def _build_parser():
 
     rules = command("rules")
     rules.add_argument("--config")
-    rules.add_argument("--format", choices=["text", "json"], default="text")
+    rules.add_argument("--format", default="text",
+                       choices=list(help_screen.COMMANDS["rules"]["choices"]["--format"]))
 
     init = command("init")
     init.add_argument("--force", action="store_true")
