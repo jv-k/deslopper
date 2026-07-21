@@ -5,8 +5,8 @@ import json
 from . import tiers, ui
 
 
-def _tier_style(pal, tier):
-    return pal.error if tier == "error" else pal.attn
+def tier_style(pal, tier):
+    return pal.error if tier == "error" else pal.warn
 
 
 def format_text(result, pal=ui.PLAIN) -> str:
@@ -14,7 +14,7 @@ def format_text(result, pal=ui.PLAIN) -> str:
     # the pinned `path:line:col [tier] name: message` grammar byte for byte.
     lines = [
         f"{pal.bold}{f.path}{pal.reset}:{f.line}:{f.col} "
-        f"{_tier_style(pal, f.tier)}[{f.tier}]{pal.reset} "
+        f"{tier_style(pal, f.tier)}[{f.tier}]{pal.reset} "
         f"{f.name}: {pal.dim}{f.message}{pal.reset}"
         for f in result.findings
     ]
@@ -69,7 +69,7 @@ def summary_line(result, strict: bool, pal=ui.PLAIN) -> str:
         counts += f", {unreadable} unreadable"
     if result.errors or unreadable:
         return ui.status_line(pal, pal.error, ui.I_ERROR, f"{counts}{tag}")
-    return ui.status_line(pal, pal.attn, ui.I_WARN, f"{counts}{tag}")
+    return ui.status_line(pal, pal.warn, ui.I_WARN, f"{counts}{tag}")
 
 
 def exit_code(result, strict: bool) -> int:

@@ -47,7 +47,8 @@ Keep a preset to one voice or domain. Say in the PR what it is for and who it se
 Follow the module layout: one responsibility per file. `engine.py` scans, `rules.py`
 compiles kinds, `config.py` resolves, `discovery.py` finds files, `report.py` formats,
 `digest.py` extracts the protected content the eval compares, `evaluate.py` runs the
-rewrite eval, and `cli.py` wires the commands. Write a failing test first, make it pass,
+rewrite eval, `ui.py` owns the colour gate and terminal styling, `help.py` renders the
+help screens, and `cli.py` wires the commands. Write a failing test first, make it pass,
 and keep the suite green.
 
 ## Commits and pull requests

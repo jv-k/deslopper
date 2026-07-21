@@ -57,6 +57,12 @@ def test_bare_invocation_shows_help_and_exits_two(capsys):
     assert WORDMARK_CHUNK in err
 
 
+def test_bare_double_dash_behaves_like_bare(capsys):
+    code, _, err = run(["--"], capsys)
+    assert code == 2
+    assert "USAGE" in err
+
+
 @pytest.mark.parametrize("command", ["lint", "check", "rules", "init", "eval"])
 def test_command_help_shows_options(command, capsys):
     code, out, _ = run([command, "--help"], capsys)
