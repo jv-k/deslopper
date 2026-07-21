@@ -54,9 +54,14 @@ Pin a version in CI for reproducible builds:
     deslopper rules [--config P]              # list the active tells
     deslopper init                            # write a starter config
     deslopper eval 'COMMAND' [--keep]         # judge a rewrite command, see below
+    deslopper completions [bash|zsh|fish]     # print a completion script for your shell
 
 With no paths, deslopper lints the configured Markdown and MDX globs, through `git ls-files`
 in a work tree or a filesystem walk otherwise.
+
+Tab completion comes from `deslopper completions`, which detects your shell from `$SHELL`
+when you leave the argument off. Run `deslopper completions --help` for where each shell
+expects the script.
 
 ## Tiers and exit codes
 
