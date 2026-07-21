@@ -56,3 +56,32 @@ _Avoid_: calling `words` a word list. The entries are regex.
 Blanking a region to spaces before tells scan it, so no tell fires inside it. Fenced code,
 inline code, front matter, and HTML entities are masked. The entity step is the one the
 phase names key on.
+
+## The eval
+
+**Eval**:
+A run of `deslopper eval` that judges a rewrite command: seed a sandbox with the
+fixtures, run the command over it, judge the result.
+_Avoid_: test, benchmark. The pytest suite tests deslopper. An eval judges someone
+else's rewrite pass.
+
+**Sandbox**:
+The temporary directory an eval seeds with the fixtures and hands to the rewrite
+command. Made fresh per run and removed unless kept for inspection.
+
+**Efficacy**:
+The judge that lints the rewritten fixtures. Zero error-tier findings is the hard gate,
+and the warn count must land strictly below the raw baseline.
+
+**Preservation**:
+The judge that compares each fixture's digest from before and after the rewrite. Any
+difference fails the run.
+
+**Digest**:
+The extract of a fixture's protected content the preservation judge compares: fenced
+code and front matter verbatim, the heading outline, table rows with cells normalised,
+and link destinations in order.
+
+**Baseline**:
+The lint result of the raw fixtures, taken before the rewrite runs. No errors or no
+warnings in it means the harness itself is broken, and the eval aborts.

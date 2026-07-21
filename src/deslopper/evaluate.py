@@ -40,7 +40,7 @@ def seed_sandbox(dest: str) -> list:
     for entry in sorted(root.iterdir(), key=lambda e: e.name):
         if not entry.name.endswith(FIXTURE_SUFFIX):
             continue
-        name = entry.name[: -len(".txt")]
+        name = entry.name[: -len(FIXTURE_SUFFIX)] + ".md"
         with open(os.path.join(dest, name), "wb") as fh:
             fh.write(entry.read_bytes())
         seeded.append(name)
@@ -75,6 +75,10 @@ def run_eval(command: str, keep: bool = False) -> int:
         baseline = _lint_sandbox(sandbox, names, tells)
         if baseline.errors == 0:
             return _broken("the raw fixtures produced no error-tier findings")
+        if baseline.warnings == 0:
+            # The strictly-below warn gate needs headroom, so a warnless baseline
+            # could never pass either.
+            return _broken("the raw fixtures produced no warn-tier findings")
         before = {n: digest_text(_read(sandbox, n)) for n in names}
         print(
             f"deslopper eval: seeded {len(names)} fixture(s), baseline "
@@ -82,13 +86,12 @@ def run_eval(command: str, keep: bool = False) -> int:
             file=sys.stderr,
         )
 
+        # {dir} receives the path itself, so a template can place its own quotes.
         if "{dir}" in command:
-            shell_command = command.replace("{dir}", shlex.quote(sandbox))
+            shell_command = command.replace("{dir}", sandbox)
         else:
             shell_command = f"{command} {shlex.quote(sandbox)}"
         proc = subprocess.run(shell_command, shell=True)
-        if proc.returncode != 0:
-            return _broken(f"the rewrite command exited {proc.returncode}")
 
         result = _lint_sandbox(sandbox, names, tells)
         sys.stdout.write(report.format_text(result))
@@ -106,6 +109,11 @@ def run_eval(command: str, keep: bool = False) -> int:
                 preservation_failures.append(f"{name}: {label} differs")
         for line in preservation_failures:
             print(f"preservation: {line}")
+
+        # A nonzero command exit is judged and reported like any run, but the
+        # broken-harness code wins over both judges.
+        if proc.returncode != 0:
+            return _broken(f"the rewrite command exited {proc.returncode}")
 
         if preservation_failures:
             verdict, code = "FAIL (preservation)", EXIT_PRESERVATION
