@@ -106,7 +106,7 @@ def _do_rules(args, pal):
             for t in cfg.tells
         ]
         print(json.dumps(payload, indent=2))
-    elif pal.enabled:
+    elif pal.enabled and cfg.tells:
         # Aligned, tier-coloured columns for eyes; the piped TSV below is the
         # stable machine-side layout.
         name_w = max(len(t.name) for t in cfg.tells)
