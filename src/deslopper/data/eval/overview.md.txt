@@ -1,0 +1,31 @@
+# Orchestrate
+
+Orchestrate is a powerful, seamless platform that leverages cutting-edge automation — it
+empowers your team to ship faster. It is not just a scheduler but a whole delivery
+platform.
+
+In today's fast-paced world, scheduling is very hard. It's worth noting that Orchestrate
+streamlines everything; the scheduler, the runner, and the reporter work as one. This may
+well be the fastest way to run jobs, arguably.
+
+## Quick start
+
+Install the CLI, then point it at a config:
+
+```bash
+orchestrate init --template "jobs — nightly"   # see § 4.2 of the manual
+orchestrate run
+```
+
+- **Fast**: really quick startup ⚡
+- **Safe**: retries are quite robust ✅
+- **Simple**: one intuitive config file
+
+See the [manual](https://example.com/manual) and the [FAQ](https://example.com/faq) for
+details.
+
+Furthermore, the plugin API unlocks comprehensive integrations. Whether you are a solo
+developer, a small team, or a large enterprise, Orchestrate delivers.
+
+In conclusion, Orchestrate is the seamless, robust, game-changing way to run jobs, as we
+said above.

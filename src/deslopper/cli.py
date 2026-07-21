@@ -12,6 +12,7 @@ from .config import (
 from .discovery import resolve_worklist
 from .engine import lint_files
 from .errors import ConfigError, UsageError
+from .evaluate import run_eval
 from . import report
 
 STARTER = {
@@ -41,6 +42,12 @@ def _build_parser():
 
     init = sub.add_parser("init", help="write a starter config")
     init.add_argument("--force", action="store_true")
+
+    ev = sub.add_parser("eval", help="judge a rewrite command against the slop fixtures")
+    ev.add_argument("rewrite_command", metavar="command",
+                    help="shell command under test; {dir} receives the sandbox path")
+    ev.add_argument("--keep", action="store_true",
+                    help="leave the sandbox on disk and print its path")
     return parser
 
 
@@ -104,11 +111,16 @@ def _do_init(args):
     return 0
 
 
+def _do_eval(args):
+    return run_eval(args.rewrite_command, keep=args.keep)
+
+
 _COMMANDS = {
     "lint": _do_lint,
     "check": _do_check,
     "rules": _do_rules,
     "init": _do_init,
+    "eval": _do_eval,
 }
 
 
