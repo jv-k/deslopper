@@ -2,6 +2,10 @@
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/screenshot.png" alt="A bare deslopper run: the rainbow wordmark logo, the version pill, and the USAGE, COMMANDS, OPTIONS, and EXAMPLES sections of the help.">
+  <p>
+    <a href="https://github.com/jv-k/deslopper/actions/workflows/ci.yml"><img src="https://github.com/jv-k/deslopper/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-blue.svg" alt="MIT licence"></a>
+  </p>
 </div>
 
 A deterministic prose linter for the mechanical tells of machine-generated writing. No
@@ -17,6 +21,12 @@ deslopper catches the mechanical tells with plain patterns, so the check is free
 and identical every time. That makes it safe as a gate in CI and pre-commit, where a model
 pass does not belong. Use it for the deterministic floor, and leave the model rewrite for
 the judgement a regex cannot make.
+
+Vale and proselint lint prose style at large, covering spelling, house style, and
+readability. deslopper is narrower on purpose. It targets the tells of machine-generated
+writing, ships as one Python package with no dependencies, and gives the same answer on
+every run. If you already run a style linter, deslopper sits beside it as the
+machine-prose gate.
 
 ## Install and run
 
@@ -79,6 +89,61 @@ The error tier (em dashes, the section sign, middle-dot separators) fails the ru
 tier prints but passes unless you add `--strict`. Exit codes: 0 clean, 1 a failing-tier
 finding or an unreadable file, 2 a usage or configuration error.
 
+## The tells
+
+The `recommended` preset ships these. A name appears twice when the tell scans in both
+phases, before and after HTML entities are masked, and only the pre-entity form catches
+the tic spelled as an entity. The table is generated from the preset by
+`scripts/readme_tells.py` and pinned by a test, and `deslopper rules` prints the live
+list for whatever config is active.
+
+<!-- tell-table:begin -->
+<!-- deslop-lint-disable -->
+
+| Tell | Tier | Phase | Message |
+| --- | --- | --- | --- |
+| `em-dash` | error | pre-entity | em dash as an HTML entity, write it out plainly |
+| `section-sign` | error | pre-entity | section sign as an HTML entity, write 'section' |
+| `middle-dot` | error | pre-entity | middle dot or bullet as an HTML entity, join the items with a comma or plain words |
+| `em-dash` | error | post-entity | em dash in prose, use a colon, comma, parentheses, or two sentences |
+| `section-sign` | error | post-entity | section sign, write 'section' |
+| `middle-dot` | error | post-entity | middle dot or bullet in prose, join the items with a comma or plain words |
+| `bold-bullet-lead` | warn | post-entity | bolded bullet lead, reserve bold for a rare callout not a per-item label |
+| `id-label-lead` | warn | post-entity | id label on a list item, number the list plainly |
+| `semicolon` | warn | post-entity | semicolon in prose, prefer a full stop |
+| `not-just-x-but-y` | warn | post-entity | "not just X but Y" padding, make the point once |
+| `filler-verb` | warn | post-entity | filler verb, use a plain verb or cut |
+| `marketing-adjective` | warn | post-entity | marketing adjective, say what is true |
+| `throat-clearing` | warn | post-entity | throat-clearing or transition opener, start with the point |
+| `vague-intensifier` | warn | post-entity | vague intensifier with no number behind it |
+| `emoji` | warn | post-entity | emoji or decorative checkmark in body text |
+
+<!-- deslop-lint-enable -->
+<!-- tell-table:end -->
+
+## The `json` format
+
+`deslopper lint --format json` prints one object for tooling:
+
+    {
+      "findings": [
+        {
+          "path": "docs/guide.md",
+          "line": 6,
+          "col": 27,
+          "tier": "warn",
+          "name": "semicolon",
+          "message": "semicolon in prose, prefer a full stop"
+        }
+      ],
+      "unreadable": [],
+      "summary": { "errors": 0, "warnings": 1, "unreadable": 0 }
+    }
+
+The package ships JSON Schemas for both sides of the contract:
+[output.schema.json](src/deslopper/schema/output.schema.json) for this object and
+[config.schema.json](src/deslopper/schema/config.schema.json) for the config file.
+
 ## Eval a rewrite pass
 
 The linter is the deterministic floor. The rewrite that clears a backlog is a model pass,
@@ -139,7 +204,26 @@ backlog does not block every commit:
     uvx --from git+https://github.com/jv-k/deslopper@main deslopper lint --format github $files
 ```
 
-For a local gate, add a pre-commit hook that runs the same command on staged Markdown.
+For a local gate, run the same lint from [pre-commit](https://pre-commit.com):
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: local
+    hooks:
+      - id: deslopper
+        name: deslopper
+        entry: deslopper lint
+        language: system
+        types: [markdown]
+        pass_filenames: false
+```
+
+The hook shells out to whichever deslopper is on your path, so install it first through
+pipx or Homebrew. `pass_filenames: false` makes the hook lint the configured globs rather
+than the staged paths, which keeps the local verdict identical to CI. Explicit paths are
+linted as given, skipping the config excludes, so a staged-files hook would flag files
+your config meant to leave alone.
 
 ## Use it as an agent skill
 
@@ -172,6 +256,22 @@ Drop a `deslopper.config.json` to retune the bundled `recommended` rule set:
 A tell is keyed by its name and phase. Two tells can share a name across phases (the em-dash
 entity form and literal form do), so target one with `name@phase`, for example
 `em-dash@pre-entity`.
+
+A tell has a `tier`, either `error` or `warn` and nothing else. Its `phase`, `pre-entity`
+or `post-entity`, says when it scans relative to HTML-entity masking, and only a
+pre-entity tell can catch a tic spelled as an entity. A `scope` of `all` reports every
+match on a line, `first` stops after one. The `kind` picks the matcher: `regex` is the
+default, and the `bold-bullet` and `id-label` kinds read their pattern's capture groups.
+The match itself is either `pattern`, one regex, or `words`, a list of regex fragments
+joined into a single boundaried alternation, so an entry like `utili[sz]es?` is a fragment
+and not a literal string.
+
+Fenced code, inline code, front matter, and HTML entities are masked before tells scan, so
+no tell fires inside them.
+
+`extends` names the presets to build on, opted into as `deslopper:<name>`. `recommended`
+is the only preset shipped today. The whole file is described by the
+[config schema](src/deslopper/schema/config.schema.json).
 
 ## Disable directives
 
