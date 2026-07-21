@@ -4,7 +4,7 @@ A deterministic prose linter for the mechanical tells of machine-generated writi
 model, no network: it runs in CI and pre-commit and fails the build on a banned tell.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/screenshot.png" alt="deslopper --help output: the rainbow wordmark, the version pill, and the USAGE, COMMANDS, OPTIONS, and EXAMPLES sections.">
+  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/screenshot.png" alt="A bare deslopper run: the rainbow wordmark logo, the version pill, and the USAGE, COMMANDS, OPTIONS, and EXAMPLES sections of the help.">
 </div>
 
 ## Demo
