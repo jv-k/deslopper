@@ -12,12 +12,10 @@ Set Shell "zsh"
 Set FontFamily "JetBrains Mono"
 Set FontSize 15
 Set Width 1000
-# Tall enough to hold the whole --help — wordmark through EXAMPLES — in one
-# frame, and no taller. vhs' Screenshot captures the viewport, so a short
-# height scrolls the typed command + wordmark off the top, and extra rows
-# render as blank background at the bottom. After editing the help text,
-# re-render and trim/grow this until the frame is snug.
-Set Height 850
+# The Height line is a fallback: scripts/screenshots.sh measures the real
+# help and rewrites it (rows * cell height + chrome) before rendering, so the
+# frame always wraps the content snugly — no manual retuning after help edits.
+Set Height 760
 # Monokai Pro palette with a Carbon (#191816) background for the terminal itself.
 Set Theme { "background": "#191816", "foreground": "#FCFCFA", "cursor": "#FCFCFA", "black": "#2D2A2E", "red": "#FF6188", "green": "#A9DC76", "yellow": "#FFD866", "blue": "#FC9867", "magenta": "#AB9DF2", "cyan": "#78DCE8", "white": "#FCFCFA", "brightBlack": "#727072", "brightRed": "#FF6188", "brightGreen": "#A9DC76", "brightYellow": "#FFD866", "brightBlue": "#FC9867", "brightMagenta": "#AB9DF2", "brightCyan": "#78DCE8", "brightWhite": "#FCFCFA", "selection": "#5B595C" }
 Set Padding 12
