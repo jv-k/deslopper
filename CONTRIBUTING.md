@@ -30,8 +30,10 @@ Tells live in `src/deslopper/presets/recommended.json`, one JSON object each. A 
 Add the object, add a case to `tests/fixtures/comprehensive.md`, then regenerate the golden
 files: delete `tests/fixtures/comprehensive.*.golden` and run the golden test once. Seed
 the new tell's slop into the eval fixtures in `src/deslopper/data/eval/` as well, since the
-suite asserts every recommended tell fires there. Open a PR with the tell, the updated
-goldens, and the fixture change.
+suite asserts every recommended tell fires there. Give the tell an example in the
+`EXAMPLES` table of `scripts/readme_tells.py` and rerun that script to regenerate the
+README table, since a test asserts the example fires the tell. Open a PR with the tell,
+the updated goldens, and the fixture changes.
 
 ## Add a preset
 
