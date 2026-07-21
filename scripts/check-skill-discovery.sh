@@ -19,6 +19,6 @@ fail() {
   exit 1
 }
 
-printf '%s' "$clean" | grep -q "Found 1 skill" || fail "expected exactly one discovered skill"
+printf '%s' "$clean" | grep -Eq '^[[:space:]]*Found[[:space:]]+1[[:space:]]+skills?\b' || fail "expected exactly one discovered skill"
 printf '%s' "$clean" | grep -Eq '^[[:space:]]*deslopper[[:space:]]*$' || fail "expected the discovered skill to be deslopper"
 echo "skill discovery ok: found 1 skill, deslopper"
