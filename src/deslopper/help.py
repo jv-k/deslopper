@@ -121,7 +121,12 @@ def _term_cols(stream) -> int:
     cols = os.environ.get("COLUMNS", "")
     if cols.isdigit() and int(cols) > 0:
         return int(cols)
-    # Ask the controlling terminal, not the stream: a redirected fd misreads.
+    # The stream passed isatty() above, so its own fd answers and works off
+    # POSIX too; the controlling terminal is the fallback for odd redirections.
+    try:
+        return os.get_terminal_size(stream.fileno()).columns
+    except (OSError, ValueError):
+        pass
     try:
         with open("/dev/tty") as tty:
             return os.get_terminal_size(tty.fileno()).columns

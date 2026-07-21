@@ -135,3 +135,11 @@ def test_eval_verdict_speaks_through_log_lines(tmp_path, capsys):
     assert code == 1
     assert "✖ eval FAIL (efficacy)" in err
     assert "ℹ seeded" in err
+
+
+def test_rules_with_no_tells_prints_nothing(tmp_path, capsys, monkeypatch):
+    monkeypatch.setenv("FORCE_COLOR", "1")
+    write(tmp_path, "deslopper.config.json", '{"extends": []}')
+    code, out, _ = run(["rules"], str(tmp_path), capsys)
+    assert code == 0
+    assert out == ""
