@@ -23,23 +23,29 @@ the judgement a regex cannot make.
 deslopper needs no runtime dependencies beyond Python 3.9+. It is published to PyPI and to a
 Homebrew tap on each tagged release.
 
-From PyPI, with no install:
+Run it straight from PyPI with uv:
 
     uvx deslopper lint
+
+or with pipx:
+
     pipx run deslopper lint
 
-Or install it:
+Install it with pipx:
 
     pipx install deslopper
+
+with plain pip:
+
     pip install deslopper
 
-From Homebrew:
+or from the Homebrew tap:
 
     brew install jv-k/tap/deslopper
 
 Pin a version in CI for reproducible builds:
 
-    uvx deslopper@0.1.0 lint --format github
+    uvx deslopper@0.2.0 lint --format github
 
 ## Demo
 
