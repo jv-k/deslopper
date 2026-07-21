@@ -1,19 +1,19 @@
 # Releasing deslopper
 
 A release tags a version and lets CI publish it.
-[ver-bump](https://github.com/jv-k/ver-bump) cuts it, the same way the engineering-playbook
+[VerBump](https://github.com/jv-k/VerBump) cuts it, the same way the engineering-playbook
 cuts its own.
 
-The version lives in three files. `package.json` is the source ver-bump reads and bumps.
-`.ver-bumprc` names the other two as `BUMP_FILES`, so `pyproject.toml` and
+The version lives in three files. `package.json` is the source VerBump reads and bumps.
+`.verbumprc` names the other two as `BUMP_FILES`, so `pyproject.toml` and
 `src/deslopper/__init__.py` move in lock-step. Bumping any of them by hand, or with a tool
 that only knows `package.json`, leaves the tag pointing at the wrong version, and
 `release.yml` only catches that once the tag is public. That is what happened to v0.1.2.
 `tests/test_version.py` fails on any drift, in CI and in the release gates.
 
-Whether a given ver-bump actually moved all three is a fact about the result, not about the
+Whether a given VerBump actually moved all three is a fact about the result, not about the
 tool's help text, so `scripts/postflight.sh` asserts it after the bump and before the push.
-A ver-bump that only knows `package.json` fails there, while the tag is still local.
+A VerBump that only knows `package.json` fails there, while the tag is still local.
 
 ## One-time setup
 
@@ -29,12 +29,13 @@ copies `packaging/homebrew/deslopper.rb` into it, as described under After publi
 ## Cut a release
 
 Write the `CHANGELOG.md` section for the version you are about to cut, under the
-`# Changelog` title, headed `## X.Y.Z`. ver-bump runs with `-c` and leaves the changelog
+`# Changelog` title, headed `## X.Y.Z`. VerBump runs with `-c` and leaves the changelog
 alone: its generated entries are raw commit subjects, which land above the title and carry
 em dashes that deslopper's own lint rejects. The commit subjects still reach the GitHub
 release, which `--generate-notes` writes.
 
-Then, on `main`, with the venv installed (`pip install -e . pytest build`):
+Then, on `main`, with the venv installed (`pip install -e . pytest build`) and the node
+dev tools installed (`pnpm install` provides the `verbump` command):
 
     pnpm bump-release
 
@@ -42,7 +43,7 @@ The task runs in four steps, and nothing leaves the machine until the third one 
 
 1. `scripts/preflight.sh` checks a clean tree on `main`, then runs the tests, the lint, and
    a build.
-2. ver-bump prompts for the version, bumps the three files, commits, and tags `vX.Y.Z`.
+2. VerBump prompts for the version, bumps the three files, commits, and tags `vX.Y.Z`.
    Enter the same version the changelog section names. It runs with `-c` and does not push.
 3. `scripts/postflight.sh` checks what the bump produced: a clean tree, `HEAD` tagged to
    match `package.json`, the three version files in agreement, a lint that still passes,
@@ -58,7 +59,7 @@ and `git tag -d vX.Y.Z`, fix the cause, and start again.
 
 If `release.yml` fails before the upload to PyPI, delete the tag with `git tag -d vX.Y.Z`
 and `git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and re-cut the same
-version with `ver-bump -c -v X.Y.Z`. If it fails during or after the upload, PyPI will not
+version with `verbump -c -v X.Y.Z`. If it fails during or after the upload, PyPI will not
 accept the same version a second time: bump a new patch version and release that instead.
 
 ## After publishing
