@@ -8,7 +8,6 @@ then the terminal's own size, then 80 — so piped output wraps neatly too (the
 colour gate still strips styling there).
 """
 
-import os
 import sys
 from importlib import metadata as importlib_metadata
 
@@ -114,48 +113,11 @@ COMMANDS = {
 }
 
 
-def _term_cols(stream) -> int:
-    """Wrap width, always positive: COLUMNS, then the terminal's size, then 80."""
-    cols = os.environ.get("COLUMNS", "")
-    if cols.isdigit() and int(cols) > 0:
-        return int(cols)
-    isatty = getattr(stream, "isatty", None)
-    if isatty and isatty():
-        # The stream is a terminal, so its own fd answers and works off POSIX
-        # too; the controlling terminal is the fallback for odd redirections.
-        try:
-            return os.get_terminal_size(stream.fileno()).columns
-        except (OSError, ValueError):
-            pass
-        try:
-            with open("/dev/tty") as tty:
-                return os.get_terminal_size(tty.fileno()).columns
-        except (OSError, ValueError):
-            pass
-    return 80
-
-
-def _wrap(width: int, text: str) -> list:
-    """Greedy word wrap; a word longer than width overflows its own line."""
-    lines, line = [], ""
-    for word in text.split():
-        if not line:
-            line = word
-        elif len(line) + 1 + len(word) <= width:
-            line += " " + word
-        else:
-            lines.append(line)
-            line = word
-    if line:
-        lines.append(line)
-    return lines
-
-
 class _Renderer:
     def __init__(self, stream, pal):
         self.stream = stream
         self.pal = pal
-        self.cols = _term_cols(stream)
+        self.cols = ui.term_cols(stream)
 
     def line(self, text=""):
         print(text, file=self.stream)
@@ -192,13 +154,13 @@ class _Renderer:
     def _flow(self, desc) -> list:
         if not desc:
             return []
-        return _wrap(self._desc_width(), desc)
+        return ui.wrap(self._desc_width(), desc)
 
     def prose(self, text, indent=2):
         """Dim wrapped prose (the tagline)."""
         pal = self.pal
         width = self.cols - indent
-        for wline in _wrap(width if width >= 20 else 20, text):
+        for wline in ui.wrap(width if width >= 20 else 20, text):
             self.line(f"{' ' * indent}{pal.dim}{wline}{pal.reset}")
 
 

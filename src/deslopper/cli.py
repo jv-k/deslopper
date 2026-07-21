@@ -108,14 +108,22 @@ def _do_rules(args, pal):
         print(json.dumps(payload, indent=2))
     elif pal.enabled and cfg.tells:
         # Aligned, tier-coloured columns for eyes; the piped TSV below is the
-        # stable machine-side layout.
+        # stable machine-side layout. The message column wraps to the terminal
+        # and hangs under itself, like the help.
         name_w = max(len(t.name) for t in cfg.tells)
+        msg_col = 2 + name_w + 2 + 5 + 2 + 11 + 1 + 5 + 2
+        avail = ui.term_cols() - msg_col
+        if avail < 20:
+            avail = 20
         for t in cfg.tells:
+            lines = ui.wrap(avail, t.message) or [""]
             print(
                 f"  {pal.bold}{t.name:<{name_w}}{pal.reset}  "
                 f"{report.tier_style(pal, t.tier)}{t.tier:<5}{pal.reset}  "
-                f"{pal.dim}{t.phase:<11} {t.scope:<5}{pal.reset}  {t.message}"
+                f"{pal.dim}{t.phase:<11} {t.scope:<5}{pal.reset}  {lines[0]}"
             )
+            for cont in lines[1:]:
+                print(f"{' ' * msg_col}{cont}")
     else:
         for t in cfg.tells:
             print(f"{t.name}\t{t.tier}\t{t.phase}\t{t.scope}\t{t.message}")
