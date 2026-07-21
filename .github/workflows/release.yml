@@ -7,7 +7,24 @@ permissions:
   contents: read
 
 jobs:
-  build-and-publish:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e . pytest
+      - run: pytest -q
+      - run: deslopper lint --format github
+      - name: Verify the tag matches the package version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          ver="$(python -c 'import deslopper; print(deslopper.__version__)')"
+          test "$tag" = "$ver" || { echo "tag $tag != version $ver"; exit 1; }
+
+  publish-pypi:
+    needs: test
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -17,13 +34,43 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -e . pytest build
-      - run: pytest -q
-      - run: deslopper lint --format github
-      - name: Verify the tag matches the package version
-        run: |
-          tag="${GITHUB_REF_NAME#v}"
-          ver="$(python -c 'import deslopper; print(deslopper.__version__)')"
-          test "$tag" = "$ver" || { echo "tag $tag != version $ver"; exit 1; }
+      - run: pip install build
       - run: python -m build
       - uses: pypa/gh-action-pypi-publish@release/v1
+
+  # Independent of publish-pypi on purpose: a PyPI failure must not block the tap.
+  bump-homebrew-formula:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compute the tag tarball checksum
+        id: tarball
+        run: |
+          url="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz"
+          sha="$(curl -fsSL "$url" | shasum -a 256 | cut -d' ' -f1)"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "sha256=$sha" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: jv-k/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+      - name: Update the formula and push
+        env:
+          TARBALL_URL: ${{ steps.tarball.outputs.url }}
+          TARBALL_SHA256: ${{ steps.tarball.outputs.sha256 }}
+        run: |
+          sed -i \
+            -e "s|^  url \".*\"$|  url \"${TARBALL_URL}\"|" \
+            -e "s|^  sha256 \".*\"$|  sha256 \"${TARBALL_SHA256}\"|" \
+            Formula/deslopper.rb
+          grep -qF "url \"${TARBALL_URL}\"" Formula/deslopper.rb
+          grep -qF "sha256 \"${TARBALL_SHA256}\"" Formula/deslopper.rb
+          if git diff --quiet; then
+            echo "Formula already at ${GITHUB_REF_NAME}, nothing to push"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/deslopper.rb
+          git commit -m "chore(formula): bump deslopper to ${GITHUB_REF_NAME}"
+          git push
