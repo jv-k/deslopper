@@ -62,6 +62,44 @@ def palette(stream=None) -> Palette:
     return Palette(color_enabled(stream))
 
 
+def term_cols(stream=None) -> int:
+    """Wrap width, always positive: COLUMNS, then the terminal's size, then 80."""
+    cols = os.environ.get("COLUMNS", "")
+    if cols.isdigit() and int(cols) > 0:
+        return int(cols)
+    stream = sys.stdout if stream is None else stream
+    isatty = getattr(stream, "isatty", None)
+    if isatty and isatty():
+        # The stream is a terminal, so its own fd answers and works off POSIX
+        # too; the controlling terminal is the fallback for odd redirections.
+        try:
+            return os.get_terminal_size(stream.fileno()).columns
+        except (OSError, ValueError):
+            pass
+        try:
+            with open("/dev/tty") as tty:
+                return os.get_terminal_size(tty.fileno()).columns
+        except (OSError, ValueError):
+            pass
+    return 80
+
+
+def wrap(width: int, text: str) -> list:
+    """Greedy word wrap; a word longer than width overflows its own line."""
+    lines, line = [], ""
+    for word in text.split():
+        if not line:
+            line = word
+        elif len(line) + 1 + len(word) <= width:
+            line += " " + word
+        else:
+            lines.append(line)
+            line = word
+    if line:
+        lines.append(line)
+    return lines
+
+
 def pill(pal: Palette, style: str, text: str) -> str:
     return f"{style} {text} {pal.reset}"
 

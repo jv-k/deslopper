@@ -143,3 +143,14 @@ def test_rules_with_no_tells_prints_nothing(tmp_path, capsys, monkeypatch):
     code, out, _ = run(["rules"], str(tmp_path), capsys)
     assert code == 0
     assert out == ""
+
+
+def test_styled_rules_wrap_to_the_width(tmp_path, capsys, monkeypatch):
+    import re
+    monkeypatch.setenv("FORCE_COLOR", "1")
+    monkeypatch.setenv("COLUMNS", "100")
+    code, out, _ = run(["rules"], str(tmp_path), capsys)
+    assert code == 0
+    visible = [re.sub(r"\x1b\[[0-9;]*m", "", line) for line in out.splitlines()]
+    too_wide = [line for line in visible if len(line) > 100]
+    assert not too_wide, too_wide[0]
