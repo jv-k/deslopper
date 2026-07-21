@@ -14,12 +14,27 @@ name: Screenshots
 #   img/deslopper-demo.gif        — vhs, a real lint run: findings, then clean
 #   img/deslopper-demo-final.png  — the demo's finished ✔ frame, as a still
 #
-# Triggers: every release tag (v*), plus by hand (workflow_dispatch).
+# Triggers: merges to main that touch the CLI's presentation (path-filtered,
+# so unrelated merges don't churn the images), every published release (the
+# version pill in the banner changes at a bump), and by hand
+# (workflow_dispatch). The bot commit only touches img/, which is outside the
+# path filter, so a render never retriggers itself.
 # Locally: pnpm screenshots (or :help / :demo) — see scripts/screenshots.sh.
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths:
+      - 'src/deslopper/help.py'
+      - 'src/deslopper/ui.py'
+      - 'src/deslopper/cli.py'
+      - 'src/deslopper/report.py'
+      - 'scripts/help.tape'
+      - 'scripts/demo.tape'
+      - 'scripts/screenshots.sh'
+      - '.github/workflows/screenshots.yml'
+  release:
+    types: [published]
   workflow_dispatch:
 
 concurrency:

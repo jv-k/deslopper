@@ -1,4 +1,5 @@
-# vhs tape — renders deslopper --help as a single PNG (macOS-window look).
+# vhs tape — renders a bare `deslopper` run (the logo + help screen) as a
+# single PNG (macOS-window look).
 # Run with: vhs scripts/help.tape   (or: pnpm screenshots:help)
 #
 # vhs emits a full animated GIF for any tape — we don't use it here, so it
@@ -35,7 +36,9 @@ Type 'command -v deslopper >/dev/null || source .venv/bin/activate' Enter
 Type "clear" Enter
 Show
 
-Type "deslopper --help"
+# Bare invocation: the wordmark and the full help render (to stderr, exit 2 —
+# invisible in the frame, and the shortest command a reader can copy).
+Type "deslopper"
 Sleep 400ms
 Enter
 Sleep 2s
