@@ -16,6 +16,9 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
 ]
 
+[project.urls]
+Homepage = "https://github.com/jv-k/deslopper"
+
 [project.scripts]
 deslopper = "deslopper.cli:main"
 

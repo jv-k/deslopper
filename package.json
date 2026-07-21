@@ -4,6 +4,12 @@
   "private": true,
   "description": "Dev and release scripts for the deslopper Python package.",
   "scripts": {
-    "bump-release": "bash scripts/preflight.sh && ver-bump -c && bash scripts/postflight.sh && git push --follow-tags && gh release create \"v$(npm pkg get version | tr -d '\\\"')\" --generate-notes"
+    "bump-release": "bash scripts/preflight.sh && verbump -c && bash scripts/postflight.sh && git push --follow-tags && gh release create \"v$(npm pkg get version | tr -d '\\\"')\" --generate-notes",
+    "screenshots": "bash scripts/screenshots.sh",
+    "screenshots:help": "bash scripts/screenshots.sh help",
+    "screenshots:demo": "bash scripts/screenshots.sh demo"
+  },
+  "devDependencies": {
+    "@jv-k/verbump": "^4.0.3"
   }
 }

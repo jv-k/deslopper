@@ -45,8 +45,11 @@ def test_format_json_envelope():
 
 
 def test_summary_line():
-    assert summary_line(sample(), False) == "deslopper: 1 error(s), 1 warning(s), 1 unreadable"
+    assert summary_line(sample(), False) == "✖ 1 error(s), 1 warning(s), 1 unreadable"
     assert summary_line(sample(), True).endswith("[strict]")
+    assert summary_line(LintResult(), False) == "✔ no slop found"
+    warn_only = LintResult(findings=[Finding("a.md", 1, 1, "warn", "x", "m")])
+    assert summary_line(warn_only, False) == "! 0 error(s), 1 warning(s)"
 
 
 def test_exit_code():

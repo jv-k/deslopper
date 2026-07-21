@@ -13,7 +13,8 @@ from .discovery import resolve_worklist
 from .engine import lint_files
 from .errors import ConfigError, UsageError
 from .evaluate import run_eval
-from . import report
+from . import help as help_screen
+from . import report, ui
 
 STARTER = {
     "extends": [RECOMMENDED],
@@ -22,28 +23,36 @@ STARTER = {
 
 
 def _build_parser():
-    parser = argparse.ArgumentParser(prog="deslopper")
+    # add_help=False everywhere: -h/--help are intercepted by help.maybe_help
+    # before parsing, so argparse's stock help can never render.
+    parser = argparse.ArgumentParser(prog="deslopper", add_help=False)
     parser.add_argument("--version", action="version", version=f"deslopper {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    lint = sub.add_parser("lint", help="lint files and fail on findings")
+    # Command descriptions live once, on the help screen's table.
+    def command(name):
+        return sub.add_parser(
+            name, help=help_screen.COMMANDS[name]["description"], add_help=False
+        )
+
+    lint = command("lint")
     lint.add_argument("paths", nargs="*")
     lint.add_argument("--strict", action="store_true")
     lint.add_argument("--config")
     lint.add_argument("--format", choices=["text", "github", "json"], default="text")
 
-    check = sub.add_parser("check", help="report findings, always exit 0")
+    check = command("check")
     check.add_argument("paths", nargs="*")
     check.add_argument("--config")
 
-    rules = sub.add_parser("rules", help="list the active tells")
+    rules = command("rules")
     rules.add_argument("--config")
     rules.add_argument("--format", choices=["text", "json"], default="text")
 
-    init = sub.add_parser("init", help="write a starter config")
+    init = command("init")
     init.add_argument("--force", action="store_true")
 
-    ev = sub.add_parser("eval", help="judge a rewrite command against the slop fixtures")
+    ev = command("eval")
     ev.add_argument("rewrite_command", metavar="command",
                     help="shell command under test; {dir} receives the sandbox path")
     ev.add_argument("--keep", action="store_true",
@@ -58,35 +67,38 @@ def _lint_command(args):
     return cfg, result
 
 
-def _emit(result, fmt):
+def _emit(result, fmt, pal):
+    # Only the text format is ever styled; github and json are machine contracts.
     if fmt == "text":
-        sys.stdout.write(report.format_text(result))
+        sys.stdout.write(report.format_text(result, pal))
     elif fmt == "github":
         sys.stdout.write(report.format_github(result))
     elif fmt == "json":
         sys.stdout.write(report.format_json(result))
 
 
-def _do_lint(args):
+def _finish(result, strict, pal):
+    for path in result.unreadable:
+        print(ui.trace_line(pal, f"cannot read {path}"), file=sys.stderr)
+    print(report.summary_line(result, strict, pal), file=sys.stderr)
+
+
+def _do_lint(args, pal):
     cfg, result = _lint_command(args)
     strict = bool(getattr(args, "strict", False) or cfg.strict)
-    _emit(result, args.format)
-    for path in result.unreadable:
-        print(f"deslopper: cannot read {path}", file=sys.stderr)
-    print(report.summary_line(result, strict), file=sys.stderr)
+    _emit(result, args.format, pal)
+    _finish(result, strict, pal)
     return report.exit_code(result, strict)
 
 
-def _do_check(args):
+def _do_check(args, pal):
     cfg, result = _lint_command(args)
-    sys.stdout.write(report.format_text(result))
-    for path in result.unreadable:
-        print(f"deslopper: cannot read {path}", file=sys.stderr)
-    print(report.summary_line(result, cfg.strict), file=sys.stderr)
+    sys.stdout.write(report.format_text(result, pal))
+    _finish(result, cfg.strict, pal)
     return 0
 
 
-def _do_rules(args):
+def _do_rules(args, pal):
     cfg, _ = load_config(getattr(args, "config", None), os.getcwd())
     if args.format == "json":
         payload = [
@@ -94,25 +106,43 @@ def _do_rules(args):
             for t in cfg.tells
         ]
         print(json.dumps(payload, indent=2))
+    elif pal.enabled and cfg.tells:
+        # Aligned, tier-coloured columns for eyes; the piped TSV below is the
+        # stable machine-side layout. The message column wraps to the terminal
+        # and hangs under itself, like the help.
+        name_w = max(len(t.name) for t in cfg.tells)
+        msg_col = 2 + name_w + 2 + 5 + 2 + 11 + 1 + 5 + 2
+        avail = ui.term_cols() - msg_col
+        if avail < 20:
+            avail = 20
+        for t in cfg.tells:
+            lines = ui.wrap(avail, t.message) or [""]
+            print(
+                f"  {pal.bold}{t.name:<{name_w}}{pal.reset}  "
+                f"{report.tier_style(pal, t.tier)}{t.tier:<5}{pal.reset}  "
+                f"{pal.dim}{t.phase:<11} {t.scope:<5}{pal.reset}  {lines[0]}"
+            )
+            for cont in lines[1:]:
+                print(f"{' ' * msg_col}{cont}")
     else:
         for t in cfg.tells:
             print(f"{t.name}\t{t.tier}\t{t.phase}\t{t.scope}\t{t.message}")
     return 0
 
 
-def _do_init(args):
+def _do_init(args, pal):
     target = os.path.join(os.getcwd(), CONFIG_NAME)
     if os.path.exists(target) and not args.force:
         raise UsageError(f"{CONFIG_NAME} already exists; pass --force to overwrite")
     with open(target, "w", encoding="utf-8") as fh:
         json.dump(STARTER, fh, indent=2)
         fh.write("\n")
-    print(f"wrote {CONFIG_NAME}")
+    ui.log_success(pal, f"wrote {CONFIG_NAME}")
     return 0
 
 
-def _do_eval(args):
-    return run_eval(args.rewrite_command, keep=args.keep)
+def _do_eval(args, pal):
+    return run_eval(args.rewrite_command, keep=args.keep, pal=pal)
 
 
 _COMMANDS = {
@@ -125,12 +155,17 @@ _COMMANDS = {
 
 
 def main(argv=None) -> int:
+    argv = list(sys.argv[1:]) if argv is None else list(argv)
+    helped = help_screen.maybe_help(argv)
+    if helped is not None:
+        return helped
     parser = _build_parser()
     args = parser.parse_args(argv)
+    pal = ui.palette()
     try:
-        return _COMMANDS[args.command](args)
+        return _COMMANDS[args.command](args, pal)
     except (ConfigError, UsageError) as exc:
-        print(f"deslopper: {exc}", file=sys.stderr)
+        ui.log_error(pal, str(exc))
         return 2
 
 
