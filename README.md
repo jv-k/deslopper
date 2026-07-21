@@ -92,32 +92,31 @@ finding or an unreadable file, 2 a usage or configuration error.
 
 ## The tells
 
-The `recommended` preset ships these. A name appears twice when the tell scans in both
-phases, before and after HTML entities are masked, and only the pre-entity form catches
-the tic spelled as an entity. The table is generated from the preset by
-`scripts/readme_tells.py` and pinned by a test, and `deslopper rules` prints the live
-list for whatever config is active.
+The `recommended` preset ships these, one row per tell with an example of the prose it
+catches. The em dash, section sign, and middle dot are caught in prose and also when
+spelled as HTML entities. The table is generated from the preset by
+`scripts/readme_tells.py` and pinned by tests, including one that checks each example
+fires its tell, and `deslopper rules` prints the live list for whatever config is active.
 
 <!-- tell-table:begin -->
 <!-- deslop-lint-disable -->
 
-| Tell | Tier | Phase | Message |
+❌ error, fails the run. ⚠️ warn, passes unless `--strict`.
+
+| Tell | Tier | Example | Message |
 | --- | --- | --- | --- |
-| `em-dash` | error | pre-entity | em dash as an HTML entity, write it out plainly |
-| `section-sign` | error | pre-entity | section sign as an HTML entity, write 'section' |
-| `middle-dot` | error | pre-entity | middle dot or bullet as an HTML entity, join the items with a comma or plain words |
-| `em-dash` | error | post-entity | em dash in prose, use a colon, comma, parentheses, or two sentences |
-| `section-sign` | error | post-entity | section sign, write 'section' |
-| `middle-dot` | error | post-entity | middle dot or bullet in prose, join the items with a comma or plain words |
-| `bold-bullet-lead` | warn | post-entity | bolded bullet lead, reserve bold for a rare callout not a per-item label |
-| `id-label-lead` | warn | post-entity | id label on a list item, number the list plainly |
-| `semicolon` | warn | post-entity | semicolon in prose, prefer a full stop |
-| `not-just-x-but-y` | warn | post-entity | "not just X but Y" padding, make the point once |
-| `filler-verb` | warn | post-entity | filler verb, use a plain verb or cut |
-| `marketing-adjective` | warn | post-entity | marketing adjective, say what is true |
-| `throat-clearing` | warn | post-entity | throat-clearing or transition opener, start with the point |
-| `vague-intensifier` | warn | post-entity | vague intensifier with no number behind it |
-| `emoji` | warn | post-entity | emoji or decorative checkmark in body text |
+| `em-dash` | ❌ | `A quick fix — just restart.` | em dash in prose, use a colon, comma, parentheses, or two sentences |
+| `section-sign` | ❌ | `See § 4.2 for details.` | section sign, write 'section' |
+| `middle-dot` | ❌ | `fast · simple · tested` | middle dot or bullet in prose, join the items with a comma or plain words |
+| `bold-bullet-lead` | ⚠️ | `- **Blazing speed** builds finish in seconds` | bolded bullet lead, reserve bold for a rare callout not a per-item label |
+| `id-label-lead` | ⚠️ | `- FR-1 The app shall sync.` | id label on a list item, number the list plainly |
+| `semicolon` | ⚠️ | `It compiles; it ships.` | semicolon in prose, prefer a full stop |
+| `not-just-x-but-y` | ⚠️ | `not just fast but correct` | "not just X but Y" padding, make the point once |
+| `filler-verb` | ⚠️ | `This leverages the cache.` | filler verb, use a plain verb or cut |
+| `marketing-adjective` | ⚠️ | `a seamless, robust workflow` | marketing adjective, say what is true |
+| `throat-clearing` | ⚠️ | `It's worth noting that tests pass.` | throat-clearing or transition opener, start with the point |
+| `vague-intensifier` | ⚠️ | `significantly faster` | vague intensifier with no number behind it |
+| `emoji` | ⚠️ | `Done ✅` | emoji or decorative checkmark in body text |
 
 <!-- deslop-lint-enable -->
 <!-- tell-table:end -->
