@@ -11,3 +11,4 @@ htmlcov/
 coverage.xml
 node_modules/
 pnpm-lock.yaml
+img/tmp/

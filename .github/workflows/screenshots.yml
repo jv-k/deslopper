@@ -1,0 +1,123 @@
+name: Screenshots
+
+# Regenerates the CLI visuals and commits them to main, VerBump-style.
+# Everything renders via charmbracelet/vhs, which drives a REAL terminal
+# emulator — so the inverted-video section pills, the rainbow wordmark, and
+# the dim styling all render faithfully.
+#
+# vhs is installed directly as a sha256-pinned release binary, NOT via
+# charmbracelet/vhs-action: the action's Linux installer looks for an
+# ffmpeg asset that no longer exists in BtbN/FFmpeg-Builds and fails; it
+# also never checks PATH. ffmpeg + ttyd come from apt instead.
+#
+#   img/screenshot.png            — vhs, `deslopper --help` (wordmark + pills)
+#   img/deslopper-demo.gif        — vhs, a real lint run: findings, then clean
+#   img/deslopper-demo-final.png  — the demo's finished ✔ frame, as a still
+#
+# Triggers: every release tag (v*), plus by hand (workflow_dispatch).
+# Locally: pnpm screenshots (or :help / :demo) — see dev/screenshots.sh.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  VHS_VERSION: "0.11.0"
+  # sha256 of vhs_0.11.0_Linux_x86_64.tar.gz, verified against the release's
+  # checksums.txt.
+  VHS_SHA256: "99cb634587eaae0473c1ea377db80c3a048c27f99fe0a7febb1a1e8cb7ee5009"
+
+jobs:
+  render:
+    name: Render help panel + demo via vhs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deslopper (the tapes drive the real command)
+        run: pip install -e .
+
+      - name: Install JetBrains Mono, gifsicle, ffmpeg, ttyd, and zsh
+        run: |
+          # zsh: the tapes `Set Shell "zsh"` and the runner image ships
+          # without it — ttyd then fails with "execvp failed" INSIDE the
+          # rendered frames while the run stays green, so the images must
+          # be eyeballed after any change here.
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-jetbrains-mono gifsicle ffmpeg ttyd zsh
+          fc-cache -f
+
+      - name: Install vhs (sha256-pinned release binary)
+        run: |
+          curl -fsSL -o vhs.tar.gz \
+            "https://github.com/charmbracelet/vhs/releases/download/v${VHS_VERSION}/vhs_${VHS_VERSION}_Linux_x86_64.tar.gz"
+          echo "${VHS_SHA256}  vhs.tar.gz" | sha256sum -c -
+          tar -xzf vhs.tar.gz --wildcards '*/vhs' --strip-components=1
+          sudo install -m 0755 vhs /usr/local/bin/vhs
+          rm -f vhs.tar.gz vhs
+          vhs --version
+
+      - name: Render help panel and demo gif
+        run: |
+          mkdir -p img/tmp
+          vhs dev/help.tape
+          vhs dev/demo.tape
+
+      - name: Optimize deslopper-demo.gif (lossless)
+        run: |
+          before=$(wc -c < img/deslopper-demo.gif)
+          gifsicle -O3 img/deslopper-demo.gif -o img/deslopper-demo.gif
+          echo "deslopper-demo.gif: ${before} -> $(wc -c < img/deslopper-demo.gif) bytes"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: |
+            img/screenshot.png
+            img/deslopper-demo.gif
+            img/deslopper-demo-final.png
+          retention-days: 7
+          if-no-files-found: error
+
+  commit:
+    name: Commit updated screenshots to main
+    needs: [render]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: screenshots
+          path: img
+
+      - name: Commit updated screenshots
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: main
+          file_pattern: img/screenshot.png img/deslopper-demo.gif img/deslopper-demo-final.png
+          commit_message: "docs(img): regenerate release visuals"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"

@@ -83,3 +83,34 @@ def test_help_flag_after_double_dash_is_not_help(tmp_path, capsys, monkeypatch):
     code, out, err = run(["lint", "--", "--help"], capsys)
     assert "USAGE" not in out
     assert "↳ cannot read --help" in err
+
+
+def _visible_lines(text):
+    return [line for line in text.splitlines()]
+
+
+def test_piped_help_wraps_at_default_width(capsys, monkeypatch):
+    monkeypatch.delenv("COLUMNS", raising=False)
+    _, out, _ = run(["--help"], capsys)
+    assert all(len(line) <= 80 for line in _visible_lines(out)), \
+        max(_visible_lines(out), key=len)
+
+
+def test_help_adapts_to_columns(capsys, monkeypatch):
+    monkeypatch.setenv("COLUMNS", "60")
+    _, out, _ = run(["--help"], capsys)
+    assert all(len(line) <= 60 for line in _visible_lines(out)), \
+        max(_visible_lines(out), key=len)
+
+
+def test_command_help_adapts_to_columns(capsys, monkeypatch):
+    monkeypatch.setenv("COLUMNS", "60")
+    _, out, _ = run(["lint", "--help"], capsys)
+    assert all(len(line) <= 60 for line in _visible_lines(out)), \
+        max(_visible_lines(out), key=len)
+
+
+def test_wide_columns_keep_rows_on_one_line(capsys, monkeypatch):
+    monkeypatch.setenv("COLUMNS", "200")
+    _, out, _ = run(["--help"], capsys)
+    assert "  Lint files and fail on findings." in out
