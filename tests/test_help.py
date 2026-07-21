@@ -49,6 +49,24 @@ def test_no_color_strips_help_styling(capsys, monkeypatch):
     assert ANSI not in out
 
 
+def test_version_flag_renders_the_green_pill(capsys, monkeypatch):
+    monkeypatch.setenv("FORCE_COLOR", "1")
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    code, out, _ = run(["--version"], capsys)
+    assert code == 0
+    assert "\x1b[7;1;32m" in out  # same green pill as the help banner
+    assert f"deslopper v{__version__}" in out
+
+
+def test_version_flag_piped_is_plain(capsys, monkeypatch):
+    monkeypatch.delenv("FORCE_COLOR", raising=False)
+    monkeypatch.delenv("CLICOLOR_FORCE", raising=False)
+    code, out, _ = run(["--version"], capsys)
+    assert code == 0
+    assert ANSI not in out
+    assert f"deslopper v{__version__}" in out
+
+
 def test_bare_invocation_shows_help_and_exits_two(capsys):
     code, out, err = run([], capsys)
     assert code == 2

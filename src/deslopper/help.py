@@ -277,10 +277,16 @@ def render_command(name, stream=None, pal=None):
     rend.line()
 
 
-def maybe_help(argv):
-    """Intercept -h/--help and the bare invocation before argparse parses.
+def render_version(stream=None, pal=None):
+    stream = stream or sys.stdout
+    pal = pal or ui.palette(stream)
+    print(ui.pill(pal, pal.hdr_green, f"deslopper v{__version__}"), file=stream)
 
-    Returns an exit code when help was rendered, None to continue parsing.
+
+def maybe_help(argv):
+    """Intercept -h/--help, --version, and the bare invocation before argparse.
+
+    Returns an exit code when a screen was rendered, None to continue parsing.
     Everything after a literal `--` is data, never a help flag.
     """
     visible = []
@@ -294,6 +300,9 @@ def maybe_help(argv):
         return 2
     if visible and visible[0] in ("-h", "--help"):
         render_root(sys.stdout)
+        return 0
+    if visible and visible[0] == "--version":
+        render_version(sys.stdout)
         return 0
     if (
         visible
