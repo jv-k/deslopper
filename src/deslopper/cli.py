@@ -5,7 +5,6 @@ import json
 import os
 import sys
 
-from . import __version__
 from .config import (
     load_config, DEFAULT_INCLUDE, CONFIG_NAME, RECOMMENDED,
 )
@@ -24,10 +23,9 @@ STARTER = {
 
 
 def _build_parser():
-    # add_help=False everywhere: -h/--help are intercepted by help.maybe_help
-    # before parsing, so argparse's stock help can never render.
+    # add_help=False everywhere: -h/--help and --version are intercepted by
+    # help.maybe_help before parsing, so argparse's stock output can never render.
     parser = argparse.ArgumentParser(prog="deslopper", add_help=False)
-    parser.add_argument("--version", action="version", version=f"deslopper {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
     # Command descriptions live once, on the help screen's table.
