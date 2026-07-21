@@ -3,8 +3,9 @@
 The logo IS the wordmark below — figlet's "future" font, pre-rendered to a
 literal so the runtime stays standard-library only, one rainbow colour per
 letter. Sections are inverted-video pills; option rows are two columns with a
-fixed description column and fluid wrapping on a terminal. Piped output keeps a
-stable single-line layout (width 0 disables wrapping, the gate strips colour).
+fixed description column, and every layout wraps to the width: COLUMNS wins,
+then the terminal's own size, then 80 — so piped output wraps neatly too (the
+colour gate still strips styling there).
 """
 
 import os
@@ -114,24 +115,24 @@ COMMANDS = {
 
 
 def _term_cols(stream) -> int:
-    """Wrap width: 0 (no wrapping) unless the stream is a terminal."""
-    isatty = getattr(stream, "isatty", None)
-    if not (isatty and isatty()):
-        return 0
+    """Wrap width, always positive: COLUMNS, then the terminal's size, then 80."""
     cols = os.environ.get("COLUMNS", "")
     if cols.isdigit() and int(cols) > 0:
         return int(cols)
-    # The stream passed isatty() above, so its own fd answers and works off
-    # POSIX too; the controlling terminal is the fallback for odd redirections.
-    try:
-        return os.get_terminal_size(stream.fileno()).columns
-    except (OSError, ValueError):
-        pass
-    try:
-        with open("/dev/tty") as tty:
-            return os.get_terminal_size(tty.fileno()).columns
-    except (OSError, ValueError):
-        return 80
+    isatty = getattr(stream, "isatty", None)
+    if isatty and isatty():
+        # The stream is a terminal, so its own fd answers and works off POSIX
+        # too; the controlling terminal is the fallback for odd redirections.
+        try:
+            return os.get_terminal_size(stream.fileno()).columns
+        except (OSError, ValueError):
+            pass
+        try:
+            with open("/dev/tty") as tty:
+                return os.get_terminal_size(tty.fileno()).columns
+        except (OSError, ValueError):
+            pass
+    return 80
 
 
 def _wrap(width: int, text: str) -> list:
@@ -191,16 +192,13 @@ class _Renderer:
     def _flow(self, desc) -> list:
         if not desc:
             return []
-        if self.cols <= 0:
-            return [desc]
         return _wrap(self._desc_width(), desc)
 
     def prose(self, text, indent=2):
         """Dim wrapped prose (the tagline)."""
         pal = self.pal
-        width = self.cols - indent if self.cols > 0 else 0
-        lines = _wrap(width, text) if width > 0 else [text]
-        for wline in lines:
+        width = self.cols - indent
+        for wline in _wrap(width if width >= 20 else 20, text):
             self.line(f"{' ' * indent}{pal.dim}{wline}{pal.reset}")
 
 
