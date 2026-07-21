@@ -77,7 +77,8 @@ in a work tree or a filesystem walk otherwise.
 
 Tab completion comes from `deslopper completions`, which detects your shell from `$SHELL`
 when you leave the argument off. Run `deslopper completions --help` for where each shell
-expects the script.
+expects the script. The Homebrew install sets up completions for bash, zsh, and fish on
+its own, so this command is only for the pip, pipx, and uv installs.
 
 Output is coloured on a terminal and plain when piped. `NO_COLOR` turns styling off
 everywhere, `FORCE_COLOR=1` turns it on without a terminal, and the `github` and `json`
