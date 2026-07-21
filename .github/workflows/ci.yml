@@ -39,4 +39,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: scripts/check-skill-discovery.sh
+      - run: bash scripts/check-skill-discovery.sh
