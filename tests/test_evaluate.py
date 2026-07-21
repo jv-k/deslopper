@@ -111,17 +111,35 @@ def test_eval_fails_preservation_when_a_fence_changes(tmp_path, capsys):
     assert "reference.md: fenced code differs" in out
 
 
-def test_eval_reports_broken_harness_when_the_command_fails(capsys):
-    assert run_eval("false") == 4
+def test_a_failing_command_still_judges_but_exits_broken(capsys):
+    """4 wins over the judges, but the sandbox is still judged and reported."""
+    code = run_eval("false")
+    captured = capsys.readouterr()
+    assert code == 4
+    assert "harness broken" in captured.err
+    assert "overview.md:" in captured.out
 
 
-def test_eval_reports_broken_harness_on_an_empty_baseline(monkeypatch, capsys):
-    def clean_seed(dest):
-        with open(os.path.join(dest, "clean.md"), "w", encoding="utf-8") as fh:
-            fh.write("Nothing to find here.\n")
-        return ["clean.md"]
+def _seed_one_file(text):
+    def seed(dest):
+        with open(os.path.join(dest, "only.md"), "w", encoding="utf-8") as fh:
+            fh.write(text)
+        return ["only.md"]
 
-    monkeypatch.setattr(evaluate, "seed_sandbox", clean_seed)
+    return seed
+
+
+def test_eval_reports_broken_harness_on_an_errorless_baseline(monkeypatch, capsys):
+    monkeypatch.setattr(evaluate, "seed_sandbox", _seed_one_file("Nothing to find here.\n"))
+    code = run_eval("true")
+    err = capsys.readouterr().err
+    assert code == 4
+    assert "harness broken" in err
+
+
+def test_eval_reports_broken_harness_on_a_warnless_baseline(monkeypatch, capsys):
+    """With no warn-tier slop the strictly-below gate can never pass."""
+    monkeypatch.setattr(evaluate, "seed_sandbox", _seed_one_file("An em dash — here.\n"))
     code = run_eval("true")
     err = capsys.readouterr().err
     assert code == 4
