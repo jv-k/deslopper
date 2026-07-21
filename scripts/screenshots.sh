@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# dev/screenshots.sh — regenerate img/screenshot.png and img/deslopper-demo.gif
+# scripts/screenshots.sh — regenerate img/screenshot.png and img/deslopper-demo.gif
 # (plus its final-frame still img/deslopper-demo-final.png) via vhs.
 #
 # Usage:
-#   ./dev/screenshots.sh           # both
-#   ./dev/screenshots.sh help      # just the --help PNG
-#   ./dev/screenshots.sh demo      # just the lint-run GIF
+#   ./scripts/screenshots.sh           # both
+#   ./scripts/screenshots.sh help      # just the --help PNG
+#   ./scripts/screenshots.sh demo      # just the lint-run GIF
 #
 # Requires: vhs (https://github.com/charmbracelet/vhs).  Install: brew install vhs
 
@@ -35,17 +35,17 @@ target="${1:-all}"
 case "$target" in
   help)
     clean img/screenshot.png img/tmp/help.gif
-    vhs dev/help.tape
+    vhs scripts/help.tape
   ;;
   demo)
     clean img/deslopper-demo.gif img/deslopper-demo-final.png
-    vhs dev/demo.tape
+    vhs scripts/demo.tape
   ;;
   all)
     clean img/screenshot.png img/deslopper-demo.gif \
           img/deslopper-demo-final.png img/tmp/help.gif
-    vhs dev/help.tape
-    vhs dev/demo.tape
+    vhs scripts/help.tape
+    vhs scripts/demo.tape
   ;;
   *)
     echo "screenshots: unknown target '$target'" >&2

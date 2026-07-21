@@ -15,7 +15,7 @@ name: Screenshots
 #   img/deslopper-demo-final.png  — the demo's finished ✔ frame, as a still
 #
 # Triggers: every release tag (v*), plus by hand (workflow_dispatch).
-# Locally: pnpm screenshots (or :help / :demo) — see dev/screenshots.sh.
+# Locally: pnpm screenshots (or :help / :demo) — see scripts/screenshots.sh.
 
 on:
   push:
@@ -76,8 +76,8 @@ jobs:
       - name: Render help panel and demo gif
         run: |
           mkdir -p img/tmp
-          vhs dev/help.tape
-          vhs dev/demo.tape
+          vhs scripts/help.tape
+          vhs scripts/demo.tape
 
       - name: Optimize deslopper-demo.gif (lossless)
         run: |
