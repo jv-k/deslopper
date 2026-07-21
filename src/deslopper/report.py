@@ -2,12 +2,20 @@
 
 import json
 
-from . import tiers
+from . import tiers, ui
 
 
-def format_text(result) -> str:
+def _tier_style(pal, tier):
+    return pal.error if tier == "error" else pal.attn
+
+
+def format_text(result, pal=ui.PLAIN) -> str:
+    # With the plain palette every sequence is empty, so the line collapses to
+    # the pinned `path:line:col [tier] name: message` grammar byte for byte.
     lines = [
-        f"{f.path}:{f.line}:{f.col} [{f.tier}] {f.name}: {f.message}"
+        f"{pal.bold}{f.path}{pal.reset}:{f.line}:{f.col} "
+        f"{_tier_style(pal, f.tier)}[{f.tier}]{pal.reset} "
+        f"{f.name}: {pal.dim}{f.message}{pal.reset}"
         for f in result.findings
     ]
     return "\n".join(lines) + ("\n" if lines else "")
@@ -51,12 +59,17 @@ def format_json(result) -> str:
     return json.dumps(payload, indent=2) + "\n"
 
 
-def summary_line(result, strict: bool) -> str:
+def summary_line(result, strict: bool, pal=ui.PLAIN) -> str:
     tag = " [strict]" if strict else ""
-    return (
-        f"deslopper: {result.errors} error(s), {result.warnings} warning(s), "
-        f"{len(result.unreadable)} unreadable{tag}"
-    )
+    unreadable = len(result.unreadable)
+    if not result.findings and not unreadable:
+        return ui.status_line(pal, pal.ok, ui.I_OK, f"no slop found{tag}")
+    counts = f"{result.errors} error(s), {result.warnings} warning(s)"
+    if unreadable:
+        counts += f", {unreadable} unreadable"
+    if result.errors or unreadable:
+        return ui.status_line(pal, pal.error, ui.I_ERROR, f"{counts}{tag}")
+    return ui.status_line(pal, pal.attn, ui.I_WARN, f"{counts}{tag}")
 
 
 def exit_code(result, strict: bool) -> int:

@@ -13,7 +13,7 @@ import sys
 import tempfile
 from importlib import resources
 
-from . import report
+from . import report, ui
 from .config import resolve
 from .digest import diff_components, digest_text
 from .engine import lint_files
@@ -57,7 +57,7 @@ def _read(sandbox, name):
 
 
 def _broken(why: str) -> int:
-    print(f"deslopper eval: harness broken: {why}", file=sys.stderr)
+    ui.log_error(ui.palette(), f"eval harness broken: {why}")
     return EXIT_HARNESS_BROKEN
 
 
@@ -80,10 +80,11 @@ def run_eval(command: str, keep: bool = False) -> int:
             # could never pass either.
             return _broken("the raw fixtures produced no warn-tier findings")
         before = {n: digest_text(_read(sandbox, n)) for n in names}
-        print(
-            f"deslopper eval: seeded {len(names)} fixture(s), baseline "
+        ui.log_info(
+            ui.palette(),
+            f"seeded {len(names)} fixture(s), baseline "
             f"{baseline.errors} error(s), {baseline.warnings} warning(s)",
-            file=sys.stderr,
+            stream=sys.stderr,
         )
 
         # {dir} receives the path itself, so a template can place its own quotes.
@@ -94,7 +95,7 @@ def run_eval(command: str, keep: bool = False) -> int:
         proc = subprocess.run(shell_command, shell=True)
 
         result = _lint_sandbox(sandbox, names, tells)
-        sys.stdout.write(report.format_text(result))
+        sys.stdout.write(report.format_text(result, ui.palette()))
         efficacy_failures = []
         if result.errors:
             efficacy_failures.append(f"{result.errors} error(s) remain")
@@ -124,10 +125,13 @@ def run_eval(command: str, keep: bool = False) -> int:
         detail = "; ".join(efficacy_failures + preservation_failures) or (
             f"0 error(s), {result.warnings} warning(s) < baseline {baseline.warnings}"
         )
-        print(f"deslopper eval: {verdict}: {detail}", file=sys.stderr)
+        if code == EXIT_PASS:
+            ui.log_success(ui.palette(), f"eval {verdict}: {detail}", stream=sys.stderr)
+        else:
+            ui.log_error(ui.palette(), f"eval {verdict}: {detail}")
         return code
     finally:
         if keep:
-            print(f"deslopper eval: sandbox kept at {sandbox}", file=sys.stderr)
+            ui.log_info(ui.palette(), f"sandbox kept at {sandbox}", stream=sys.stderr)
         else:
             shutil.rmtree(sandbox, ignore_errors=True)
