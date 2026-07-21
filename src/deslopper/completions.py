@@ -16,25 +16,26 @@ _HELP_ROW = ("--help", "Show this help message.")
 _VERSION_ROW = ("--version", "Print the tool version and exit.")
 
 
-def _supported() -> str:
-    return ", ".join(SUPPORTED)
+def _usage(problem: str) -> UsageError:
+    supported = ", ".join(SUPPORTED)
+    return UsageError(
+        f"{problem}; run 'deslopper completions <shell>' with one of: {supported}"
+    )
 
 
 def detect() -> str:
     """The shell named by $SHELL's basename, or a usage error."""
     shell = os.path.basename(os.environ.get("SHELL", ""))
     if not shell:
-        raise UsageError(
-            f"cannot tell the shell from $SHELL; pass one of: {_supported()}"
-        )
+        raise _usage("cannot tell the shell from $SHELL")
     if shell not in SUPPORTED:
-        raise UsageError(f"unsupported shell '{shell}'; pass one of: {_supported()}")
+        raise _usage(f"unsupported shell '{shell}'")
     return shell
 
 
 def script(shell: str) -> str:
     if shell not in SUPPORTED:
-        raise UsageError(f"unsupported shell '{shell}'; pass one of: {_supported()}")
+        raise _usage(f"unsupported shell '{shell}'")
     return {"bash": _bash, "zsh": _zsh, "fish": _fish}[shell](_facts())
 
 
