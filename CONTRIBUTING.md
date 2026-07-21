@@ -28,8 +28,10 @@ Tells live in `src/deslopper/presets/recommended.json`, one JSON object each. A 
 - `flags`: an optional string of regex flags. Only `i` is supported today.
 
 Add the object, add a case to `tests/fixtures/comprehensive.md`, then regenerate the golden
-files: delete `tests/fixtures/comprehensive.*.golden` and run the golden test once. Open a
-PR with the tell and the updated goldens.
+files: delete `tests/fixtures/comprehensive.*.golden` and run the golden test once. Seed
+the new tell's slop into the eval fixtures in `src/deslopper/data/eval/` as well, since the
+suite asserts every recommended tell fires there. Open a PR with the tell, the updated
+goldens, and the fixture change.
 
 ## Add a preset
 
@@ -43,9 +45,10 @@ Keep a preset to one voice or domain. Say in the PR what it is for and who it se
 ## Code changes
 
 Follow the module layout: one responsibility per file. `engine.py` scans, `rules.py`
-compiles kinds, `config.py` resolves, `discovery.py` finds files, `report.py` formats, and
-`cli.py` wires the commands. Write a failing test first, make it pass, and keep the suite
-green.
+compiles kinds, `config.py` resolves, `discovery.py` finds files, `report.py` formats,
+`digest.py` extracts the protected content the eval compares, `evaluate.py` runs the
+rewrite eval, and `cli.py` wires the commands. Write a failing test first, make it pass,
+and keep the suite green.
 
 ## Commits and pull requests
 
