@@ -24,6 +24,14 @@ PROSE_TELLS = {
     "throat-clearing",
     "vague-intensifier",
     "emoji",
+    "curly-quote",
+    "chatbot-phrase",
+    "sycophancy",
+    "fancy-is",
+    "puffery",
+    "vague-attribution",
+    "inflated-word",
+    "trailing-participle",
 }
 
 

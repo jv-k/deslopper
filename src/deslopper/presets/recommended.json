@@ -1,5 +1,5 @@
 {
-  "description": "Tell definitions for scripts/deslop-lint.py. Each tell is matched against a line after fenced code, inline code, and front matter are stripped. Order matters: tells run top to bottom, and 'pre-entity' tells run before HTML entities are masked. See conventions/writing-style.md for the rules behind each one.",
+  "description": "The recommended preset. Each tell is matched against a line after fenced code, inline code, and front matter are stripped. Order matters: tells run top to bottom, and 'pre-entity' tells run before HTML entities are masked. The README's tell table documents each one with an example.",
   "tells": [
     {
       "name": "em-dash",
@@ -23,6 +23,13 @@
       "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
     },
     {
+      "name": "curly-quote",
+      "tier": "error",
+      "phase": "pre-entity",
+      "pattern": "&ldquo;|&rdquo;|&lsquo;|&rsquo;|&#0*(?:821[67]|822[01]);|&#[xX]0*201[89cCdD];",
+      "message": "curly quote as an HTML entity, use a straight quote"
+    },
+    {
       "name": "em-dash",
       "tier": "error",
       "pattern": "[\\u2014\\u2015]",
@@ -39,6 +46,12 @@
       "tier": "error",
       "pattern": "[\\u00B7\\u2022\\u2219\\u22C5\\u2027\\u30FB]",
       "message": "middle dot or bullet in prose, join the items with a comma or plain words"
+    },
+    {
+      "name": "curly-quote",
+      "tier": "error",
+      "pattern": "[\\u2018\\u2019\\u201C\\u201D]",
+      "message": "curly quote, use a straight quote"
     },
     {
       "name": "bold-bullet-lead",
@@ -102,6 +115,55 @@
       "tier": "warn",
       "pattern": "[\\U0001F300-\\U0001FAFF\\u2600-\\u27BF\\u2705\\u2714\\u2611\\u2713\\u2B50\\u2728]",
       "message": "emoji or decorative checkmark in body text"
+    },
+    {
+      "name": "chatbot-phrase",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:I hope this helps|hope th(?:is|at) helps|let me know if|feel free to)\\b|^\\s*(?:Of course|Certainly)[.!]",
+      "message": "chatbot phrase, delete it"
+    },
+    {
+      "name": "sycophancy",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["great question", "excellent point", "you're absolutely right", "you're right to"],
+      "message": "sycophantic tone, respond directly"
+    },
+    {
+      "name": "fancy-is",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["serves as", "stands as", "boasts"],
+      "message": "fancy way to say 'is', say 'is' or 'has'"
+    },
+    {
+      "name": "puffery",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["testament to", "evolving landscape", "setting the stage for", "deeply rooted", "indelible mark"],
+      "message": "puffery, state what happened"
+    },
+    {
+      "name": "vague-attribution",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["experts (?:believe|say|suggest|agree)", "industry reports? suggests?", "some (?:critics|observers|analysts) argue", "many believe"],
+      "message": "vague attribution, name the source or cut"
+    },
+    {
+      "name": "inflated-word",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["tapestry", "interplay", "garners?", "intricate", "crucial", "pivotal", "enduring"],
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "name": "trailing-participle",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": ",\\s*(?:ensuring|highlighting|reflecting|showcasing|fostering|underscoring|demonstrating|allowing|enabling)\\b",
+      "message": "trailing participle clause, say it straight or cut"
     }
   ]
 }

@@ -69,6 +69,14 @@ def test_every_tell_fires_across_the_corpus(tmp_path):
         "throat-clearing",
         "vague-intensifier",
         "emoji",
+        "curly-quote",
+        "chatbot-phrase",
+        "sycophancy",
+        "fancy-is",
+        "puffery",
+        "vague-attribution",
+        "inflated-word",
+        "trailing-participle",
     }
     assert expected <= names, f"missing tells: {sorted(expected - names)}"
 
