@@ -147,6 +147,70 @@
     {
       "path": "comprehensive.md",
       "line": 16,
+      "col": 17,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote as an HTML entity, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 16,
+      "col": 27,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote as an HTML entity, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 16,
+      "col": 39,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote as an HTML entity, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 16,
+      "col": 52,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote as an HTML entity, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 16,
+      "col": 64,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote as an HTML entity, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 16,
+      "col": 76,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote as an HTML entity, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 16,
+      "col": 88,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote as an HTML entity, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 16,
+      "col": 101,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote as an HTML entity, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 18,
       "col": 15,
       "tier": "error",
       "name": "em-dash",
@@ -154,7 +218,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 16,
+      "line": 18,
       "col": 20,
       "tier": "error",
       "name": "em-dash",
@@ -162,48 +226,80 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 18,
+      "line": 20,
+      "col": 7,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 20,
+      "col": 14,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 20,
+      "col": 20,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 20,
+      "col": 27,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 20,
+      "col": 45,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote, use a straight quote"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 22,
       "col": 3,
       "tier": "warn",
       "name": "bold-bullet-lead",
       "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
-    },
-    {
-      "path": "comprehensive.md",
-      "line": 21,
-      "col": 4,
-      "tier": "warn",
-      "name": "bold-bullet-lead",
-      "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
-    },
-    {
-      "path": "comprehensive.md",
-      "line": 23,
-      "col": 3,
-      "tier": "warn",
-      "name": "id-label-lead",
-      "message": "id label on a list item, number the list plainly"
-    },
-    {
-      "path": "comprehensive.md",
-      "line": 24,
-      "col": 3,
-      "tier": "warn",
-      "name": "bold-bullet-lead",
-      "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
-    },
-    {
-      "path": "comprehensive.md",
-      "line": 24,
-      "col": 3,
-      "tier": "warn",
-      "name": "id-label-lead",
-      "message": "id label on a list item, number the list plainly"
     },
     {
       "path": "comprehensive.md",
       "line": 25,
       "col": 4,
+      "tier": "warn",
+      "name": "bold-bullet-lead",
+      "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 27,
+      "col": 3,
+      "tier": "warn",
+      "name": "id-label-lead",
+      "message": "id label on a list item, number the list plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 28,
+      "col": 3,
+      "tier": "warn",
+      "name": "bold-bullet-lead",
+      "message": "bolded bullet lead, reserve bold for a rare callout not a per-item label"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 28,
+      "col": 3,
       "tier": "warn",
       "name": "id-label-lead",
       "message": "id label on a list item, number the list plainly"
@@ -211,6 +307,14 @@
     {
       "path": "comprehensive.md",
       "line": 29,
+      "col": 4,
+      "tier": "warn",
+      "name": "id-label-lead",
+      "message": "id label on a list item, number the list plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 33,
       "col": 6,
       "tier": "warn",
       "name": "filler-verb",
@@ -218,7 +322,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 33,
       "col": 20,
       "tier": "warn",
       "name": "filler-verb",
@@ -226,7 +330,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 29,
+      "line": 33,
       "col": 32,
       "tier": "warn",
       "name": "filler-verb",
@@ -234,7 +338,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 31,
+      "line": 35,
       "col": 3,
       "tier": "warn",
       "name": "marketing-adjective",
@@ -242,7 +346,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 31,
+      "line": 35,
       "col": 13,
       "tier": "warn",
       "name": "marketing-adjective",
@@ -250,7 +354,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 31,
+      "line": 35,
       "col": 21,
       "tier": "warn",
       "name": "marketing-adjective",
@@ -258,7 +362,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 33,
+      "line": 37,
       "col": 1,
       "tier": "warn",
       "name": "throat-clearing",
@@ -266,7 +370,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 35,
+      "line": 39,
       "col": 1,
       "tier": "warn",
       "name": "throat-clearing",
@@ -274,7 +378,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 35,
+      "line": 39,
       "col": 21,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -282,7 +386,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 35,
+      "line": 39,
       "col": 26,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -290,7 +394,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 35,
+      "line": 39,
       "col": 33,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -298,7 +402,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 35,
+      "line": 39,
       "col": 39,
       "tier": "warn",
       "name": "vague-intensifier",
@@ -306,7 +410,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 37,
+      "line": 41,
       "col": 9,
       "tier": "warn",
       "name": "not-just-x-but-y",
@@ -314,7 +418,207 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 39,
+      "line": 43,
+      "col": 1,
+      "tier": "warn",
+      "name": "chatbot-phrase",
+      "message": "chatbot phrase, delete it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 43,
+      "col": 12,
+      "tier": "warn",
+      "name": "chatbot-phrase",
+      "message": "chatbot phrase, delete it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 43,
+      "col": 34,
+      "tier": "warn",
+      "name": "chatbot-phrase",
+      "message": "chatbot phrase, delete it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 45,
+      "col": 1,
+      "tier": "warn",
+      "name": "sycophancy",
+      "message": "sycophantic tone, respond directly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 45,
+      "col": 20,
+      "tier": "warn",
+      "name": "sycophancy",
+      "message": "sycophantic tone, respond directly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 45,
+      "col": 37,
+      "tier": "warn",
+      "name": "sycophancy",
+      "message": "sycophantic tone, respond directly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 47,
+      "col": 10,
+      "tier": "warn",
+      "name": "fancy-is",
+      "message": "fancy way to say 'is', say 'is' or 'has'"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 47,
+      "col": 27,
+      "tier": "warn",
+      "name": "fancy-is",
+      "message": "fancy way to say 'is', say 'is' or 'has'"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 47,
+      "col": 53,
+      "tier": "warn",
+      "name": "fancy-is",
+      "message": "fancy way to say 'is', say 'is' or 'has'"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 49,
+      "col": 3,
+      "tier": "warn",
+      "name": "puffery",
+      "message": "puffery, state what happened"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 49,
+      "col": 20,
+      "tier": "warn",
+      "name": "puffery",
+      "message": "puffery, state what happened"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 49,
+      "col": 40,
+      "tier": "warn",
+      "name": "puffery",
+      "message": "puffery, state what happened"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 51,
+      "col": 1,
+      "tier": "warn",
+      "name": "vague-attribution",
+      "message": "vague attribution, name the source or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 51,
+      "col": 21,
+      "tier": "warn",
+      "name": "vague-attribution",
+      "message": "vague attribution, name the source or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 51,
+      "col": 51,
+      "tier": "warn",
+      "name": "vague-attribution",
+      "message": "vague attribution, name the source or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 53,
+      "col": 6,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 53,
+      "col": 15,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 53,
+      "col": 25,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 53,
+      "col": 37,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 53,
+      "col": 45,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 53,
+      "col": 55,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 53,
+      "col": 63,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 55,
+      "col": 10,
+      "tier": "warn",
+      "name": "trailing-participle",
+      "message": "trailing participle clause, say it straight or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 55,
+      "col": 27,
+      "tier": "warn",
+      "name": "trailing-participle",
+      "message": "trailing participle clause, say it straight or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 55,
+      "col": 46,
+      "tier": "warn",
+      "name": "trailing-participle",
+      "message": "trailing participle clause, say it straight or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 57,
       "col": 12,
       "tier": "warn",
       "name": "emoji",
@@ -322,7 +626,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 39,
+      "line": 57,
       "col": 31,
       "tier": "warn",
       "name": "emoji",
@@ -330,7 +634,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 39,
+      "line": 57,
       "col": 44,
       "tier": "warn",
       "name": "emoji",
@@ -338,7 +642,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 55,
+      "line": 73,
       "col": 9,
       "tier": "error",
       "name": "em-dash",
@@ -346,7 +650,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 55,
+      "line": 73,
       "col": 17,
       "tier": "warn",
       "name": "filler-verb",
@@ -355,8 +659,8 @@
   ],
   "unreadable": [],
   "summary": {
-    "errors": 20,
-    "warnings": 24,
+    "errors": 33,
+    "warnings": 49,
     "unreadable": 0
   }
 }

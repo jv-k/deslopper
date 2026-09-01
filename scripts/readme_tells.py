@@ -26,6 +26,7 @@ EXAMPLES = {
     "em-dash": "A quick fix — just restart.",
     "section-sign": "See § 4.2 for details.",
     "middle-dot": "fast · simple · tested",
+    "curly-quote": "It’s “done” now.",
     "bold-bullet-lead": "- **Blazing speed** builds finish in seconds",
     "id-label-lead": "- FR-1 The app shall sync.",
     "semicolon": "It compiles; it ships.",
@@ -35,13 +36,20 @@ EXAMPLES = {
     "throat-clearing": "It's worth noting that tests pass.",
     "vague-intensifier": "significantly faster",
     "emoji": "Done ✅",
+    "chatbot-phrase": "I hope this helps!",
+    "sycophancy": "Great question!",
+    "fancy-is": "The CLI boasts three modes.",
+    "puffery": "A testament to good design.",
+    "vague-attribution": "Experts believe it scales.",
+    "inflated-word": "A crucial, intricate detail.",
+    "trailing-participle": "It retries, ensuring delivery.",
 }
 
 
 def _rows():
-    # One row per name. The three entity-capable tells appear twice in the
-    # preset (pre- and post-entity); the post-entity message is the prose-facing
-    # one, and the preset lists it second, so the later duplicate wins.
+    # One row per name. The entity-capable tells appear twice in the preset
+    # (pre- and post-entity); the post-entity message is the prose-facing one,
+    # and the preset lists it second, so the later duplicate wins.
     rows = {}
     for t in resolve({}).tells:
         if t.name not in EXAMPLES:

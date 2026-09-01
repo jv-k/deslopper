@@ -16,29 +16,67 @@ comprehensive.md:14:41 [error] middle-dot: middle dot or bullet as an HTML entit
 comprehensive.md:14:52 [error] middle-dot: middle dot or bullet as an HTML entity, join the items with a comma or plain words
 comprehensive.md:14:63 [error] middle-dot: middle dot or bullet as an HTML entity, join the items with a comma or plain words
 comprehensive.md:14:75 [error] middle-dot: middle dot or bullet as an HTML entity, join the items with a comma or plain words
-comprehensive.md:16:15 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
-comprehensive.md:16:20 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
-comprehensive.md:18:3 [warn] bold-bullet-lead: bolded bullet lead, reserve bold for a rare callout not a per-item label
-comprehensive.md:21:4 [warn] bold-bullet-lead: bolded bullet lead, reserve bold for a rare callout not a per-item label
-comprehensive.md:23:3 [warn] id-label-lead: id label on a list item, number the list plainly
-comprehensive.md:24:3 [warn] bold-bullet-lead: bolded bullet lead, reserve bold for a rare callout not a per-item label
-comprehensive.md:24:3 [warn] id-label-lead: id label on a list item, number the list plainly
-comprehensive.md:25:4 [warn] id-label-lead: id label on a list item, number the list plainly
-comprehensive.md:29:6 [warn] filler-verb: filler verb, use a plain verb or cut
-comprehensive.md:29:20 [warn] filler-verb: filler verb, use a plain verb or cut
-comprehensive.md:29:32 [warn] filler-verb: filler verb, use a plain verb or cut
-comprehensive.md:31:3 [warn] marketing-adjective: marketing adjective, say what is true
-comprehensive.md:31:13 [warn] marketing-adjective: marketing adjective, say what is true
-comprehensive.md:31:21 [warn] marketing-adjective: marketing adjective, say what is true
-comprehensive.md:33:1 [warn] throat-clearing: throat-clearing or transition opener, start with the point
-comprehensive.md:35:1 [warn] throat-clearing: throat-clearing or transition opener, start with the point
-comprehensive.md:35:21 [warn] vague-intensifier: vague intensifier with no number behind it
-comprehensive.md:35:26 [warn] vague-intensifier: vague intensifier with no number behind it
-comprehensive.md:35:33 [warn] vague-intensifier: vague intensifier with no number behind it
-comprehensive.md:35:39 [warn] vague-intensifier: vague intensifier with no number behind it
-comprehensive.md:37:9 [warn] not-just-x-but-y: "not just X but Y" padding, make the point once
-comprehensive.md:39:12 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:39:31 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:39:44 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:55:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
-comprehensive.md:55:17 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:16:17 [error] curly-quote: curly quote as an HTML entity, use a straight quote
+comprehensive.md:16:27 [error] curly-quote: curly quote as an HTML entity, use a straight quote
+comprehensive.md:16:39 [error] curly-quote: curly quote as an HTML entity, use a straight quote
+comprehensive.md:16:52 [error] curly-quote: curly quote as an HTML entity, use a straight quote
+comprehensive.md:16:64 [error] curly-quote: curly quote as an HTML entity, use a straight quote
+comprehensive.md:16:76 [error] curly-quote: curly quote as an HTML entity, use a straight quote
+comprehensive.md:16:88 [error] curly-quote: curly quote as an HTML entity, use a straight quote
+comprehensive.md:16:101 [error] curly-quote: curly quote as an HTML entity, use a straight quote
+comprehensive.md:18:15 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:18:20 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:20:7 [error] curly-quote: curly quote, use a straight quote
+comprehensive.md:20:14 [error] curly-quote: curly quote, use a straight quote
+comprehensive.md:20:20 [error] curly-quote: curly quote, use a straight quote
+comprehensive.md:20:27 [error] curly-quote: curly quote, use a straight quote
+comprehensive.md:20:45 [error] curly-quote: curly quote, use a straight quote
+comprehensive.md:22:3 [warn] bold-bullet-lead: bolded bullet lead, reserve bold for a rare callout not a per-item label
+comprehensive.md:25:4 [warn] bold-bullet-lead: bolded bullet lead, reserve bold for a rare callout not a per-item label
+comprehensive.md:27:3 [warn] id-label-lead: id label on a list item, number the list plainly
+comprehensive.md:28:3 [warn] bold-bullet-lead: bolded bullet lead, reserve bold for a rare callout not a per-item label
+comprehensive.md:28:3 [warn] id-label-lead: id label on a list item, number the list plainly
+comprehensive.md:29:4 [warn] id-label-lead: id label on a list item, number the list plainly
+comprehensive.md:33:6 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:33:20 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:33:32 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:35:3 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:35:13 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:35:21 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:37:1 [warn] throat-clearing: throat-clearing or transition opener, start with the point
+comprehensive.md:39:1 [warn] throat-clearing: throat-clearing or transition opener, start with the point
+comprehensive.md:39:21 [warn] vague-intensifier: vague intensifier with no number behind it
+comprehensive.md:39:26 [warn] vague-intensifier: vague intensifier with no number behind it
+comprehensive.md:39:33 [warn] vague-intensifier: vague intensifier with no number behind it
+comprehensive.md:39:39 [warn] vague-intensifier: vague intensifier with no number behind it
+comprehensive.md:41:9 [warn] not-just-x-but-y: "not just X but Y" padding, make the point once
+comprehensive.md:43:1 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:43:12 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:43:34 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:45:1 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:45:20 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:45:37 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:47:10 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:47:27 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:47:53 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:49:3 [warn] puffery: puffery, state what happened
+comprehensive.md:49:20 [warn] puffery: puffery, state what happened
+comprehensive.md:49:40 [warn] puffery: puffery, state what happened
+comprehensive.md:51:1 [warn] vague-attribution: vague attribution, name the source or cut
+comprehensive.md:51:21 [warn] vague-attribution: vague attribution, name the source or cut
+comprehensive.md:51:51 [warn] vague-attribution: vague attribution, name the source or cut
+comprehensive.md:53:6 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:53:15 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:53:25 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:53:37 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:53:45 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:53:55 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:53:63 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:55:10 [warn] trailing-participle: trailing participle clause, say it straight or cut
+comprehensive.md:55:27 [warn] trailing-participle: trailing participle clause, say it straight or cut
+comprehensive.md:55:46 [warn] trailing-participle: trailing participle clause, say it straight or cut
+comprehensive.md:57:12 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:57:31 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:57:44 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:73:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:73:17 [warn] filler-verb: filler verb, use a plain verb or cut

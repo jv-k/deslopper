@@ -106,15 +106,15 @@ formats are never styled.
 
 ## Tiers and exit codes
 
-The error tier (em dashes, the section sign, middle-dot separators) fails the run. The warn
-tier prints but passes unless you add `--strict`. Exit codes: 0 clean, 1 a failing-tier
+The error tier (em dashes, the section sign, middle-dot separators, curly quotes) fails the
+run. The warn tier prints but passes unless you add `--strict`. Exit codes: 0 clean, 1 a failing-tier
 finding or an unreadable file, 2 a usage or configuration error.
 
 ## The tells
 
 The `recommended` preset ships these, one row per tell with an example of the prose it
-catches. The em dash, section sign, and middle dot are caught in prose and also when
-spelled as HTML entities. The table is generated from the preset by
+catches. The em dash, section sign, middle dot, and curly quotes are caught in prose and
+also when spelled as HTML entities. The table is generated from the preset by
 `scripts/readme_tells.py` and pinned by tests, including one that checks each example
 fires its tell, and `deslopper rules` prints the live list for whatever config is active.
 
@@ -128,6 +128,7 @@ fires its tell, and `deslopper rules` prints the live list for whatever config i
 | `em-dash` | ❌ | `A quick fix — just restart.` | em dash in prose, use a colon, comma, parentheses, or two sentences |
 | `section-sign` | ❌ | `See § 4.2 for details.` | section sign, write 'section' |
 | `middle-dot` | ❌ | `fast · simple · tested` | middle dot or bullet in prose, join the items with a comma or plain words |
+| `curly-quote` | ❌ | `It’s “done” now.` | curly quote, use a straight quote |
 | `bold-bullet-lead` | ⚠️ | `- **Blazing speed** builds finish in seconds` | bolded bullet lead, reserve bold for a rare callout not a per-item label |
 | `id-label-lead` | ⚠️ | `- FR-1 The app shall sync.` | id label on a list item, number the list plainly |
 | `semicolon` | ⚠️ | `It compiles; it ships.` | semicolon in prose, prefer a full stop |
@@ -137,6 +138,13 @@ fires its tell, and `deslopper rules` prints the live list for whatever config i
 | `throat-clearing` | ⚠️ | `It's worth noting that tests pass.` | throat-clearing or transition opener, start with the point |
 | `vague-intensifier` | ⚠️ | `significantly faster` | vague intensifier with no number behind it |
 | `emoji` | ⚠️ | `Done ✅` | emoji or decorative checkmark in body text |
+| `chatbot-phrase` | ⚠️ | `I hope this helps!` | chatbot phrase, delete it |
+| `sycophancy` | ⚠️ | `Great question!` | sycophantic tone, respond directly |
+| `fancy-is` | ⚠️ | `The CLI boasts three modes.` | fancy way to say 'is', say 'is' or 'has' |
+| `puffery` | ⚠️ | `A testament to good design.` | puffery, state what happened |
+| `vague-attribution` | ⚠️ | `Experts believe it scales.` | vague attribution, name the source or cut |
+| `inflated-word` | ⚠️ | `A crucial, intricate detail.` | inflated word, use a plain one |
+| `trailing-participle` | ⚠️ | `It retries, ensuring delivery.` | trailing participle clause, say it straight or cut |
 
 <!-- deslop-lint-enable -->
 <!-- tell-table:end -->

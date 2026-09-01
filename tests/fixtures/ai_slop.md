@@ -6,6 +6,8 @@ In today's fast-paced world, teams need tools that just work. Our platform is a 
 
 At its core, the product leverages state-of-the-art AI to deliver a seamless, intuitive experience. It's worth noting that this isn't just another app; it's a comprehensive ecosystem.
 
+Great question — how does it scale? The engine serves as the crucial foundation of the platform, ensuring every workflow “just flows.” Experts believe this is a testament to thoughtful design. Let me know if you’d like a walkthrough — I hope this helps!
+
 ## Why Teams Love It
 
 When it comes to collaboration, we've got you covered. Our robust, powerful engine facilitates real-time teamwork and fosters a vibrant culture of innovation.
