@@ -16,29 +16,67 @@
 ::error file=comprehensive.md,line=14,col=52::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
 ::error file=comprehensive.md,line=14,col=63::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
 ::error file=comprehensive.md,line=14,col=75::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
-::error file=comprehensive.md,line=16,col=15::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::error file=comprehensive.md,line=16,col=20::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::warning file=comprehensive.md,line=18,col=3::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
-::warning file=comprehensive.md,line=21,col=4::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
-::warning file=comprehensive.md,line=23,col=3::id-label-lead - id label on a list item, number the list plainly
-::warning file=comprehensive.md,line=24,col=3::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
-::warning file=comprehensive.md,line=24,col=3::id-label-lead - id label on a list item, number the list plainly
-::warning file=comprehensive.md,line=25,col=4::id-label-lead - id label on a list item, number the list plainly
-::warning file=comprehensive.md,line=29,col=6::filler-verb - filler verb, use a plain verb or cut
-::warning file=comprehensive.md,line=29,col=20::filler-verb - filler verb, use a plain verb or cut
-::warning file=comprehensive.md,line=29,col=32::filler-verb - filler verb, use a plain verb or cut
-::warning file=comprehensive.md,line=31,col=3::marketing-adjective - marketing adjective, say what is true
-::warning file=comprehensive.md,line=31,col=13::marketing-adjective - marketing adjective, say what is true
-::warning file=comprehensive.md,line=31,col=21::marketing-adjective - marketing adjective, say what is true
-::warning file=comprehensive.md,line=33,col=1::throat-clearing - throat-clearing or transition opener, start with the point
-::warning file=comprehensive.md,line=35,col=1::throat-clearing - throat-clearing or transition opener, start with the point
-::warning file=comprehensive.md,line=35,col=21::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=35,col=26::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=35,col=33::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=35,col=39::vague-intensifier - vague intensifier with no number behind it
-::warning file=comprehensive.md,line=37,col=9::not-just-x-but-y - "not just X but Y" padding, make the point once
-::warning file=comprehensive.md,line=39,col=12::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=39,col=31::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=39,col=44::emoji - emoji or decorative checkmark in body text
-::error file=comprehensive.md,line=55,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::warning file=comprehensive.md,line=55,col=17::filler-verb - filler verb, use a plain verb or cut
+::error file=comprehensive.md,line=16,col=17::curly-quote - curly quote as an HTML entity, use a straight quote
+::error file=comprehensive.md,line=16,col=27::curly-quote - curly quote as an HTML entity, use a straight quote
+::error file=comprehensive.md,line=16,col=39::curly-quote - curly quote as an HTML entity, use a straight quote
+::error file=comprehensive.md,line=16,col=52::curly-quote - curly quote as an HTML entity, use a straight quote
+::error file=comprehensive.md,line=16,col=64::curly-quote - curly quote as an HTML entity, use a straight quote
+::error file=comprehensive.md,line=16,col=76::curly-quote - curly quote as an HTML entity, use a straight quote
+::error file=comprehensive.md,line=16,col=88::curly-quote - curly quote as an HTML entity, use a straight quote
+::error file=comprehensive.md,line=16,col=101::curly-quote - curly quote as an HTML entity, use a straight quote
+::error file=comprehensive.md,line=18,col=15::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::error file=comprehensive.md,line=18,col=20::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::error file=comprehensive.md,line=20,col=7::curly-quote - curly quote, use a straight quote
+::error file=comprehensive.md,line=20,col=14::curly-quote - curly quote, use a straight quote
+::error file=comprehensive.md,line=20,col=20::curly-quote - curly quote, use a straight quote
+::error file=comprehensive.md,line=20,col=27::curly-quote - curly quote, use a straight quote
+::error file=comprehensive.md,line=20,col=45::curly-quote - curly quote, use a straight quote
+::warning file=comprehensive.md,line=22,col=3::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
+::warning file=comprehensive.md,line=25,col=4::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
+::warning file=comprehensive.md,line=27,col=3::id-label-lead - id label on a list item, number the list plainly
+::warning file=comprehensive.md,line=28,col=3::bold-bullet-lead - bolded bullet lead, reserve bold for a rare callout not a per-item label
+::warning file=comprehensive.md,line=28,col=3::id-label-lead - id label on a list item, number the list plainly
+::warning file=comprehensive.md,line=29,col=4::id-label-lead - id label on a list item, number the list plainly
+::warning file=comprehensive.md,line=33,col=6::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=33,col=20::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=33,col=32::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=35,col=3::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=35,col=13::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=35,col=21::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=37,col=1::throat-clearing - throat-clearing or transition opener, start with the point
+::warning file=comprehensive.md,line=39,col=1::throat-clearing - throat-clearing or transition opener, start with the point
+::warning file=comprehensive.md,line=39,col=21::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=39,col=26::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=39,col=33::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=39,col=39::vague-intensifier - vague intensifier with no number behind it
+::warning file=comprehensive.md,line=41,col=9::not-just-x-but-y - "not just X but Y" padding, make the point once
+::warning file=comprehensive.md,line=43,col=1::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=43,col=12::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=43,col=34::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=45,col=1::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=45,col=20::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=45,col=37::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=47,col=10::fancy-is - fancy way to say 'is', say 'is' or 'has'
+::warning file=comprehensive.md,line=47,col=27::fancy-is - fancy way to say 'is', say 'is' or 'has'
+::warning file=comprehensive.md,line=47,col=53::fancy-is - fancy way to say 'is', say 'is' or 'has'
+::warning file=comprehensive.md,line=49,col=3::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=49,col=20::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=49,col=40::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=51,col=1::vague-attribution - vague attribution, name the source or cut
+::warning file=comprehensive.md,line=51,col=21::vague-attribution - vague attribution, name the source or cut
+::warning file=comprehensive.md,line=51,col=51::vague-attribution - vague attribution, name the source or cut
+::warning file=comprehensive.md,line=53,col=6::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=53,col=15::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=53,col=25::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=53,col=37::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=53,col=45::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=53,col=55::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=53,col=63::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=55,col=10::trailing-participle - trailing participle clause, say it straight or cut
+::warning file=comprehensive.md,line=55,col=27::trailing-participle - trailing participle clause, say it straight or cut
+::warning file=comprehensive.md,line=55,col=46::trailing-participle - trailing participle clause, say it straight or cut
+::warning file=comprehensive.md,line=57,col=12::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=57,col=31::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=57,col=44::emoji - emoji or decorative checkmark in body text
+::error file=comprehensive.md,line=73,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::warning file=comprehensive.md,line=73,col=17::filler-verb - filler verb, use a plain verb or cut
