@@ -8,6 +8,11 @@ In today's fast-paced world, scheduling is very hard. It's worth noting that Orc
 streamlines everything; the scheduler, the runner, and the reporter work as one. This may
 well be the fastest way to run jobs, arguably.
 
+Great question: why another scheduler? Orchestrate serves as the crucial substrate of your
+delivery paradigm, ensuring every run lands. Experts believe it is a testament to the
+evolving landscape of automation. It’s “config-free” by default. Let me know if that
+sounds familiar, and I hope this helps.
+
 ## Quick start
 
 Install the CLI, then point it at a config:

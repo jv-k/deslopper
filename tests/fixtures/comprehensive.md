@@ -13,7 +13,11 @@ Entities: &mdash; and &#8212; and &#x2014; and &sect; and &#167; and &#xA7;.
 
 More entities: &middot; and &#0183; and &#xB7; and &bull; and &#8226; and &#x2022;.
 
+Quote entities: &ldquo;air&rdquo; and &lsquo;single&rsquo; and &#8216; and &#8220; and &#x2019; and &#x201D;.
+
 Two em dashes — on — one line.
+
+Curly “double” and ‘single’ quotes and an it’s apostrophe flag.
 
 - **Bold lead** then prose after the label should flag
 - **Term:** definition list is exempt
@@ -35,6 +39,20 @@ In today's world we open with throat-clearing.
 Furthermore this is very really quite significantly intense.
 
 This is not just fast but also clean padding.
+
+Of course! I hope this helps and let me know if it fits.
+
+Great question, an excellent point, you're absolutely right.
+
+The tool serves as a hub, stands as a standard, and boasts speed.
+
+A testament to the evolving landscape, setting the stage for more.
+
+Experts believe and industry reports suggest what many believe.
+
+This crucial, intricate tapestry of pivotal interplay garners enduring praise.
+
+It scales, ensuring uptime, highlighting wins, reflecting demand.
 
 Emoji line 🚀 with a checkmark ✅ and a star ⭐.
 
