@@ -32,5 +32,9 @@ details.
 Furthermore, the plugin API unlocks comprehensive integrations. Whether you are a solo
 developer, a small team, or a large enterprise, Orchestrate delivers.
 
+Despite these challenges, Orchestrate continues to thrive.
+While specific details are limited, the flywheel is our north star of the endgame.
+**Fast**, **safe**, and **simple** in a single line, and the future looks bright.
+
 In conclusion, Orchestrate is the seamless, robust, game-changing way to run jobs, as we
 said above.

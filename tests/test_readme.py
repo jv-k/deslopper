@@ -40,3 +40,24 @@ def test_every_example_fires_exactly_its_tell(tmp_path):
         p.write_text(example + "\n", encoding="utf-8")
         found = {f.name for f in lint_files([("doc.md", str(p))], tells).findings}
         assert name in found, f"example for {name!r} does not fire it: {example!r}"
+
+
+def test_readme_aggressive_table_matches_aggressive_preset():
+    # Same golden contract as the recommended table, second marker pair.
+    with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as fh:
+        readme = fh.read()
+    assert _renderer().render_aggressive_block() in readme
+
+
+def test_every_aggressive_example_fires_its_tell(tmp_path):
+    from deslopper.config import resolve
+    from deslopper.engine import lint_files
+
+    examples = _renderer().AGGRESSIVE_EXAMPLES
+    tells = resolve({"extends": ["deslopper:aggressive"]}).tells
+    assert set(examples) == {t.name for t in tells}, "one example per aggressive tell"
+    for name, example in examples.items():
+        p = tmp_path / "doc.md"
+        p.write_text(example + "\n", encoding="utf-8")
+        found = {f.name for f in lint_files([("doc.md", str(p))], tells).findings}
+        assert name in found, f"example for {name!r} does not fire it: {example!r}"

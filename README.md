@@ -149,6 +149,36 @@ fires its tell, and `deslopper rules` prints the live list for whatever config i
 <!-- deslop-lint-enable -->
 <!-- tell-table:end -->
 
+## The `aggressive` preset
+
+An opt-in layer of higher-false-positive tells for teams that would rather triage noise
+than miss a tell. Extend both presets, in this order:
+
+    {
+      "extends": ["deslopper:recommended", "deslopper:aggressive"]
+    }
+
+The layer is additive: no tell in it shares a name with a recommended tell, so nothing is
+replaced. Words that double as real technical vocabulary (vector, primitive, surface,
+harness, scaffolding) are excluded on purpose, because a regex cannot tell the metaphor
+from the term.
+
+<!-- aggressive-table:begin -->
+<!-- deslop-lint-disable -->
+
+⚠️ warn throughout: the layer trades precision for reach, and you triage.
+
+| Tell | Tier | Example | Message |
+| --- | --- | --- | --- |
+| `abstract-metaphor` | ⚠️ | `Our north star is the flywheel.` | abstract metaphor, pick the concrete word |
+| `cutoff-disclaimer` | ⚠️ | `Specific details are limited.` | cutoff disclaimer, find the fact or cut |
+| `formulaic-challenge` | ⚠️ | `Despite challenges, it continues to thrive.` | formulaic challenge framing, give the specific fact |
+| `generic-conclusion` | ⚠️ | `The future looks bright.` | generic conclusion, state a plan or fact |
+| `boldface-overuse` | ⚠️ | `**Fast**, **safe**, **simple**.` | three or more bold spans on one line, bold at most one thing |
+
+<!-- deslop-lint-enable -->
+<!-- aggressive-table:end -->
+
 ## The `json` format
 
 `deslopper lint --format json` prints one object for tooling:
@@ -176,8 +206,8 @@ The package ships JSON Schemas for both sides of the contract:
 
 The linter is the deterministic floor. The rewrite that clears a backlog is a model pass,
 and `deslopper eval` tests whether yours works: it seeds a temporary sandbox with slop
-fixtures that trip every tell in the recommended preset, runs your rewrite command over the
-sandbox, and judges the result.
+fixtures that trip every tell in the recommended and aggressive presets, runs your rewrite
+command over the sandbox, and judges the result.
 
     deslopper eval 'my-rewrite {dir}'
     deslopper eval ./scripts/deslop.sh    # the sandbox path is appended when {dir} is absent
@@ -284,8 +314,9 @@ and not a literal string.
 Fenced code, inline code, front matter, and HTML entities are masked before tells scan, so
 no tell fires inside them.
 
-`extends` names the presets to build on, opted into as `deslopper:<name>`. `recommended`
-is the only preset shipped today. The whole file is described by the
+`extends` names the presets to build on, opted into as `deslopper:<name>`. Two presets
+ship today: `recommended`, the default, and `aggressive`, the opt-in layer described
+above. The whole file is described by the
 [config schema](src/deslopper/schema/config.schema.json).
 
 ## Disable directives
