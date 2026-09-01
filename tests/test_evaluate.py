@@ -42,6 +42,17 @@ def test_raw_fixtures_trip_every_tell(tmp_path):
     assert result.errors >= 1
 
 
+def test_raw_fixtures_trip_every_aggressive_tell(tmp_path):
+    """The fixtures carry slop for the opt-in preset too, same contract."""
+    cfg = resolve({"extends": ["deslopper:aggressive"]})
+    expected = {t.name for t in cfg.tells}
+    seed_sandbox(str(tmp_path))
+    names = sorted(n for n in os.listdir(str(tmp_path)) if n.endswith(".md"))
+    items = [(n, os.path.join(str(tmp_path), n)) for n in names]
+    fired = {f.name for f in lint_files(items, cfg.tells).findings}
+    assert expected <= fired, f"missing tells: {sorted(expected - fired)}"
+
+
 # A stand-in for the LLM rewrite pass. `clean` keeps every protected line (front
 # matter, fences, headings, table rows, lines holding a link) and replaces the
 # rest with plain prose; `mangle` cleans and then edits inside a fence.
