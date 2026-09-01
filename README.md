@@ -106,15 +106,15 @@ formats are never styled.
 
 ## Tiers and exit codes
 
-The error tier (em dashes, the section sign, middle-dot separators) fails the run. The warn
-tier prints but passes unless you add `--strict`. Exit codes: 0 clean, 1 a failing-tier
+The error tier (em dashes, the section sign, middle-dot separators, curly quotes) fails the
+run. The warn tier prints but passes unless you add `--strict`. Exit codes: 0 clean, 1 a failing-tier
 finding or an unreadable file, 2 a usage or configuration error.
 
 ## The tells
 
 The `recommended` preset ships these, one row per tell with an example of the prose it
-catches. The em dash, section sign, and middle dot are caught in prose and also when
-spelled as HTML entities. The table is generated from the preset by
+catches. The em dash, section sign, middle dot, and curly quotes are caught in prose and
+also when spelled as HTML entities. The table is generated from the preset by
 `scripts/readme_tells.py` and pinned by tests, including one that checks each example
 fires its tell, and `deslopper rules` prints the live list for whatever config is active.
 
@@ -128,6 +128,7 @@ fires its tell, and `deslopper rules` prints the live list for whatever config i
 | `em-dash` | ❌ | `A quick fix — just restart.` | em dash in prose, use a colon, comma, parentheses, or two sentences |
 | `section-sign` | ❌ | `See § 4.2 for details.` | section sign, write 'section' |
 | `middle-dot` | ❌ | `fast · simple · tested` | middle dot or bullet in prose, join the items with a comma or plain words |
+| `curly-quote` | ❌ | `It’s “done” now.` | curly quote, use a straight quote |
 | `bold-bullet-lead` | ⚠️ | `- **Blazing speed** builds finish in seconds` | bolded bullet lead, reserve bold for a rare callout not a per-item label |
 | `id-label-lead` | ⚠️ | `- FR-1 The app shall sync.` | id label on a list item, number the list plainly |
 | `semicolon` | ⚠️ | `It compiles; it ships.` | semicolon in prose, prefer a full stop |
@@ -137,9 +138,46 @@ fires its tell, and `deslopper rules` prints the live list for whatever config i
 | `throat-clearing` | ⚠️ | `It's worth noting that tests pass.` | throat-clearing or transition opener, start with the point |
 | `vague-intensifier` | ⚠️ | `significantly faster` | vague intensifier with no number behind it |
 | `emoji` | ⚠️ | `Done ✅` | emoji or decorative checkmark in body text |
+| `chatbot-phrase` | ⚠️ | `I hope this helps!` | chatbot phrase, delete it |
+| `sycophancy` | ⚠️ | `Great question!` | sycophantic tone, respond directly |
+| `fancy-is` | ⚠️ | `The CLI boasts three modes.` | fancy way to say 'is', say 'is' or 'has' |
+| `puffery` | ⚠️ | `A testament to good design.` | puffery, state what happened |
+| `vague-attribution` | ⚠️ | `Experts believe it scales.` | vague attribution, name the source or cut |
+| `inflated-word` | ⚠️ | `A crucial, intricate detail.` | inflated word, use a plain one |
+| `trailing-participle` | ⚠️ | `It retries, ensuring delivery.` | trailing participle clause, say it straight or cut |
 
 <!-- deslop-lint-enable -->
 <!-- tell-table:end -->
+
+## The `aggressive` preset
+
+An opt-in layer of higher-false-positive tells for teams that would rather triage noise
+than miss a tell. Extend both presets, in this order:
+
+    {
+      "extends": ["deslopper:recommended", "deslopper:aggressive"]
+    }
+
+The layer is additive: no tell in it shares a name with a recommended tell, so nothing is
+replaced. Words that double as real technical vocabulary (vector, primitive, surface,
+harness, scaffolding) are excluded on purpose, because a regex cannot tell the metaphor
+from the term.
+
+<!-- aggressive-table:begin -->
+<!-- deslop-lint-disable -->
+
+⚠️ warn throughout: the layer trades precision for reach, and you triage.
+
+| Tell | Tier | Example | Message |
+| --- | --- | --- | --- |
+| `abstract-metaphor` | ⚠️ | `Our north star is the flywheel.` | abstract metaphor, pick the concrete word |
+| `cutoff-disclaimer` | ⚠️ | `Specific details are limited.` | cutoff disclaimer, find the fact or cut |
+| `formulaic-challenge` | ⚠️ | `Despite challenges, it continues to thrive.` | formulaic challenge framing, give the specific fact |
+| `generic-conclusion` | ⚠️ | `The future looks bright.` | generic conclusion, state a plan or fact |
+| `boldface-overuse` | ⚠️ | `**Fast**, **safe**, **simple**.` | three or more bold spans on one line, bold at most one thing |
+
+<!-- deslop-lint-enable -->
+<!-- aggressive-table:end -->
 
 ## The `json` format
 
@@ -168,8 +206,8 @@ The package ships JSON Schemas for both sides of the contract:
 
 The linter is the deterministic floor. The rewrite that clears a backlog is a model pass,
 and `deslopper eval` tests whether yours works: it seeds a temporary sandbox with slop
-fixtures that trip every tell in the recommended preset, runs your rewrite command over the
-sandbox, and judges the result.
+fixtures that trip every tell in the recommended and aggressive presets, runs your rewrite
+command over the sandbox, and judges the result.
 
     deslopper eval 'my-rewrite {dir}'
     deslopper eval ./scripts/deslop.sh    # the sandbox path is appended when {dir} is absent
@@ -276,8 +314,9 @@ and not a literal string.
 Fenced code, inline code, front matter, and HTML entities are masked before tells scan, so
 no tell fires inside them.
 
-`extends` names the presets to build on, opted into as `deslopper:<name>`. `recommended`
-is the only preset shipped today. The whole file is described by the
+`extends` names the presets to build on, opted into as `deslopper:<name>`. Two presets
+ship today: `recommended`, the default, and `aggressive`, the opt-in layer described
+above. The whole file is described by the
 [config schema](src/deslopper/schema/config.schema.json).
 
 ## Disable directives

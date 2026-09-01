@@ -6,4 +6,6 @@ Under section &sect; 4, the provider delivers a seamless service. Per &#167; 7, 
 
 The license is governed by section § 12, and the warranty &#x2014; where applicable &#xA7; is limited.
 
+Customers call the service a &ldquo;game changer&rdquo; &mdash; and it&rsquo;s only getting better.
+
 See also: Home &middot; Terms &bull; Privacy &#183; Support.
