@@ -17,6 +17,20 @@ def test_recommended_has_twenty_four_tells_including_both_phase_variants():
         assert (name, "post-entity") in phases
 
 
+def test_aggressive_is_an_additive_layer_over_recommended():
+    # The preset holds only new (name, phase) keys, so extending both never
+    # replaces a recommended tell in place.
+    recommended = load_builtin("recommended")["tells"]
+    aggressive = load_builtin("aggressive")["tells"]
+    rec_keys = {(t["name"], t.get("phase", "post-entity")) for t in recommended}
+    agg_keys = {(t["name"], t.get("phase", "post-entity")) for t in aggressive}
+    assert len(aggressive) == 5
+    assert not rec_keys & agg_keys
+    layered = resolve({"extends": ["deslopper:recommended", "deslopper:aggressive"]})
+    assert len(layered.tells) == len(recommended) + len(aggressive)
+    assert "aggressive" in available()
+
+
 import json
 
 import pytest

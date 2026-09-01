@@ -1,0 +1,39 @@
+{
+  "description": "An additive layer of higher-false-positive tells, opted into alongside the base set as extends: [\"deslopper:recommended\", \"deslopper:aggressive\"]. Every tell is warn tier: the preset trades precision for reach, and the user triages. No tell here shares a (name, phase) with a recommended tell, so layering never replaces one in place. Words like vector, primitive, surface, harness, and scaffolding are excluded on purpose: a regex cannot tell the metaphor from the legitimate technical term.",
+  "tells": [
+    {
+      "name": "abstract-metaphor",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["substrate", "wedge", "locus", "vantage", "nexus", "bedrock", "modalit(?:y|ies)", "paradigms?", "gold-plating", "north star", "flywheel", "endgame", "ratchets?", "landscape", "underscores?"],
+      "message": "abstract metaphor, pick the concrete word"
+    },
+    {
+      "name": "cutoff-disclaimer",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["specific details are (?:limited|scarce)", "as of my last (?:update|training)", "as of my knowledge cutoff", "I don't have access to"],
+      "message": "cutoff disclaimer, find the fact or cut"
+    },
+    {
+      "name": "formulaic-challenge",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\bdespite (?:these |the |its |numerous )?challenges\\b|\\bcontinues? to thrive\\b",
+      "message": "formulaic challenge framing, give the specific fact"
+    },
+    {
+      "name": "generic-conclusion",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["the future (?:looks|is) bright", "only time will tell", "the possibilities are endless", "exciting times ahead"],
+      "message": "generic conclusion, state a plan or fact"
+    },
+    {
+      "name": "boldface-overuse",
+      "tier": "warn",
+      "pattern": "(?:\\*\\*[^*]+\\*\\*[^*]*){3,}",
+      "message": "three or more bold spans on one line, bold at most one thing"
+    }
+  ]
+}
