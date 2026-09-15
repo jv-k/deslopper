@@ -30,7 +30,7 @@
       "col": 20,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words, or separate with \u25e6"
     },
     {
       "path": "comprehensive.md",
@@ -38,7 +38,7 @@
       "col": 40,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words, or separate with \u25e6"
     },
     {
       "path": "comprehensive.md",
@@ -46,7 +46,7 @@
       "col": 57,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle dot or bullet in prose, join the items with a comma or plain words"
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words, or separate with \u25e6"
     },
     {
       "path": "comprehensive.md",
@@ -102,7 +102,7 @@
       "col": 16,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with \u25e6"
     },
     {
       "path": "comprehensive.md",
@@ -110,7 +110,7 @@
       "col": 29,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with \u25e6"
     },
     {
       "path": "comprehensive.md",
@@ -118,7 +118,7 @@
       "col": 41,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with \u25e6"
     },
     {
       "path": "comprehensive.md",
@@ -126,7 +126,7 @@
       "col": 52,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with \u25e6"
     },
     {
       "path": "comprehensive.md",
@@ -134,7 +134,7 @@
       "col": 63,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with \u25e6"
     },
     {
       "path": "comprehensive.md",
@@ -142,7 +142,7 @@
       "col": 75,
       "tier": "error",
       "name": "middle-dot",
-      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words"
+      "message": "middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with \u25e6"
     },
     {
       "path": "comprehensive.md",
