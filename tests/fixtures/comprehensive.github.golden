@@ -1,21 +1,21 @@
 ::warning file=comprehensive.md,line=6,col=27::semicolon - semicolon in prose, prefer a full stop
 ::error file=comprehensive.md,line=8,col=23::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
 ::error file=comprehensive.md,line=8,col=44::section-sign - section sign, write 'section'
-::error file=comprehensive.md,line=10,col=20::middle-dot - middle dot or bullet in prose, join the items with a comma or plain words
-::error file=comprehensive.md,line=10,col=40::middle-dot - middle dot or bullet in prose, join the items with a comma or plain words
-::error file=comprehensive.md,line=10,col=57::middle-dot - middle dot or bullet in prose, join the items with a comma or plain words
+::error file=comprehensive.md,line=10,col=20::middle-dot - middle dot or bullet in prose, join the items with a comma or plain words, or separate with ◦
+::error file=comprehensive.md,line=10,col=40::middle-dot - middle dot or bullet in prose, join the items with a comma or plain words, or separate with ◦
+::error file=comprehensive.md,line=10,col=57::middle-dot - middle dot or bullet in prose, join the items with a comma or plain words, or separate with ◦
 ::error file=comprehensive.md,line=12,col=11::em-dash - em dash as an HTML entity, write it out plainly
 ::error file=comprehensive.md,line=12,col=23::em-dash - em dash as an HTML entity, write it out plainly
 ::error file=comprehensive.md,line=12,col=35::em-dash - em dash as an HTML entity, write it out plainly
 ::error file=comprehensive.md,line=12,col=48::section-sign - section sign as an HTML entity, write 'section'
 ::error file=comprehensive.md,line=12,col=59::section-sign - section sign as an HTML entity, write 'section'
 ::error file=comprehensive.md,line=12,col=70::section-sign - section sign as an HTML entity, write 'section'
-::error file=comprehensive.md,line=14,col=16::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
-::error file=comprehensive.md,line=14,col=29::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
-::error file=comprehensive.md,line=14,col=41::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
-::error file=comprehensive.md,line=14,col=52::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
-::error file=comprehensive.md,line=14,col=63::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
-::error file=comprehensive.md,line=14,col=75::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words
+::error file=comprehensive.md,line=14,col=16::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with ◦
+::error file=comprehensive.md,line=14,col=29::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with ◦
+::error file=comprehensive.md,line=14,col=41::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with ◦
+::error file=comprehensive.md,line=14,col=52::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with ◦
+::error file=comprehensive.md,line=14,col=63::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with ◦
+::error file=comprehensive.md,line=14,col=75::middle-dot - middle dot or bullet as an HTML entity, join the items with a comma or plain words, or separate with ◦
 ::error file=comprehensive.md,line=16,col=17::curly-quote - curly quote as an HTML entity, use a straight quote
 ::error file=comprehensive.md,line=16,col=27::curly-quote - curly quote as an HTML entity, use a straight quote
 ::error file=comprehensive.md,line=16,col=39::curly-quote - curly quote as an HTML entity, use a straight quote
