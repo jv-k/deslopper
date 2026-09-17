@@ -144,3 +144,19 @@ def test_filler_verb_leaves_delve_the_proper_noun_alone(text):
     # `delve` is a filler verb; `Delve` is a tool. Capitalised and not followed
     # by into/deeper, it is the proper noun, so the tell must not fire.
     assert not offsets(_preset_tell("filler-verb"), text), f"false positive: {text!r}"
+
+
+def test_middle_dot_leaves_the_white_bullet_alone():
+    # ◦ (U+25E6) is the separator the message points at for a status line or a
+    # footer, where a comma reads wrong, so neither spelling of the tell fires on it.
+    for raw in (t for t in load_builtin("recommended")["tells"] if t["name"] == "middle-dot"):
+        assert not offsets(compile_tell(raw), "PR #12 ◦ owner aaaa1111 ◦ ledger 2m")
+
+
+def test_middle_dot_message_names_the_separator_to_use():
+    # Both spellings of the tell, the character and the HTML entity, say what
+    # to write instead where a separator is needed.
+    tells = [t for t in load_builtin("recommended")["tells"] if t["name"] == "middle-dot"]
+    assert len(tells) == 2
+    for tell in tells:
+        assert "◦" in tell["message"], tell["message"]

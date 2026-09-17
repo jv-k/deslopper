@@ -127,7 +127,7 @@ fires its tell, and `deslopper rules` prints the live list for whatever config i
 | --- | --- | --- | --- |
 | `em-dash` | ❌ | `A quick fix — just restart.` | em dash in prose, use a colon, comma, parentheses, or two sentences |
 | `section-sign` | ❌ | `See § 4.2 for details.` | section sign, write 'section' |
-| `middle-dot` | ❌ | `fast · simple · tested` | middle dot or bullet in prose, join the items with a comma or plain words |
+| `middle-dot` | ❌ | `fast · simple · tested` | middle dot or bullet in prose, join the items with a comma or plain words, or separate with ◦ |
 | `curly-quote` | ❌ | `It’s “done” now.` | curly quote, use a straight quote |
 | `bold-bullet-lead` | ⚠️ | `- **Blazing speed** builds finish in seconds` | bolded bullet lead, reserve bold for a rare callout not a per-item label |
 | `id-label-lead` | ⚠️ | `- FR-1 The app shall sync.` | id label on a list item, number the list plainly |
