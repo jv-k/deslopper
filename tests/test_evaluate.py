@@ -246,7 +246,7 @@ def test_plainness_scores_each_fixture_before_and_after(tmp_path, capsys, monkey
         assert sorted(body["questions"]) == ["overview.md", "reference.md", "template.md"]
         for name, question in body["questions"].items():
             assert question["type"] == "score"
-            assert len(question["criteria"]) == 3
+            assert question["criteria"] == list(evaluate.PLAINNESS_BUCKETS)
             assert name in body["state"]
 
 
@@ -304,6 +304,7 @@ def test_plainness_survives_a_gateway_failure_on_the_after_pass(tmp_path, capsys
     captured = capsys.readouterr()
     assert code == 0
     assert "✖ plainness (after): gateway returned 502" in captured.err
+    assert sum("plainness" in l for l in captured.err.splitlines()) == 1
     assert "ℹ plainness overview.md: 0.12" in captured.out
     assert "ℹ plainness mean: 0.10 | 400 tokens, $0.000066" in captured.out
     assert "-> " not in captured.out
@@ -315,6 +316,7 @@ def test_plainness_shows_only_the_after_score_when_the_baseline_failed(tmp_path,
     captured = capsys.readouterr()
     assert code == 0
     assert "✖ plainness (baseline): could not reach the gateway" in captured.err
+    assert sum("plainness" in l for l in captured.err.splitlines()) == 1
     assert "ℹ plainness overview.md: 0.84" in captured.out
     assert "ℹ plainness mean: 0.81 | 400 tokens, $0.000066" in captured.out
 
@@ -328,6 +330,13 @@ def _deleting_command(tmp_path, name):
     return f"{sys.executable} {script} {name} {{dir}}"
 
 
+def test_a_deleted_fixture_fails_preservation_without_the_flag(tmp_path, capsys):
+    code = run_eval(_deleting_command(tmp_path, "template.md"), pal=ui.PLAIN)
+    out = capsys.readouterr().out
+    assert code == 3
+    assert "preservation: template.md: unreadable" in out
+
+
 def test_plainness_reports_a_deleted_fixture_as_unreadable(tmp_path, capsys, monkeypatch):
     calls = _scoring_transport(monkeypatch, [BEFORE, AFTER])
     code = run_eval(_deleting_command(tmp_path, "template.md"), plainness=True, pal=ui.PLAIN)
@@ -336,5 +345,20 @@ def test_plainness_reports_a_deleted_fixture_as_unreadable(tmp_path, capsys, mon
     assert "preservation: template.md: unreadable" in captured.out
     assert "ℹ plainness template.md: unreadable" in captured.out
     assert "ℹ plainness overview.md: 0.12 -> 0.84" in captured.out
+    # The mean is over the two fixtures both passes scored, so the deleted
+    # fixture's baseline 0.10 is left out: (0.12 + 0.08) / 2, not 0.10.
     assert "ℹ plainness mean: 0.10 -> 0.82" in captured.out
     assert sorted(calls[1]["questions"]) == ["overview.md", "reference.md"]
+
+
+def test_plainness_mean_is_over_the_fixtures_both_passes_scored(tmp_path, capsys, monkeypatch):
+    skewed = dict(BEFORE, **{"template.md": 0.90})
+    _scoring_transport(monkeypatch, [skewed, AFTER])
+    run_eval(_deleting_command(tmp_path, "template.md"), plainness=True, pal=ui.PLAIN)
+    assert "ℹ plainness mean: 0.10 -> 0.82" in capsys.readouterr().out
+
+
+def test_plainness_cost_prints_as_a_plain_decimal(tmp_path, capsys, monkeypatch):
+    _scoring_transport(monkeypatch, [BEFORE, AFTER], cost="6.6E-5")
+    run_eval(_fake_command(tmp_path, "clean"), plainness=True, pal=ui.PLAIN)
+    assert "| 800 tokens, $0.000132" in capsys.readouterr().out
