@@ -49,20 +49,24 @@ The gates in steps 1 and 3 are VerBump's own hooks, `PRE_BUMP_CMD` and `POST_TAG
    before a release, and it needs `AI_GATEWAY_API_KEY` in your shell. A failure here
    changes nothing.
 2. VerBump prompts for the version, bumps the three files, commits, and tags `vX.Y.Z`.
-   Enter the same version the changelog section names. It runs with `-c` and does not push.
-   The commit goes through the repo's pre-commit hooks, so the suite runs once more there.
+   Enter the same version the changelog section names. It runs with `-c`, so the changelog
+   is left alone. The commit goes through the repo's pre-commit hooks, so the suite runs
+   once more there.
 3. `scripts/postflight.sh` checks what the bump produced: a clean tree, `HEAD` tagged to
    match `package.json`, the three version files in agreement, a lint that still passes,
    and the tests.
-4. The tag and commit are pushed, then `gh release create --generate-notes` writes the
-   GitHub release. The tag triggers `release.yml`, which repeats the gates and publishes to
+4. VerBump pushes the commit and tag to `origin` (`-p origin`, so there is no prompt to
+   decline) and writes the GitHub release with `gh release create --generate-notes`
+   (`--release`). The tag triggers `release.yml`, which repeats the gates and publishes to
    PyPI.
 
 Any runner works in place of `pnpm`: `npm run bump-release`, or the command itself.
 
 If step 3 fails, nothing is public. VerBump keeps the commit and tag for inspection. Undo
-them with `verbump --undo X.Y.Z`, fix the cause, and start again. `--no-hooks` skips both
-gates for a single run, for the rare case where the gate itself is what is broken.
+the tag with `verbump --undo X.Y.Z`. The bump commit stays, and while it is unpushed you can
+drop it too with `git reset --hard HEAD~1`. Fix the cause and start again. `--no-hooks`
+skips both gates for a single run, for the rare case where the gate itself is what is
+broken.
 
 If `release.yml` fails before the upload to PyPI, delete the tag with `git tag -d vX.Y.Z`
 and `git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and re-cut the same
