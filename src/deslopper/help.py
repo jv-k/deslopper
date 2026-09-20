@@ -67,12 +67,14 @@ COMMANDS = {
             ("", "--strict", "", "Fail on warn-tier findings too."),
             ("", "--config", "<file>", "Use this config file instead of discovering one."),
             ("", "--format", "<fmt>", "Output format: text (default), github, or json."),
+            ("", "--triage", "", "Ask Jev to mark each finding keep or rewrite. Needs AI_GATEWAY_API_KEY."),
         ],
         "examples": [
             ("deslopper lint", "Lint the configured include set."),
             ("deslopper lint docs/ README.md", "Lint specific paths."),
             ("deslopper lint --strict", "Fail on warn-tier findings too."),
             ("deslopper lint --format github", "Emit GitHub Actions annotations."),
+            ("deslopper lint --triage docs/", "Sort the findings into keep and rewrite."),
         ],
     },
     "check": {

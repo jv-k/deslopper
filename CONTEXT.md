@@ -57,6 +57,18 @@ Blanking a region to spaces before tells scan it, so no tell fires inside it. Fe
 inline code, front matter, and HTML entities are masked. The entity step is the one the
 phase names key on.
 
+## Triage
+
+**Triage**:
+The opt-in pass, `lint --triage`, that asks Jev about each finding after the scan. It
+annotates and never gates: the exit code is the scan's alone.
+_Avoid_: classification, labelling.
+
+**Verdict**:
+Jev's answer for one finding, `keep` or `rewrite`, with the probability of that answer. A
+finding without one renders exactly as before.
+_Avoid_: label, score.
+
 ## The eval
 
 **Eval**:

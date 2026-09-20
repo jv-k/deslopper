@@ -100,7 +100,11 @@ def score(instructions: str, labels: list) -> dict:
     return {"type": "score", "instructions": instructions, "criteria": list(labels)}
 
 
-def _api_key() -> str:
+def require_key() -> str:
+    """The gateway key, or JevUnavailable naming the variable to export.
+
+    A consumer that wants to fail before doing any other work calls this first.
+    """
     key = os.environ.get(KEY_VAR)
     if not key:
         raise JevUnavailable(f"{KEY_VAR} is not set; export it to ask Jev")
@@ -117,7 +121,7 @@ def post(body: dict) -> dict:
         ENDPOINT,
         data=json.dumps(body).encode("utf-8"),
         headers={
-            "Authorization": f"Bearer {_api_key()}",
+            "Authorization": f"Bearer {require_key()}",
             "Content-Type": "application/json",
         },
         method="POST",
@@ -197,5 +201,5 @@ def evaluate(state: str, questions: dict) -> Result:
         raise ValueError("state is empty; there is nothing to ask Jev about")
     if not questions:
         raise ValueError("questions is empty; build at least one with boolean, choice, or score")
-    _api_key()
+    require_key()
     return Result.from_reply(post({"model": MODEL, "state": state, "questions": questions}))
