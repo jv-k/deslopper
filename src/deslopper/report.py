@@ -72,7 +72,17 @@ def format_json(result) -> str:
     return json.dumps(payload, indent=2) + "\n"
 
 
-def summary_line(result, strict: bool, pal=ui.PLAIN) -> str:
+def _triage_tail(result, judged) -> str:
+    """The ` · triage: N keep, M rewrite · T tokens, $C` tail when triage ran.
+
+    `judged` is the Triage the pass returned, whose result is `result`."""
+    if judged is None:
+        return ""
+    return (f" · triage: {result.keep} keep, {result.rewrite} rewrite"
+            f" · {judged.tokens} tokens, ${judged.cost:f}")
+
+
+def summary_line(result, strict: bool, pal=ui.PLAIN, judged=None) -> str:
     tag = " [strict]" if strict else ""
     unreadable = len(result.unreadable)
     if not result.findings and not unreadable:
@@ -80,6 +90,7 @@ def summary_line(result, strict: bool, pal=ui.PLAIN) -> str:
     counts = f"{result.errors} error(s), {result.warnings} warning(s)"
     if unreadable:
         counts += f", {unreadable} unreadable"
+    counts += _triage_tail(result, judged)
     if result.errors or unreadable:
         return ui.status_line(pal, pal.error, ui.I_ERROR, f"{counts}{tag}")
     return ui.status_line(pal, pal.warn, ui.I_WARN, f"{counts}{tag}")
