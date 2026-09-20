@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Post-bump gates for `pnpm bump-release`. These run after VerBump has bumped, committed
-# and tagged, and before anything is pushed, so a bad bump is caught while the tag is still
-# local. Recovery is then `git reset --hard HEAD~1 && git tag -d vX.Y.Z`, as RELEASING.md
-# describes. Once a tag is public it has to be deleted on the remote and re-cut.
+# Post-bump gates, run by VerBump as POST_TAG_CMD (see .verbumprc) after it has bumped,
+# committed and tagged, and before anything is pushed, so a bad bump is caught while the
+# tag is still local. Recovery is then `verbump --undo X.Y.Z`, as RELEASING.md describes.
+# Once a tag is public it has to be deleted on the remote and re-cut.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
