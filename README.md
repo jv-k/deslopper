@@ -85,7 +85,7 @@ gate stays the deterministic floor.
 
 ## Commands
 
-    deslopper lint  [PATHS...] [--strict] [--config P] [--format text|github|json]
+    deslopper lint  [PATHS...] [--strict] [--config P] [--format text|github|json] [--triage]
     deslopper check [PATHS...] [--config P]   # report only, exits 0 on findings
     deslopper rules [--config P]              # list the active tells
     deslopper init                            # write a starter config
@@ -201,6 +201,36 @@ from the term.
 The package ships JSON Schemas for both sides of the contract:
 [output.schema.json](src/deslopper/schema/output.schema.json) for this object and
 [config.schema.json](src/deslopper/schema/config.schema.json) for the config file.
+
+## Triage a backlog with `--triage`
+
+A tell is a regex, and a regex cannot tell a decorative em dash from one inside a quoted
+title, or `delve` the filler verb from Delve the debugger. On a repo with real prose the
+warn tier fills up with findings a careful editor would keep. `deslopper lint --triage`
+runs the scan as usual, then sends each flagged line, with the line above and below it, to
+the `typesafe-ai/jev` model through the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway)
+and asks one question per finding:
+is this a machine-writing tic to rewrite, or a deliberate use to keep? Each finding comes
+back with a verdict and its probability, in every format:
+
+    docs/guide.md:6:27 [warn] semicolon: semicolon in prose, prefer a full stop [rewrite 0.88]
+    docs/guide.md:9:14 [warn] filler-verb: filler verb, say what it does [keep 0.97]
+
+The `json` format adds `verdict` and `probability` to each judged finding, and the `github`
+format folds the verdict into the annotation message. The summary line reports how many
+findings were `keep` and `rewrite`, and the tokens and gateway cost the run spent.
+
+Triage is annotation only. The exit code is exactly what the scan alone returns, so a
+`keep` verdict never makes a lint pass and the deterministic gate holds in CI. Findings on a
+disabled line are never sent, and a file with no findings makes no request. The flag is
+command-line only, never a config key, so no repo can switch on network calls for everyone
+who lints in it, and `check` does not accept it.
+
+The gateway key comes from `AI_GATEWAY_API_KEY`. Without it, `--triage` exits 2 with a
+one-line hint and prints no findings. One request is made per file with findings. A probe
+of nine findings cost $0.000066 and took under half a second. A request that fails prints
+one error line to stderr, leaves that file's findings without verdicts, and the run
+finishes with the scan's exit code.
 
 ## Eval a rewrite pass
 

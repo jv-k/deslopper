@@ -90,3 +90,18 @@ def test_module_entrypoint_runs():
     )
     assert proc.returncode == 0
     assert "em-dash" in proc.stdout
+
+
+def test_triage_without_the_key_exits_two_with_the_hint(tmp_path):
+    """The real process, with the key scrubbed from the environment: exit 2, one
+    hint line naming the variable, and no findings on stdout."""
+    cwd = _stage(tmp_path, "ai_slop.md")
+    env = {k: v for k, v in os.environ.items() if k != "AI_GATEWAY_API_KEY"}
+    proc = subprocess.run(
+        [sys.executable, "-m", "deslopper", "lint", "--triage", "ai_slop.md"],
+        cwd=cwd, env=env, capture_output=True, text=True,
+    )
+    assert proc.returncode == 2
+    assert proc.stdout == ""
+    assert "AI_GATEWAY_API_KEY" in proc.stderr
+    assert len(proc.stderr.splitlines()) == 1
