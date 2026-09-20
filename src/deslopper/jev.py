@@ -11,19 +11,23 @@ import os
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
+from typing import Optional, Union
 
 ENDPOINT = "https://ai-gateway.vercel.sh/v1/evaluate"
 MODEL = "typesafe-ai/jev"
 KEY_VAR = "AI_GATEWAY_API_KEY"
 
 # One bounded wait per request and no retries: a consumer runs once per
-# invocation and reports a failed batch rather than looping on it.
+# invocation and reports a failed batch rather than looping on it. urllib
+# applies it to each socket operation, so it caps a stall, not a slow drip.
 TIMEOUT_SECONDS = 10
 
-# Jev's window is 32k tokens. This is what a consumer batches `state` against,
-# leaving room for the questions and the model's own output. Characters, not
-# tokens: the client does not count tokens.
-STATE_CHAR_BUDGET = 96_000
+# Jev's window is 32k tokens. This is what a consumer batches `state` against.
+# Markdown with punctuation and line prefixes runs about three characters a
+# token, so 64k characters is roughly 21k tokens, leaving a third of the window
+# for the questions and the model's own output. Characters, not tokens: the
+# client does not count tokens.
+STATE_CHAR_BUDGET = 64_000
 
 
 class JevUnavailable(Exception):
@@ -34,20 +38,47 @@ class JevError(Exception):
     """The gateway refused or garbled a request."""
 
 
-@dataclass
+@dataclass(frozen=True)
 class Answer:
+    """One typed answer. `value` is the probability of true for a boolean, the
+    chosen option for a choice, or the 0..1 score for a score."""
+
     kind: str
-    value: object
+    value: Union[float, str, None]
     probabilities: dict
-    confidence: object
+    confidence: Optional[float]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Result:
+    """What one evaluate call came back with: answers by question key, token
+    usage, and the gateway's reported cost. Usage and cost are None when the
+    envelope omits them."""
+
     answers: dict
-    input_tokens: int
-    output_tokens: int
-    market_cost: str
+    input_tokens: Optional[int]
+    output_tokens: Optional[int]
+    market_cost: Optional[str]
+
+    @classmethod
+    def from_reply(cls, reply: dict) -> "Result":
+        metadata = reply.get("providerMetadata") or {}
+        typesafe = metadata.get("typesafe") or {}
+        gateway = metadata.get("gateway") or {}
+        usage = reply.get("usage") or {}
+        confidences = typesafe.get("confidence")
+        if not isinstance(confidences, dict):
+            confidences = {}
+        answers = {
+            key: _answer(key, raw, confidences)
+            for key, raw in (reply.get("answers") or {}).items()
+        }
+        return cls(
+            answers=answers,
+            input_tokens=usage.get("inputTokens"),
+            output_tokens=usage.get("outputTokens"),
+            market_cost=gateway.get("marketCost"),
+        )
 
 
 def boolean(instructions: str, true: str, false: str) -> dict:
@@ -99,17 +130,21 @@ def post(body: dict) -> dict:
     except urllib.error.URLError as err:
         raise JevError(f"could not reach the gateway: {err.reason}") from None
     try:
-        return json.loads(raw.decode("utf-8"))
+        decoded = json.loads(raw.decode("utf-8"))
     except (UnicodeDecodeError, ValueError):
         raise JevError("the gateway replied with something other than JSON") from None
+    if not isinstance(decoded, dict):
+        raise JevError("the gateway replied with JSON that is not an object")
+    return decoded
 
 
 def _describe_http_error(err: urllib.error.HTTPError) -> str:
     """One line from an HTTP error: status, the gateway's message, and the credits hint.
 
-    The gateway's error body is `{"error": {"message": ...}}`; some refusals put a
-    plain string under `error` instead. Neither carries the key, and this never
-    reads the request headers, so the message cannot leak it.
+    The gateway's error body is `{"error": {"message": ...}}`; its allowlist
+    refusals put the message straight under `error` as a string. Neither
+    carries the key, and this never reads the request headers, so the message
+    cannot leak it.
     """
     message = ""
     try:
@@ -134,13 +169,17 @@ def _answer(key: str, raw: dict, per_question_confidence: dict) -> Answer:
     if kind == "boolean":
         p = raw.get("probability")
         value = p
+        # The gateway sends one probability for a boolean; the two-way
+        # distribution is derived here so every kind carries `probabilities`.
         probabilities = {"true": p, "false": 1 - p} if p is not None else {}
     elif kind == "choice":
         value = raw.get("choice")
         probabilities = raw.get("probabilities") or {}
-    else:
+    elif kind == "score":
         value = raw.get("score")
         probabilities = raw.get("probabilities") or {}
+    else:
+        raise JevError(f"answer {key!r} has an unknown type {kind!r}")
     # The answer carries its own confidence for choice and score; boolean's sits
     # only under providerMetadata.typesafe.confidence, keyed by question.
     confidence = raw.get("confidence", per_question_confidence.get(key))
@@ -159,19 +198,4 @@ def evaluate(state: str, questions: dict) -> Result:
     if not questions:
         raise ValueError("questions is empty; build at least one with boolean, choice, or score")
     _api_key()
-    reply = post({"model": MODEL, "state": state, "questions": questions})
-
-    metadata = reply.get("providerMetadata") or {}
-    confidences = (metadata.get("typesafe") or {}).get("confidence") or {}
-    if not isinstance(confidences, dict):
-        confidences = {}
-    usage = reply.get("usage") or {}
-    answers = {
-        key: _answer(key, raw, confidences) for key, raw in (reply.get("answers") or {}).items()
-    }
-    return Result(
-        answers=answers,
-        input_tokens=usage.get("inputTokens"),
-        output_tokens=usage.get("outputTokens"),
-        market_cost=(metadata.get("gateway") or {}).get("marketCost"),
-    )
+    return Result.from_reply(post({"model": MODEL, "state": state, "questions": questions}))
