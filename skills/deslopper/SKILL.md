@@ -48,4 +48,6 @@ Handle the findings by tier:
 
 Findings that predate your edit in a file you touched count as yours: the file is already
 in the diff, so fix them by the same tier policy. If that suggests the repo carries a wider
-backlog, offer a repo-wide sweep and wait for the user to ask for it.
+backlog, offer a repo-wide sweep and wait for the user to ask for it. When the backlog is
+large, offer `deslopper lint --triage <paths>` to sort each finding into keep or rewrite
+before rewriting anything, since it needs `AI_GATEWAY_API_KEY` and spends tokens.
