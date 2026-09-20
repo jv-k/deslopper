@@ -16,6 +16,10 @@ I_INFO = "ℹ"
 I_BULLET = "•"
 I_ARROW = "→"
 I_TRACE = "↳"
+I_BAR = "❚"
+
+# Slots in a rating bar: enough to tell 0.7 from 0.9, few enough to scan.
+BAR_SLOTS = 5
 
 # VerBump's 7-stop 256-colour ramp, stretched to one stop per wordmark letter.
 RAINBOW_STOPS = (196, 202, 214, 226, 82, 39, 21, 93, 163)
@@ -103,6 +107,17 @@ def wrap(width: int, text: str) -> list:
     if line:
         lines.append(line)
     return lines
+
+
+def rating_bar(pal: Palette, score: float) -> str:
+    """A 0-1 score as a five-slot gauge: filled slots in the confidence colour
+    (green from 0.9, yellow from 0.7, red below), the rest dim. With the gate
+    off every sequence is empty and only the glyphs remain, so callers that
+    keep a numeric form for piped output must choose before calling."""
+    filled = round(score * BAR_SLOTS)
+    style = pal.ok if score >= 0.9 else pal.warn if score >= 0.7 else pal.error
+    return (f"{style}{I_BAR * filled}{pal.reset}"
+            f"{pal.dim}{I_BAR * (BAR_SLOTS - filled)}{pal.reset}")
 
 
 def pill(pal: Palette, style: str, text: str) -> str:

@@ -112,6 +112,56 @@ def test_format_text_appends_verdict_only_when_present():
     assert lines[2] == "a.md:5:1 [warn] hedge: hedge"
 
 
+# Styled, the probability becomes a five-slot gauge: filled slots in the confidence
+# colour, the rest dim. Piped output above keeps the number and the pinned grammar.
+
+
+@pytest.mark.parametrize("score, filled, style", [
+    (0.93, 5, "ok"),
+    (0.88, 4, "warn"),
+    (0.70, 4, "warn"),
+    (0.55, 3, "error"),
+    (1.0, 5, "ok"),
+    (0.0, 0, "error"),
+])
+def test_rating_bar_fills_by_score_and_colours_by_confidence(score, filled, style):
+    pal = ui.Palette(True)
+    bar = ui.rating_bar(pal, score)
+    assert bar.count(ui.I_BAR) == ui.BAR_SLOTS
+    assert bar.startswith(getattr(pal, style) + ui.I_BAR * filled + pal.reset)
+    assert bar.endswith(pal.dim + ui.I_BAR * (ui.BAR_SLOTS - filled) + pal.reset)
+
+
+def test_rating_bar_is_plain_glyphs_when_the_gate_is_off():
+    assert ui.rating_bar(ui.PLAIN, 0.88) == ui.I_BAR * ui.BAR_SLOTS
+
+
+def test_format_text_styled_leads_with_the_rating_bar_and_keeps_the_verdict_tail():
+    pal = ui.Palette(True)
+    lines = format_text(annotated(), pal).splitlines()
+    assert lines[0].startswith(f"{ui.rating_bar(pal, 0.93)} {pal.bold}a.md{pal.reset}:3:5 ")
+    assert lines[0].endswith(" [keep]")
+    assert lines[1].startswith(f"{ui.rating_bar(pal, 0.88)} {pal.bold}a.md{pal.reset}:4:1 ")
+    assert lines[1].endswith(" [rewrite]")
+    assert "0.93" not in lines[0] and "0.88" not in lines[1]
+
+
+def test_format_text_styled_pads_an_unjudged_line_in_a_judged_run():
+    pal = ui.Palette(True)
+    line = format_text(annotated(), pal).splitlines()[2]
+    assert line.startswith(" " * (ui.BAR_SLOTS + 1) + f"{pal.bold}a.md{pal.reset}:5:1 ")
+    assert ui.I_BAR not in line
+    assert not line.endswith("]")
+
+
+def test_format_text_styled_has_no_prefix_without_triage():
+    pal = ui.Palette(True)
+    unjudged = LintResult(findings=[Finding("a.md", 3, 5, "error", "em-dash", "em dash"),
+                                    Finding("a.md", 4, 1, "warn", "semicolon", "semi")])
+    lines = format_text(unjudged, pal).splitlines()
+    assert all(line.startswith(f"{pal.bold}a.md{pal.reset}:") for line in lines)
+
+
 def test_format_json_carries_verdict_only_on_judged_findings():
     findings = json.loads(format_json(annotated()))["findings"]
     assert findings[0]["verdict"] == "keep"
@@ -120,12 +170,6 @@ def test_format_json_carries_verdict_only_on_judged_findings():
     assert findings[1]["probability"] == 0.88
     assert "verdict" not in findings[2]
     assert "probability" not in findings[2]
-
-
-def test_format_text_styles_the_verdict_with_the_message():
-    pal = ui.Palette(True)
-    line = format_text(annotated(), pal).splitlines()[0]
-    assert line.endswith(f"{pal.dim}em dash in prose [keep 0.93]{pal.reset}")
 
 
 def test_format_github_folds_verdict_into_message():
