@@ -9,13 +9,20 @@ def tier_style(pal, tier):
     return pal.error if tier == "error" else pal.warn
 
 
+def verdict_suffix(f) -> str:
+    """The ` [keep 0.93]` tail a judged finding carries, or nothing for an unjudged one."""
+    if f.verdict is None:
+        return ""
+    return f" [{f.verdict} {f.probability:.2f}]"
+
+
 def format_text(result, pal=ui.PLAIN) -> str:
     # With the plain palette every sequence is empty, so the line collapses to
     # the pinned `path:line:col [tier] name: message` grammar byte for byte.
     lines = [
         f"{pal.bold}{f.path}{pal.reset}:{f.line}:{f.col} "
         f"{tier_style(pal, f.tier)}[{f.tier}]{pal.reset} "
-        f"{f.name}: {pal.dim}{f.message}{pal.reset}"
+        f"{f.name}: {pal.dim}{f.message}{pal.reset}{verdict_suffix(f)}"
         for f in result.findings
     ]
     return "\n".join(lines) + ("\n" if lines else "")
@@ -37,18 +44,23 @@ def format_github(result) -> str:
         level = tiers.github_level(f.tier)
         lines.append(
             f"::{level} file={_encode_prop(f.path)},line={f.line},col={f.col}::"
-            f"{f.name} - {_encode(f.message)}"
+            f"{f.name} - {_encode(f.message + verdict_suffix(f))}"
         )
     return "\n".join(lines) + ("\n" if lines else "")
 
 
+def _finding_json(f) -> dict:
+    item = {"path": f.path, "line": f.line, "col": f.col,
+            "tier": f.tier, "name": f.name, "message": f.message}
+    if f.verdict is not None:
+        item["verdict"] = f.verdict
+        item["probability"] = f.probability
+    return item
+
+
 def format_json(result) -> str:
     payload = {
-        "findings": [
-            {"path": f.path, "line": f.line, "col": f.col,
-             "tier": f.tier, "name": f.name, "message": f.message}
-            for f in result.findings
-        ],
+        "findings": [_finding_json(f) for f in result.findings],
         "unreadable": list(result.unreadable),
         "summary": {
             "errors": result.errors,
