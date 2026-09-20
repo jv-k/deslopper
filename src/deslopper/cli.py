@@ -60,6 +60,8 @@ def _build_parser():
                     help="shell command under test; {dir} receives the sandbox path")
     ev.add_argument("--keep", action="store_true",
                     help="leave the sandbox on disk and print its path")
+    ev.add_argument("--plainness", action="store_true",
+                    help="also score plainness with Jev, reported never gated")
 
     comp = command("completions")
     # nargs="?" without choices: an unknown shell goes through UsageError for
@@ -150,7 +152,7 @@ def _do_init(args, pal):
 
 
 def _do_eval(args, pal):
-    return run_eval(args.rewrite_command, keep=args.keep, pal=pal)
+    return run_eval(args.rewrite_command, keep=args.keep, pal=pal, plainness=args.plainness)
 
 
 def _do_completions(args, pal):

@@ -132,3 +132,10 @@ def test_wide_columns_keep_rows_on_one_line(capsys, monkeypatch):
     monkeypatch.setenv("COLUMNS", "200")
     _, out, _ = run(["--help"], capsys)
     assert "  Lint files and fail on findings." in out
+
+
+def test_eval_help_lists_the_plainness_flag(capsys):
+    code, out, _ = run(["eval", "--help"], capsys)
+    assert code == 0
+    assert "--plainness" in out
+    assert "--keep" in out
