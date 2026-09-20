@@ -9,7 +9,9 @@ import os
 import shutil
 import sys
 
-from deslopper import evaluate
+import pytest
+
+from deslopper import evaluate, jev, ui
 from deslopper.config import resolve
 from deslopper.engine import lint_files
 from deslopper.evaluate import run_eval, seed_sandbox
@@ -166,3 +168,197 @@ def test_keep_leaves_the_sandbox_on_disk(capsys):
     path = line.split(marker, 1)[1].strip()
     assert os.path.isdir(path)
     shutil.rmtree(path)
+
+
+# ── The plainness judge ───────────────────────────────────────────────────────
+#
+# Jev is faked at its transport, `jev.post`, with canned scores. Nothing below
+# touches the network, and every test uses the plain palette so the lines can
+# be matched byte for byte.
+
+FAKE_KEY = "test-key-not-real"
+
+
+def _touch_command(tmp_path):
+    """A rewrite that records it ran and changes nothing."""
+    marker = tmp_path / "ran"
+    return f"touch {marker}", marker
+
+
+def test_plainness_without_the_key_exits_two_before_the_rewrite(tmp_path, capsys, monkeypatch):
+    monkeypatch.delenv(jev.KEY_VAR, raising=False)
+    command, marker = _touch_command(tmp_path)
+    code = run_eval(command, plainness=True, pal=ui.PLAIN)
+    err = capsys.readouterr().err
+    assert code == 2
+    assert jev.KEY_VAR in err
+    assert not marker.exists()
+
+
+def _scoring_transport(monkeypatch, scores, usage=(400, 0), cost="0.000066"):
+    """Fake `jev.post`: answers every question with the next score in `scores`.
+
+    One entry per pass, each a mapping of fixture name to score, or an
+    exception to raise for that pass. Records every body it was handed.
+    """
+    monkeypatch.setenv(jev.KEY_VAR, FAKE_KEY)
+    calls = []
+    passes = list(scores)
+
+    def post(body):
+        calls.append(body)
+        outcome = passes.pop(0)
+        if isinstance(outcome, Exception):
+            raise outcome
+        answers = {
+            key: {"type": "score", "score": outcome[key], "probabilities": {}, "confidence": 0.9}
+            for key in body["questions"]
+        }
+        return {
+            "answers": answers,
+            "usage": {"inputTokens": usage[0], "outputTokens": usage[1]},
+            "providerMetadata": {"gateway": {"marketCost": cost}},
+        }
+
+    monkeypatch.setattr(jev, "post", post)
+    return calls
+
+
+BEFORE = {"overview.md": 0.12, "reference.md": 0.08, "template.md": 0.10}
+AFTER = {"overview.md": 0.84, "reference.md": 0.80, "template.md": 0.79}
+
+
+def test_plainness_scores_each_fixture_before_and_after(tmp_path, capsys, monkeypatch):
+    calls = _scoring_transport(monkeypatch, [BEFORE, AFTER])
+    code = run_eval(_fake_command(tmp_path, "clean"), plainness=True, pal=ui.PLAIN)
+    out = capsys.readouterr().out
+    assert code == 0
+    lines = out.splitlines()
+    assert lines[-4:] == [
+        "ℹ plainness overview.md: 0.12 -> 0.84",
+        "ℹ plainness reference.md: 0.08 -> 0.80",
+        "ℹ plainness template.md: 0.10 -> 0.79",
+        "ℹ plainness mean: 0.10 -> 0.81 | 800 tokens, $0.000132",
+    ]
+    # Two passes, one question per fixture keyed by name, three buckets each.
+    assert len(calls) == 2
+    for body in calls:
+        assert sorted(body["questions"]) == ["overview.md", "reference.md", "template.md"]
+        for name, question in body["questions"].items():
+            assert question["type"] == "score"
+            assert question["criteria"] == list(evaluate.PLAINNESS_BUCKETS)
+            assert name in body["state"]
+
+
+def test_plainness_lines_come_after_the_findings_and_preservation_lines(tmp_path, capsys, monkeypatch):
+    _scoring_transport(monkeypatch, [BEFORE, BEFORE])
+    assert run_eval("true", plainness=True, pal=ui.PLAIN) == 1
+    lines = capsys.readouterr().out.splitlines()
+    last_finding = max(i for i, l in enumerate(lines) if "[warn]" in l or "[error]" in l)
+    first_score = next(i for i, l in enumerate(lines) if "plainness " in l)
+    assert last_finding < first_score
+
+    _scoring_transport(monkeypatch, [BEFORE, AFTER])
+    assert run_eval(_fake_command(tmp_path, "mangle"), plainness=True, pal=ui.PLAIN) == 3
+    lines = capsys.readouterr().out.splitlines()
+    preservation = lines.index("preservation: reference.md: fenced code differs")
+    first_score = next(i for i, l in enumerate(lines) if "plainness " in l)
+    assert preservation < first_score
+
+
+LOW = {"overview.md": 0.01, "reference.md": 0.02, "template.md": 0.03}
+
+
+@pytest.mark.parametrize(
+    "mode, expected",
+    [("clean", 0), (None, 1), ("mangle", 3)],
+    ids=["pass", "efficacy-failure", "preservation-failure"],
+)
+def test_plainness_never_moves_the_exit_code(mode, expected, tmp_path, capsys, monkeypatch):
+    """Low scores on every pass, and the code matches the run without the flag."""
+    command = "true" if mode is None else _fake_command(tmp_path, mode)
+    assert run_eval(command, pal=ui.PLAIN) == expected
+    capsys.readouterr()
+    _scoring_transport(monkeypatch, [LOW, LOW])
+    assert run_eval(command, plainness=True, pal=ui.PLAIN) == expected
+    assert "plainness mean: 0.02 -> 0.02" in capsys.readouterr().out
+
+
+def test_plainness_prints_before_the_kept_sandbox_line(tmp_path, capsys, monkeypatch):
+    _scoring_transport(monkeypatch, [BEFORE, AFTER])
+    code = run_eval(_fake_command(tmp_path, "clean"), keep=True, plainness=True, pal=ui.PLAIN)
+    captured = capsys.readouterr()
+    assert code == 0
+    kept = next(l for l in captured.err.splitlines() if "sandbox kept at " in l)
+    shutil.rmtree(kept.split("sandbox kept at ", 1)[1].strip())
+    # Scores go to stdout and the kept line to stderr, so the order is proven
+    # by the streams' relative writes, captured here in one buffer each: the
+    # mean line was fully written before the kept line existed.
+    assert "plainness mean:" in captured.out
+    assert captured.err.rstrip().endswith(kept.strip())
+
+
+def test_plainness_survives_a_gateway_failure_on_the_after_pass(tmp_path, capsys, monkeypatch):
+    _scoring_transport(monkeypatch, [BEFORE, jev.JevError("gateway returned 502")])
+    code = run_eval(_fake_command(tmp_path, "clean"), plainness=True, pal=ui.PLAIN)
+    captured = capsys.readouterr()
+    assert code == 0
+    assert "✖ plainness (after): gateway returned 502" in captured.err
+    assert sum("plainness" in l for l in captured.err.splitlines()) == 1
+    assert "ℹ plainness overview.md: 0.12" in captured.out
+    assert "ℹ plainness mean: 0.10 | 400 tokens, $0.000066" in captured.out
+    assert "-> " not in captured.out
+
+
+def test_plainness_shows_only_the_after_score_when_the_baseline_failed(tmp_path, capsys, monkeypatch):
+    _scoring_transport(monkeypatch, [jev.JevError("could not reach the gateway"), AFTER])
+    code = run_eval(_fake_command(tmp_path, "clean"), plainness=True, pal=ui.PLAIN)
+    captured = capsys.readouterr()
+    assert code == 0
+    assert "✖ plainness (baseline): could not reach the gateway" in captured.err
+    assert sum("plainness" in l for l in captured.err.splitlines()) == 1
+    assert "ℹ plainness overview.md: 0.84" in captured.out
+    assert "ℹ plainness mean: 0.81 | 400 tokens, $0.000066" in captured.out
+
+
+def _deleting_command(tmp_path, name):
+    script = tmp_path / "delete_one.py"
+    script.write_text(
+        "import os, sys\nos.remove(os.path.join(sys.argv[2], sys.argv[1]))\n",
+        encoding="utf-8",
+    )
+    return f"{sys.executable} {script} {name} {{dir}}"
+
+
+def test_a_deleted_fixture_fails_preservation_without_the_flag(tmp_path, capsys):
+    code = run_eval(_deleting_command(tmp_path, "template.md"), pal=ui.PLAIN)
+    out = capsys.readouterr().out
+    assert code == 3
+    assert "preservation: template.md: unreadable" in out
+
+
+def test_plainness_reports_a_deleted_fixture_as_unreadable(tmp_path, capsys, monkeypatch):
+    calls = _scoring_transport(monkeypatch, [BEFORE, AFTER])
+    code = run_eval(_deleting_command(tmp_path, "template.md"), plainness=True, pal=ui.PLAIN)
+    captured = capsys.readouterr()
+    assert code == 3
+    assert "preservation: template.md: unreadable" in captured.out
+    assert "ℹ plainness template.md: unreadable" in captured.out
+    assert "ℹ plainness overview.md: 0.12 -> 0.84" in captured.out
+    # The mean is over the two fixtures both passes scored, so the deleted
+    # fixture's baseline 0.10 is left out: (0.12 + 0.08) / 2, not 0.10.
+    assert "ℹ plainness mean: 0.10 -> 0.82" in captured.out
+    assert sorted(calls[1]["questions"]) == ["overview.md", "reference.md"]
+
+
+def test_plainness_mean_is_over_the_fixtures_both_passes_scored(tmp_path, capsys, monkeypatch):
+    skewed = dict(BEFORE, **{"template.md": 0.90})
+    _scoring_transport(monkeypatch, [skewed, AFTER])
+    run_eval(_deleting_command(tmp_path, "template.md"), plainness=True, pal=ui.PLAIN)
+    assert "ℹ plainness mean: 0.10 -> 0.82" in capsys.readouterr().out
+
+
+def test_plainness_cost_prints_as_a_plain_decimal(tmp_path, capsys, monkeypatch):
+    _scoring_transport(monkeypatch, [BEFORE, AFTER], cost="6.6E-5")
+    run_eval(_fake_command(tmp_path, "clean"), plainness=True, pal=ui.PLAIN)
+    assert "| 800 tokens, $0.000132" in capsys.readouterr().out
