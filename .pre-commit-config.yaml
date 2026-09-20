@@ -29,7 +29,9 @@ repos:
         always_run: true
       - id: deslopper
         name: deslopper (de-slop lint on Markdown)
-        entry: deslopper lint
+        # Triage joins only when the committer's own shell holds the key, so a repo clone
+        # never makes a network call on someone else's behalf.
+        entry: bash -c 'deslopper lint ${AI_GATEWAY_API_KEY:+--triage}'
         language: system
         types: [markdown]
         pass_filenames: false

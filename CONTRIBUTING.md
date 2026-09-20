@@ -15,6 +15,11 @@ pre-commit install --hook-type pre-commit --hook-type commit-msg
 
 Run the tests with `pytest -q`. Run the linter on the repo's own docs with `deslopper lint`.
 
+The pre-commit hook runs the suite and the lint. When `AI_GATEWAY_API_KEY` is set in your
+shell the lint also runs `--triage`, so a finding you introduce arrives with a keep or
+rewrite verdict. Without the key it lints plainly and makes no network call. CI does the
+same with the repo secret of that name, which fork PRs do not receive.
+
 ## Add a tell to the recommended set
 
 Tells live in `src/deslopper/presets/recommended.json`, one JSON object each. A tell has:
