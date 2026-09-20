@@ -80,6 +80,15 @@ def test_eval_runs_the_harness_against_the_command(tmp_path, capsys):
     assert "FAIL (efficacy)" in err
 
 
+def test_eval_plainness_without_the_key_exits_two_before_the_rewrite(tmp_path, capsys, monkeypatch):
+    monkeypatch.delenv("AI_GATEWAY_API_KEY", raising=False)
+    marker = tmp_path / "ran"
+    code, _, err = run(["eval", "--plainness", f"touch {marker}"], str(tmp_path), capsys)
+    assert code == 2
+    assert "AI_GATEWAY_API_KEY" in err
+    assert not marker.exists()
+
+
 def test_init_writes_then_refuses(tmp_path, capsys):
     code, _, _ = run(["init"], str(tmp_path), capsys)
     assert code == 0

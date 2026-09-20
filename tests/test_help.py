@@ -140,3 +140,10 @@ def test_lint_help_lists_triage_and_check_help_does_not(capsys):
     assert "AI_GATEWAY_API_KEY" in lint_out
     _, check_out, _ = run(["check", "--help"], capsys)
     assert "--triage" not in check_out
+
+
+def test_eval_help_lists_the_plainness_flag(capsys):
+    code, out, _ = run(["eval", "--help"], capsys)
+    assert code == 0
+    assert "--plainness" in out
+    assert "--keep" in out
