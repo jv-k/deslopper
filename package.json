@@ -4,7 +4,7 @@
   "private": true,
   "description": "Dev and release scripts for the deslopper Python package.",
   "scripts": {
-    "bump-release": "verbump -c && git push --follow-tags && gh release create \"v$(npm pkg get version | tr -d '\\\"')\" --generate-notes",
+    "bump-release": "verbump -c -p origin --release",
     "screenshots": "bash scripts/screenshots.sh",
     "screenshots:help": "bash scripts/screenshots.sh help",
     "screenshots:demo": "bash scripts/screenshots.sh demo"
