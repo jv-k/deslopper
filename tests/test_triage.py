@@ -4,51 +4,17 @@ Every test fakes `jev.post`. The bodies the fake records are the only view into 
 request is built, and the findings that come back are what the user sees.
 """
 
+from decimal import Decimal
+
 import pytest
 
 from deslopper import jev, triage
 from deslopper.findings import Finding, LintResult
-
-FAKE_KEY = "test-key-not-real"
-
+from tests.conftest import FAKE_KEY, canned_jev, jev_envelope
 
 @pytest.fixture(autouse=True)
 def fake_key(monkeypatch):
-    monkeypatch.setenv("AI_GATEWAY_API_KEY", FAKE_KEY)
-
-
-def _reply(verdicts, keys, tokens=(1577, 0), cost="0.000066"):
-    """A gateway envelope answering `keys` in order from `verdicts`, cycling."""
-    answers = {}
-    for i, key in enumerate(keys):
-        choice, probability = verdicts[i % len(verdicts)]
-        answers[key] = {
-            "type": "choice",
-            "choice": choice,
-            "probabilities": {choice: probability, _other(choice): 1 - probability},
-            "confidence": probability,
-        }
-    return {
-        "answers": answers,
-        "usage": {"inputTokens": tokens[0], "outputTokens": tokens[1]},
-        "providerMetadata": {"gateway": {"marketCost": cost}},
-    }
-
-
-def _other(choice):
-    return "keep" if choice == "rewrite" else "rewrite"
-
-
-def _canned(monkeypatch, verdicts, **envelope):
-    """Swap the transport for one that answers every question from `verdicts`."""
-    calls = []
-
-    def post(body):
-        calls.append(body)
-        return _reply(verdicts, list(body["questions"]), **envelope)
-
-    monkeypatch.setattr(jev, "post", post)
-    return calls
+    monkeypatch.setenv(jev.KEY_VAR, FAKE_KEY)
 
 
 def _finding(path, line, col, name, tier="warn", message="msg"):
@@ -56,7 +22,7 @@ def _finding(path, line, col, name, tier="warn", message="msg"):
 
 
 def test_run_annotates_each_finding_with_the_verdict_and_its_probability(monkeypatch):
-    _canned(monkeypatch, [("keep", 0.93), ("rewrite", 0.88)])
+    canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.88)])
     result = LintResult(findings=[
         _finding("a.md", 1, 3, "em-dash", tier="error"),
         _finding("a.md", 2, 1, "semicolon"),
@@ -74,7 +40,7 @@ def test_run_annotates_each_finding_with_the_verdict_and_its_probability(monkeyp
 
 
 def test_one_request_per_file_carries_the_framing_and_each_finding_in_raw_context(monkeypatch):
-    calls = _canned(monkeypatch, [("keep", 0.9)])
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
     result = LintResult(findings=[
         _finding("a.md", 2, 5, "em-dash", message="em dash, prefer a comma"),
         _finding("b.md", 1, 1, "semicolon", message="semicolon in prose"),
@@ -104,7 +70,7 @@ def test_one_request_per_file_carries_the_framing_and_each_finding_in_raw_contex
 
 
 def test_context_stops_at_the_file_edges(monkeypatch):
-    calls = _canned(monkeypatch, [("keep", 0.9)])
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
     result = LintResult(findings=[_finding("a.md", 1, 1, "semicolon")])
 
     triage.run(result, {"a.md": "only; line\n"})
@@ -114,7 +80,7 @@ def test_context_stops_at_the_file_edges(monkeypatch):
 
 
 def test_two_findings_on_one_line_get_independent_verdicts(monkeypatch):
-    calls = _canned(monkeypatch, [("rewrite", 0.8), ("keep", 0.7)])
+    calls = canned_jev(monkeypatch, [("rewrite", 0.8), ("keep", 0.7)])
     result = LintResult(findings=[
         _finding("a.md", 1, 3, "em-dash"),
         _finding("a.md", 1, 9, "semicolon"),
@@ -129,7 +95,7 @@ def test_two_findings_on_one_line_get_independent_verdicts(monkeypatch):
 
 
 def test_a_result_with_no_findings_makes_no_request(monkeypatch):
-    calls = _canned(monkeypatch, [("keep", 0.9)])
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
 
     judged = triage.run(LintResult(), {})
 
@@ -144,7 +110,7 @@ def test_a_failed_request_leaves_that_file_unjudged_and_the_rest_continue(monkey
         calls.append(body)
         if len(calls) == 2:
             raise jev.JevError("gateway returned 500: boom")
-        return _reply([("keep", 0.9)], list(body["questions"]))
+        return jev_envelope([("keep", 0.9)], list(body["questions"]))
 
     monkeypatch.setattr(jev, "post", post)
     result = LintResult(findings=[
@@ -161,7 +127,7 @@ def test_a_failed_request_leaves_that_file_unjudged_and_the_rest_continue(monkey
 
 
 def test_tokens_and_cost_are_summed_across_requests(monkeypatch):
-    _canned(monkeypatch, [("keep", 0.9)], tokens=(1000, 7), cost="0.000066")
+    canned_jev(monkeypatch, [("keep", 0.9)], tokens=(1000, 7), cost="0.000066")
     result = LintResult(findings=[
         _finding("a.md", 1, 1, "semicolon"),
         _finding("b.md", 1, 1, "semicolon"),
@@ -170,8 +136,8 @@ def test_tokens_and_cost_are_summed_across_requests(monkeypatch):
     judged = triage.run(result, {"a.md": "a; b\n", "b.md": "c; d\n"})
 
     assert judged.tokens == 2014
-    assert judged.cost == "0.000132"
-    assert judged.keep == 2 and judged.rewrite == 0
+    assert judged.cost == Decimal("0.000132")
+    assert (judged.result.keep, judged.result.rewrite) == (2, 0)
 
 
 def test_a_reply_without_usage_or_cost_still_counts_the_verdicts(monkeypatch):
@@ -185,6 +151,25 @@ def test_a_reply_without_usage_or_cost_still_counts_the_verdicts(monkeypatch):
 
     judged = triage.run(result, {"a.md": "a; b\n"})
 
-    assert (judged.keep, judged.rewrite) == (0, 1)
+    assert (judged.result.keep, judged.result.rewrite) == (0, 1)
     assert judged.tokens == 0
-    assert judged.cost == "0"
+    assert judged.cost == Decimal(0)
+
+
+def test_a_garbled_answer_is_reported_and_leaves_that_finding_unjudged(monkeypatch):
+    def post(body):
+        f1, f2, f3, f4 = body["questions"]
+        return {"answers": {
+            f1: {"type": "choice", "choice": "keep", "probabilities": {"keep": 0.9, "rewrite": 0.1}},
+            f2: {"type": "choice", "choice": "maybe", "probabilities": {"maybe": 0.9}},
+            f3: {"type": "choice", "choice": "rewrite", "probabilities": {"rewrite": 1.5}},
+            # f4 is missing from the reply altogether.
+        }}
+
+    monkeypatch.setattr(jev, "post", post)
+    result = LintResult(findings=[_finding("a.md", n, 1, "semicolon") for n in (1, 2, 3, 4)])
+
+    judged = triage.run(result, {"a.md": "a; b\nc; d\ne; f\ng; h\n"})
+
+    assert [f.verdict for f in judged.result.findings] == ["keep", None, None, None]
+    assert judged.errors == ["a.md: the reply had no usable answer for 3 of 4 findings"]
