@@ -10,20 +10,35 @@ def tier_style(pal, tier):
     return pal.error if tier == "error" else pal.warn
 
 
-def _verdict_suffix(f: Finding) -> str:
-    """The ` [keep 0.93]` tail a judged finding carries, or nothing for an unjudged one."""
+def _verdict_suffix(f: Finding, pal=ui.PLAIN) -> str:
+    """The ` [keep 0.93]` tail a judged finding carries, or nothing for an unjudged one.
+    Styled, the probability leads the line as a rating bar instead, and only the verdict
+    stays in the tail; piped output keeps the number so the grammar stays pinned."""
     if f.verdict is None:
         return ""
+    if pal.enabled:
+        return f" [{f.verdict}]"
     return f" [{f.verdict} {f.probability:.2f}]"
+
+
+def _rating_prefix(f: Finding, pal) -> str:
+    """The bar that leads a judged line, or blank padding of the same width so the paths
+    of a run's unjudged findings still line up."""
+    if f.verdict is None:
+        return " " * (ui.BAR_SLOTS + 1)
+    return f"{ui.rating_bar(pal, f.probability)} "
 
 
 def format_text(result, pal=ui.PLAIN) -> str:
     # With the plain palette every sequence is empty, so the line collapses to
     # the pinned `path:line:col [tier] name: message` grammar byte for byte.
+    # The rating column appears only styled, and only once something was judged.
+    rated = pal.enabled and any(f.verdict is not None for f in result.findings)
     lines = [
+        f"{_rating_prefix(f, pal) if rated else ''}"
         f"{pal.bold}{f.path}{pal.reset}:{f.line}:{f.col} "
         f"{tier_style(pal, f.tier)}[{f.tier}]{pal.reset} "
-        f"{f.name}: {pal.dim}{f.message}{_verdict_suffix(f)}{pal.reset}"
+        f"{f.name}: {pal.dim}{f.message}{pal.reset}{_verdict_suffix(f, pal)}"
         for f in result.findings
     ]
     return "\n".join(lines) + ("\n" if lines else "")

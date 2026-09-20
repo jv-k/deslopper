@@ -216,9 +216,12 @@ back with a verdict and its probability, in every format:
     docs/guide.md:6:27 [warn] semicolon: semicolon in prose, prefer a full stop [rewrite 0.88]
     docs/guide.md:9:14 [warn] filler-verb: filler verb, say what it does [keep 0.97]
 
-The `json` format adds `verdict` and `probability` to each judged finding, and the `github`
-format folds the verdict into the annotation message. The summary line reports how many
-findings were `keep` and `rewrite`, and the tokens and gateway cost the run spent.
+On a terminal the probability leads each line as a five-slot bar, green from 0.9, yellow
+from 0.7, red below, and the tail keeps only the verdict: `❚❚❚❚❚ docs/guide.md:9:14 … [keep]`.
+Piped output keeps the number. The `json` format adds `verdict` and `probability` to each
+judged finding, and the `github` format folds the verdict into the annotation message. The
+summary line reports how many findings were `keep` and `rewrite`, and the tokens and gateway
+cost the run spent.
 
 Triage is annotation only. The exit code is exactly what the scan alone returns, so a
 `keep` verdict never makes a lint pass and the deterministic gate holds in CI. Findings on a

@@ -6,7 +6,9 @@ gate only ever moves through the environment (NO_COLOR, FORCE_COLOR).
 
 import os
 
+from deslopper import ui
 from deslopper.cli import main
+from tests.conftest import canned_jev
 
 ANSI = "\x1b["
 
@@ -154,3 +156,25 @@ def test_styled_rules_wrap_to_the_width(tmp_path, capsys, monkeypatch):
     visible = [re.sub(r"\x1b\[[0-9;]*m", "", line) for line in out.splitlines()]
     too_wide = [line for line in visible if len(line) > 100]
     assert not too_wide, too_wide[0]
+
+
+def test_force_color_triage_draws_a_rating_bar(tmp_path, capsys, monkeypatch):
+    monkeypatch.setenv("FORCE_COLOR", "1")
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    canned_jev(monkeypatch, [("keep", 0.93)])
+    write(tmp_path, "a.md", "a — dash\n")
+    _, out, _ = run(["lint", "--triage", "a.md"], str(tmp_path), capsys)
+    assert out.startswith(ANSI) and ui.I_BAR * 5 in out.split("a.md")[0]
+    assert out.rstrip().endswith(" [keep]")
+    assert "0.93" not in out
+
+
+def test_piped_triage_keeps_the_number_and_no_glyphs(tmp_path, capsys, monkeypatch):
+    monkeypatch.delenv("FORCE_COLOR", raising=False)
+    monkeypatch.delenv("CLICOLOR_FORCE", raising=False)
+    canned_jev(monkeypatch, [("keep", 0.93)])
+    write(tmp_path, "a.md", "a — dash\n")
+    _, out, _ = run(["lint", "--triage", "a.md"], str(tmp_path), capsys)
+    assert out.rstrip().endswith("[keep 0.93]")
+    assert ui.I_BAR not in out
+    assert ANSI not in out
