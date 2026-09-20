@@ -3,13 +3,14 @@
 import json
 
 from . import tiers, ui
+from .findings import Finding
 
 
 def tier_style(pal, tier):
     return pal.error if tier == "error" else pal.warn
 
 
-def verdict_suffix(f) -> str:
+def _verdict_suffix(f: Finding) -> str:
     """The ` [keep 0.93]` tail a judged finding carries, or nothing for an unjudged one."""
     if f.verdict is None:
         return ""
@@ -22,7 +23,7 @@ def format_text(result, pal=ui.PLAIN) -> str:
     lines = [
         f"{pal.bold}{f.path}{pal.reset}:{f.line}:{f.col} "
         f"{tier_style(pal, f.tier)}[{f.tier}]{pal.reset} "
-        f"{f.name}: {pal.dim}{f.message}{pal.reset}{verdict_suffix(f)}"
+        f"{f.name}: {pal.dim}{f.message}{_verdict_suffix(f)}{pal.reset}"
         for f in result.findings
     ]
     return "\n".join(lines) + ("\n" if lines else "")
@@ -44,12 +45,12 @@ def format_github(result) -> str:
         level = tiers.github_level(f.tier)
         lines.append(
             f"::{level} file={_encode_prop(f.path)},line={f.line},col={f.col}::"
-            f"{f.name} - {_encode(f.message + verdict_suffix(f))}"
+            f"{f.name} - {_encode(f.message + _verdict_suffix(f))}"
         )
     return "\n".join(lines) + ("\n" if lines else "")
 
 
-def _finding_json(f) -> dict:
+def _finding_json(f: Finding) -> dict:
     item = {"path": f.path, "line": f.line, "col": f.col,
             "tier": f.tier, "name": f.name, "message": f.message}
     if f.verdict is not None:

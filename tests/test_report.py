@@ -1,5 +1,8 @@
 import json
 
+import pytest
+
+from deslopper import ui
 from deslopper.findings import Finding, LintResult
 from deslopper.report import format_text, format_github, format_json, summary_line, exit_code
 
@@ -82,6 +85,25 @@ def test_finding_verdict_fields_default_to_none():
     assert f.probability is None
 
 
+@pytest.mark.parametrize("kwargs", [
+    {"verdict": "keep"},
+    {"probability": 0.5},
+    {"verdict": "maybe", "probability": 0.5},
+    {"verdict": "keep", "probability": 1.5},
+    {"verdict": "keep", "probability": -0.1},
+])
+def test_finding_rejects_a_half_or_out_of_range_verdict(kwargs):
+    # The pair is one unit and the schema is the contract, so a Finding that could
+    # not render as valid JSON cannot be built in the first place.
+    with pytest.raises(ValueError):
+        Finding("a.md", 1, 1, "warn", "x", "m", **kwargs)
+
+
+def test_finding_accepts_the_probability_bounds():
+    assert Finding("a.md", 1, 1, "warn", "x", "m", verdict="keep", probability=0).probability == 0
+    assert Finding("a.md", 1, 1, "warn", "x", "m", verdict="rewrite", probability=1).probability == 1
+
+
 def test_format_text_appends_verdict_only_when_present():
     lines = format_text(annotated()).splitlines()
     assert lines[0] == "a.md:3:5 [error] em-dash: em dash in prose [keep 0.93]"
@@ -99,6 +121,12 @@ def test_format_json_carries_verdict_only_on_judged_findings():
     assert "probability" not in findings[2]
 
 
+def test_format_text_styles_the_verdict_with_the_message():
+    pal = ui.Palette(True)
+    line = format_text(annotated(), pal).splitlines()[0]
+    assert line.endswith(f"{pal.dim}em dash in prose [keep 0.93]{pal.reset}")
+
+
 def test_format_github_folds_verdict_into_message():
     lines = format_github(annotated()).splitlines()
     assert lines[0] == "::error file=a.md,line=3,col=5::em-dash - em dash in prose [keep 0.93]"
@@ -112,9 +140,13 @@ def _finding_schema():
     return json.loads(text)["properties"]["findings"]["items"]
 
 
+_JSON_TYPES = {"string": str, "integer": int, "number": (int, float)}
+
+
 def _check_finding(item, schema):
-    # A stdlib walk over the finding sub-schema: required keys, no unknown keys, enum
-    # and numeric bounds. jsonschema is not a dependency and this is the subset in use.
+    # A stdlib walk over the finding sub-schema. jsonschema is not a dependency, and
+    # the sub-schema uses only required, properties, type, enum, minimum and maximum,
+    # each of which is checked here.
     props = schema["properties"]
     for key in schema["required"]:
         assert key in item, key
@@ -123,9 +155,23 @@ def _check_finding(item, schema):
         rule = props[key]
         if "enum" in rule:
             assert value in rule["enum"], (key, value)
-        if rule.get("type") == "number":
-            assert isinstance(value, (int, float)) and not isinstance(value, bool)
-            assert rule["minimum"] <= value <= rule["maximum"], (key, value)
+        if "type" in rule:
+            assert isinstance(value, _JSON_TYPES[rule["type"]]), (key, value)
+            assert not isinstance(value, bool), (key, value)
+        if "minimum" in rule:
+            assert value >= rule["minimum"], (key, value)
+        if "maximum" in rule:
+            assert value <= rule["maximum"], (key, value)
+
+
+def test_schema_walker_rejects_a_wrong_typed_key():
+    schema = _finding_schema()
+    good = {"path": "a.md", "line": 1, "col": 1, "tier": "warn", "name": "x", "message": "m"}
+    _check_finding(good, schema)
+    for bad in ({**good, "line": "1"}, {**good, "line": 0}, {**good, "path": 3},
+                {**good, "verdict": "maybe"}, {**good, "probability": 2}, {**good, "extra": 1}):
+        with pytest.raises(AssertionError):
+            _check_finding(bad, schema)
 
 
 def test_output_schema_declares_optional_verdict_fields():
