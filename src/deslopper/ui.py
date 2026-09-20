@@ -53,6 +53,11 @@ class Palette:
         self.hdr_cyan = seq("\033[7;1;36m")
         self.hdr_green = seq("\033[7;1;32m")
         self.rainbow = tuple(seq(f"\033[38;5;{stop}m") for stop in RAINBOW_STOPS)
+        # The arrow and separator collapse to ASCII with the gate off, so piped
+        # output stays byte-for-byte predictable and free of the middle-dot
+        # tell. The status icons above stay as they are.
+        self.arrow = I_ARROW if enabled else "->"
+        self.sep = "\u00b7" if enabled else "|"
 
 
 PLAIN = Palette(False)

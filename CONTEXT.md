@@ -97,3 +97,10 @@ and link destinations in order.
 **Baseline**:
 The lint result of the raw fixtures, taken before the rewrite runs. No errors or no
 warnings in it means the harness itself is broken, and the eval aborts.
+
+**Plainness**:
+The eval's third judge, a reported score in 0..1 of how plainly a fixture reads, asked
+of Jev (the `typesafe-ai/jev` evaluation model behind the Vercel AI Gateway) before and
+after the rewrite so the line shows how far the text moved. Opt-in, reported, never
+gated: it cannot change the verdict or the exit code.
+_Avoid_: readability, quality.

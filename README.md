@@ -89,7 +89,7 @@ gate stays the deterministic floor.
     deslopper check [PATHS...] [--config P]   # report only, exits 0 on findings
     deslopper rules [--config P]              # list the active tells
     deslopper init                            # write a starter config
-    deslopper eval 'COMMAND' [--keep]         # judge a rewrite command, see below
+    deslopper eval 'COMMAND' [--keep] [--plainness]   # judge a rewrite command, see below
     deslopper completions [bash|zsh|fish]     # print a completion script for your shell
 
 With no paths, deslopper lints the configured Markdown and MDX globs, through `git ls-files`
@@ -253,6 +253,17 @@ errors the harness is broken and the run aborts before spending tokens.
 Exit codes: 0 pass, 1 efficacy failure, 2 usage or configuration error, 3 preservation
 failure, 4 broken harness or a rewrite command that exited nonzero. A failure names the
 surviving findings by file and line. Pass `--keep` to keep the sandbox for inspection.
+
+A third judge, plainness, is opt-in with `--plainness`. It asks Jev, a small evaluation
+model behind the Vercel AI Gateway, to score each fixture on how plainly it reads, once on
+the raw fixtures before the rewrite and once after, and prints one line per fixture as
+`before -> after` plus the mean. The score is reported and never gated: it cannot change
+the verdict or the exit code, so two eval runs can be compared on more than pass or fail
+without a probabilistic judge failing a run the deterministic judges passed. It needs
+`AI_GATEWAY_API_KEY` exported and exits 2 without it, before the rewrite command runs. The
+two requests send the fixtures whole and cost on the order of a thousand input tokens
+and a fraction of a cent per run, which the mean line reports. A gateway failure prints
+one error line and the eval finishes with the two deterministic judges.
 
 An eval run invokes your rewrite command for real, with the minutes and tokens that
 implies. Run it on demand when you change the rewrite prompt or model. It has no place as
