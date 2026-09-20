@@ -3,3 +3,9 @@
 # rather than @dotted paths, so no tomlq is needed.
 BUMP_FILES="pyproject.toml:version = \"{{version}}\"
 src/deslopper/__init__.py:__version__ = \"{{version}}\""
+
+# Release gates. VerBump runs the first after its own preflights and before it touches a
+# file, and the second after the tag exists and before anything is pushed; a non-zero
+# exit stops the release. --no-hooks skips both for one run.
+PRE_BUMP_CMD="bash scripts/preflight.sh"
+POST_TAG_CMD="bash scripts/postflight.sh"
