@@ -12,9 +12,10 @@ from .discovery import resolve_worklist
 from .engine import lint_files
 from .errors import ConfigError, UsageError
 from .evaluate import run_eval
+from .jev import JevUnavailable
 from . import completions
 from . import help as help_screen
-from . import report, ui
+from . import report, triage, ui
 
 STARTER = {
     "extends": [RECOMMENDED],
@@ -42,6 +43,9 @@ def _build_parser():
     # completion scripts also render from.
     lint.add_argument("--format", default="text",
                       choices=list(help_screen.COMMANDS["lint"]["choices"]["--format"]))
+    # A flag and never a config key, so no repo can switch on network calls for
+    # everyone who lints in it.
+    lint.add_argument("--triage", action="store_true")
 
     check = command("check")
     check.add_argument("paths", nargs="*")
@@ -72,7 +76,7 @@ def _lint_command(args):
     cfg, config_path = load_config(getattr(args, "config", None), os.getcwd())
     items = resolve_worklist(args.paths, config_path or None, os.getcwd(), cfg.include, cfg.exclude)
     result = lint_files(items, cfg.tells)
-    return cfg, result
+    return cfg, result, items
 
 
 def _emit(result, fmt, pal):
@@ -85,22 +89,35 @@ def _emit(result, fmt, pal):
         sys.stdout.write(report.format_json(result))
 
 
-def _finish(result, strict, pal):
+def _finish(result, strict, pal, judged=None):
     for path in result.unreadable:
         print(ui.trace_line(pal, f"cannot read {path}"), file=sys.stderr)
-    print(report.summary_line(result, strict, pal), file=sys.stderr)
+    print(report.summary_line(result, strict, pal, judged), file=sys.stderr)
 
 
 def _do_lint(args, pal):
-    cfg, result = _lint_command(args)
+    if args.triage:
+        # Fail on the missing key before any scan output, so the hint is the
+        # whole of what the user sees.
+        triage.require_key()
+    cfg, result, items = _lint_command(args)
     strict = bool(getattr(args, "strict", False) or cfg.strict)
+    # The exit code is taken from the scan before triage, so a verdict can never
+    # move it: triage is annotation and the scan stays the gate.
+    code = report.exit_code(result, strict)
+    judged = None
+    if args.triage:
+        judged = triage.run(result, triage.read_sources(result, items))
+        for error in judged.errors:
+            ui.log_error(pal, f"triage skipped {error}")
+        result = judged.result
     _emit(result, args.format, pal)
-    _finish(result, strict, pal)
-    return report.exit_code(result, strict)
+    _finish(result, strict, pal, judged)
+    return code
 
 
 def _do_check(args, pal):
-    cfg, result = _lint_command(args)
+    cfg, result, _items = _lint_command(args)
     sys.stdout.write(report.format_text(result, pal))
     _finish(result, cfg.strict, pal)
     return 0
@@ -178,7 +195,7 @@ def main(argv=None) -> int:
     pal = ui.palette()
     try:
         return _COMMANDS[args.command](args, pal)
-    except (ConfigError, UsageError) as exc:
+    except (ConfigError, UsageError, JevUnavailable) as exc:
         ui.log_error(pal, str(exc))
         return 2
 
