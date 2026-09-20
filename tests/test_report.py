@@ -5,6 +5,7 @@ import pytest
 from deslopper import ui
 from deslopper.findings import Finding, LintResult
 from deslopper.report import format_text, format_github, format_json, summary_line, exit_code
+from tests.conftest import check_finding as _check_finding, finding_schema as _finding_schema
 
 
 def sample():
@@ -132,36 +133,6 @@ def test_format_github_folds_verdict_into_message():
     assert lines[0] == "::error file=a.md,line=3,col=5::em-dash - em dash in prose [keep 0.93]"
     assert lines[1] == "::warning file=a.md,line=4,col=1::semicolon - semi [rewrite 0.88]"
     assert lines[2] == "::warning file=a.md,line=5,col=1::hedge - hedge"
-
-
-def _finding_schema():
-    from importlib import resources
-    text = resources.files("deslopper.schema").joinpath("output.schema.json").read_text(encoding="utf-8")
-    return json.loads(text)["properties"]["findings"]["items"]
-
-
-_JSON_TYPES = {"string": str, "integer": int, "number": (int, float)}
-
-
-def _check_finding(item, schema):
-    # A stdlib walk over the finding sub-schema. jsonschema is not a dependency, and
-    # the sub-schema uses only required, properties, type, enum, minimum and maximum,
-    # each of which is checked here.
-    props = schema["properties"]
-    for key in schema["required"]:
-        assert key in item, key
-    for key, value in item.items():
-        assert key in props, f"{key} is not in the schema"
-        rule = props[key]
-        if "enum" in rule:
-            assert value in rule["enum"], (key, value)
-        if "type" in rule:
-            assert isinstance(value, _JSON_TYPES[rule["type"]]), (key, value)
-            assert not isinstance(value, bool), (key, value)
-        if "minimum" in rule:
-            assert value >= rule["minimum"], (key, value)
-        if "maximum" in rule:
-            assert value <= rule["maximum"], (key, value)
 
 
 def test_schema_walker_rejects_a_wrong_typed_key():

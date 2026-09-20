@@ -12,7 +12,7 @@ from .discovery import resolve_worklist
 from .engine import lint_files
 from .errors import ConfigError, UsageError
 from .evaluate import run_eval
-from .jev import JevUnavailable
+from .jev import JevUnavailable, require_key
 from . import completions
 from . import help as help_screen
 from . import report, triage, ui
@@ -95,11 +95,30 @@ def _finish(result, strict, pal, judged=None):
     print(report.summary_line(result, strict, pal, judged), file=sys.stderr)
 
 
+def _read_sources(result, items) -> dict:
+    """The raw text of each file in `items` that has a finding, by display path.
+
+    Files with no findings are never opened. A file that can no longer be read
+    maps to empty text, so its findings still go to Jev, without context.
+    """
+    flagged = {f.path for f in result.findings}
+    sources = {}
+    for display, read_path in items:
+        if display not in flagged:
+            continue
+        try:
+            with open(read_path, encoding="utf-8", newline="\n") as fh:
+                sources[display] = fh.read()
+        except OSError:
+            sources[display] = ""
+    return sources
+
+
 def _do_lint(args, pal):
     if args.triage:
         # Fail on the missing key before any scan output, so the hint is the
         # whole of what the user sees.
-        triage.require_key()
+        require_key()
     cfg, result, items = _lint_command(args)
     strict = bool(getattr(args, "strict", False) or cfg.strict)
     # The exit code is taken from the scan before triage, so a verdict can never
@@ -107,7 +126,7 @@ def _do_lint(args, pal):
     code = report.exit_code(result, strict)
     judged = None
     if args.triage:
-        judged = triage.run(result, triage.read_sources(result, items))
+        judged = triage.run(result, _read_sources(result, items))
         for error in judged.errors:
             ui.log_error(pal, f"triage skipped {error}")
         result = judged.result

@@ -44,3 +44,11 @@ class LintResult:
     @property
     def warnings(self) -> int:
         return sum(1 for f in self.findings if f.tier == "warn")
+
+    @property
+    def keep(self) -> int:
+        return sum(1 for f in self.findings if f.verdict == "keep")
+
+    @property
+    def rewrite(self) -> int:
+        return sum(1 for f in self.findings if f.verdict == "rewrite")
