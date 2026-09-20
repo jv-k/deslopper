@@ -28,7 +28,7 @@ def test_script_names_every_command(shell, capsys):
 @pytest.mark.parametrize("shell", SHELLS)
 def test_script_names_every_flag_and_format_value(shell, capsys):
     _, out, _ = run(["completions", shell], capsys)
-    for flag in ("strict", "config", "format", "force", "keep"):
+    for flag in ("strict", "config", "format", "force", "keep", "plainness"):
         assert flag in out
     for value in ("text", "github", "json"):
         assert value in out
