@@ -15,7 +15,9 @@
           "col": { "type": "integer", "minimum": 1 },
           "tier": { "enum": ["error", "warn"] },
           "name": { "type": "string" },
-          "message": { "type": "string" }
+          "message": { "type": "string" },
+          "verdict": { "enum": ["keep", "rewrite"] },
+          "probability": { "type": "number", "minimum": 0, "maximum": 1 }
         }
       }
     },
