@@ -10,7 +10,7 @@ from dataclasses import dataclass, field, replace
 from decimal import Decimal, InvalidOperation
 
 from . import jev
-from .findings import LintResult, VERDICTS
+from .findings import LintResult
 
 FRAMING = (
     "These are lines of Markdown from software docs. A mechanical linter flagged "
@@ -35,20 +35,12 @@ OPTIONS = {
 @dataclass
 class Triage:
     """What a triage pass came back with: the judged result, one error line per
-    request that failed, and what the run spent."""
+    request that failed or came back garbled, and what the run spent."""
 
     result: LintResult
     errors: list = field(default_factory=list)
     tokens: int = 0
-    cost: str = "0"
-
-    @property
-    def keep(self) -> int:
-        return sum(1 for f in self.result.findings if f.verdict == "keep")
-
-    @property
-    def rewrite(self) -> int:
-        return sum(1 for f in self.result.findings if f.verdict == "rewrite")
+    cost: Decimal = Decimal(0)
 
 
 def _block(key, finding, lines) -> str:
@@ -72,47 +64,34 @@ def _lines(text: str) -> list:
     return lines
 
 
-def _verdict(answer):
-    """The (verdict, probability) pair from a choice answer, or None when the
-    reply does not carry one Finding would accept."""
-    if answer.kind != "choice" or answer.value not in VERDICTS:
+def _judge(finding, answer):
+    """The finding with the answer's verdict, or None when the reply carried
+    nothing Finding accepts. Finding is the one validator of the pair."""
+    if answer is None:
         return None
-    probability = answer.probabilities.get(answer.value)
-    if not isinstance(probability, (int, float)) or not 0 <= probability <= 1:
+    try:
+        return replace(finding, verdict=answer.value,
+                       probability=answer.probabilities.get(answer.value))
+    except (ValueError, TypeError):
         return None
-    return answer.value, float(probability)
 
 
-def require_key() -> None:
-    """Raise JevUnavailable, naming the variable, when the gateway key is unset."""
-    jev.require_key()
-
-
-def read_sources(result: LintResult, items) -> dict:
-    """The raw text of each file in `items` that has a finding, by display path.
-
-    Files with no findings are never opened. A file that can no longer be read
-    maps to empty text, so its findings go to Jev without context rather than
-    not at all.
-    """
-    flagged = {f.path for f in result.findings}
-    sources = {}
-    for display, read_path in items:
-        if display not in flagged:
-            continue
-        try:
-            with open(read_path, encoding="utf-8", newline="\n") as fh:
-                sources[display] = fh.read()
-        except OSError:
-            sources[display] = ""
-    return sources
+def _decimal(cost) -> Decimal:
+    """The gateway's cost as a Decimal, or zero when it sent none or garbage."""
+    if cost is None:
+        return Decimal(0)
+    try:
+        return Decimal(str(cost))
+    except InvalidOperation:
+        return Decimal(0)
 
 
 def run(result: LintResult, sources: dict) -> Triage:
     """Ask Jev about every finding in `result`, one request per file.
 
     `sources` maps a finding's path to that file's raw text. A file with no
-    findings makes no request.
+    findings makes no request. A request that fails, or a reply missing usable
+    answers, adds one line to `errors` and leaves those findings unjudged.
     """
     judged = list(result.findings)
     errors = []
@@ -122,7 +101,7 @@ def run(result: LintResult, sources: dict) -> Triage:
     for index, finding in enumerate(result.findings):
         by_file.setdefault(finding.path, []).append(index)
     for path, indexes in by_file.items():
-        lines = _lines(sources[path])
+        lines = _lines(sources.get(path, ""))
         keyed = {f"f{n}": index for n, index in enumerate(indexes, 1)}
         state = "\n\n".join([FRAMING] + [
             _block(key, result.findings[index], lines) for key, index in keyed.items()
@@ -142,24 +121,20 @@ def run(result: LintResult, sources: dict) -> Triage:
             continue
         tokens += (reply.input_tokens or 0) + (reply.output_tokens or 0)
         cost += _decimal(reply.market_cost)
+        unusable = 0
         for key, index in keyed.items():
-            answer = reply.answers.get(key)
-            pair = _verdict(answer) if answer is not None else None
-            if pair is not None:
-                judged[index] = replace(judged[index], verdict=pair[0], probability=pair[1])
+            finding = _judge(result.findings[index], reply.answers.get(key))
+            if finding is None:
+                unusable += 1
+            else:
+                judged[index] = finding
+        if unusable:
+            errors.append(
+                f"{path}: the reply had no usable answer for {unusable} of {len(keyed)} findings"
+            )
     return Triage(
         result=LintResult(findings=judged, unreadable=list(result.unreadable)),
         errors=errors,
         tokens=tokens,
-        cost=format(cost, "f"),
+        cost=cost,
     )
-
-
-def _decimal(cost) -> Decimal:
-    """The gateway's cost as a Decimal, or zero when it sent none or garbage."""
-    if cost is None:
-        return Decimal(0)
-    try:
-        return Decimal(str(cost))
-    except InvalidOperation:
-        return Decimal(0)

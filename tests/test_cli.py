@@ -4,6 +4,7 @@ import os
 import pytest
 
 from deslopper.cli import main
+from tests.conftest import canned_jev, check_finding, finding_schema
 
 
 def run(args, cwd, capsys):
@@ -91,34 +92,8 @@ def test_init_writes_then_refuses(tmp_path, capsys):
 # --triage: the scan runs as today, then Jev annotates each finding.
 
 
-def _canned_jev(monkeypatch, verdicts):
-    """Answer every triage question from `verdicts` in order, cycling, and record
-    the bodies. Sets the key so no test depends on the machine's environment."""
-    from deslopper import jev
-
-    monkeypatch.setenv("AI_GATEWAY_API_KEY", "test-key-not-real")
-    calls = []
-
-    def post(body):
-        calls.append(body)
-        answers = {}
-        for i, key in enumerate(body["questions"]):
-            choice, p = verdicts[i % len(verdicts)]
-            other = "keep" if choice == "rewrite" else "rewrite"
-            answers[key] = {"type": "choice", "choice": choice,
-                            "probabilities": {choice: p, other: 1 - p}}
-        return {
-            "answers": answers,
-            "usage": {"inputTokens": 1500, "outputTokens": 77},
-            "providerMetadata": {"gateway": {"marketCost": "0.000066"}},
-        }
-
-    monkeypatch.setattr(jev, "post", post)
-    return calls
-
-
 def test_triage_appends_the_verdict_to_each_text_line_and_the_summary(tmp_path, capsys, monkeypatch):
-    calls = _canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.88)])
+    calls = canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.88)])
     write(tmp_path, "a.md", "a — b\nc; d\n")
     code, out, err = run(["lint", "--triage", "a.md"], str(tmp_path), capsys)
     assert code == 1
@@ -132,23 +107,21 @@ def test_triage_appends_the_verdict_to_each_text_line_and_the_summary(tmp_path, 
 
 
 def test_triage_json_carries_the_verdict_fields_and_validates(tmp_path, capsys, monkeypatch):
-    from tests.test_report import _check_finding, _finding_schema
-
-    _canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.88)])
+    canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.88)])
     write(tmp_path, "a.md", "a — b\nc; d\n")
     code, out, _ = run(["lint", "--triage", "--format", "json", "a.md"], str(tmp_path), capsys)
     payload = json.loads(out)
     assert [(f["verdict"], f["probability"]) for f in payload["findings"]] == [
         ("keep", 0.93), ("rewrite", 0.88),
     ]
-    schema = _finding_schema()
+    schema = finding_schema()
     for item in payload["findings"]:
-        _check_finding(item, schema)
+        check_finding(item, schema)
     assert code == 1
 
 
 def test_triage_github_folds_the_verdict_into_the_annotation(tmp_path, capsys, monkeypatch):
-    _canned_jev(monkeypatch, [("rewrite", 0.88)])
+    canned_jev(monkeypatch, [("rewrite", 0.88)])
     write(tmp_path, "a.md", "c; d\n")
     _, out, _ = run(["lint", "--triage", "--format", "github", "a.md"], str(tmp_path), capsys)
     assert out == ("::warning file=a.md,line=1,col=2::semicolon - "
@@ -162,7 +135,7 @@ def test_triage_github_folds_the_verdict_into_the_annotation(tmp_path, capsys, m
 ])
 def test_triage_never_moves_the_exit_code(tmp_path, capsys, monkeypatch, text, extra):
     # Every verdict is keep, the answer most likely to tempt a demotion.
-    _canned_jev(monkeypatch, [("keep", 0.99)])
+    canned_jev(monkeypatch, [("keep", 0.99)])
     write(tmp_path, "a.md", text)
     plain = run(["lint", *extra, "a.md"], str(tmp_path), capsys)[0]
     judged = run(["lint", "--triage", *extra, "a.md"], str(tmp_path), capsys)[0]
@@ -211,7 +184,7 @@ def test_triage_gateway_failure_prints_one_line_and_keeps_the_scan_exit_code(tmp
 
 
 def test_triage_clean_files_make_no_request(tmp_path, capsys, monkeypatch):
-    calls = _canned_jev(monkeypatch, [("keep", 0.9)])
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
     write(tmp_path, "a.md", "all good here\n")
     code, _, err = run(["lint", "--triage", "a.md"], str(tmp_path), capsys)
     assert code == 0
