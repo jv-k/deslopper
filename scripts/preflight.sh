@@ -34,4 +34,24 @@ fi
 "$py" -m pytest -q
 "$py" -m deslopper lint
 "$py" -m build --outdir "$(mktemp -d)" >/dev/null
+
+# The suite fakes the gateway, so this is the one place the live triage integration is
+# exercised before a release. The fixture is excluded from the repo lint and is full of
+# findings to judge. Exit 1 there means findings, which is the point; anything else is a
+# usage or key error. A gateway failure keeps the scan's exit code by design, so the check
+# that matters is that every finding came back judged.
+if [ -z "${AI_GATEWAY_API_KEY:-}" ]; then
+  echo "AI_GATEWAY_API_KEY is not set; the live triage smoke run needs it" >&2
+  exit 1
+fi
+judged="$(mktemp)"
+"$py" -m deslopper lint --triage --format json tests/fixtures/ai_slop.md >"$judged" || [ $? -eq 1 ]
+"$py" - "$judged" <<'PY'
+import json, sys
+findings = json.load(open(sys.argv[1]))["findings"]
+unjudged = [f for f in findings if "verdict" not in f]
+if not findings or unjudged:
+    sys.exit(f"triage smoke run: {len(unjudged)} of {len(findings)} findings came back unjudged")
+print(f"triage smoke run: {len(findings)} findings judged")
+PY
 echo "preflight ok"

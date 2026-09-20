@@ -16,7 +16,10 @@ jobs:
           python-version: "3.12"
       - run: pip install -e . pytest
       - run: pytest -q
-      - run: deslopper lint --format github
+      # --triage joins only when the secret is set; a fork PR has none and lints plainly.
+      - run: deslopper lint --format github ${AI_GATEWAY_API_KEY:+--triage}
+        env:
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
       - name: Verify the tag matches the package version
         run: |
           tag="${GITHUB_REF_NAME#v}"
