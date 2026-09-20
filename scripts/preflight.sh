@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Pre-bump gates for `pnpm bump-release`. Everything here has to pass before VerBump runs.
-# What VerBump itself does is checked afterwards by postflight.sh, which runs before
-# anything is pushed, so a bad bump is still local and cheap to undo.
+# Pre-bump gates, run by VerBump as PRE_BUMP_CMD (see .verbumprc) after its own preflights
+# and before it touches a file. What VerBump itself does is checked afterwards by
+# postflight.sh, which runs before anything is pushed, so a bad bump is still local and
+# cheap to undo.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
