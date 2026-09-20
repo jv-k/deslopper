@@ -134,6 +134,14 @@ def test_wide_columns_keep_rows_on_one_line(capsys, monkeypatch):
     assert "  Lint files and fail on findings." in out
 
 
+def test_lint_help_lists_triage_and_check_help_does_not(capsys):
+    _, lint_out, _ = run(["lint", "--help"], capsys)
+    assert "--triage" in lint_out
+    assert "AI_GATEWAY_API_KEY" in lint_out
+    _, check_out, _ = run(["check", "--help"], capsys)
+    assert "--triage" not in check_out
+
+
 def test_eval_help_lists_the_plainness_flag(capsys):
     code, out, _ = run(["eval", "--help"], capsys)
     assert code == 0

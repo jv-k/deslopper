@@ -50,7 +50,8 @@ Follow the module layout: one responsibility per file. `engine.py` scans, `rules
 compiles kinds, `config.py` resolves, `discovery.py` finds files, `report.py` formats,
 `digest.py` extracts the protected content the eval compares, `evaluate.py` runs the
 rewrite eval, `jev.py` asks the Jev model typed questions through one fake-able
-transport, `ui.py` owns the colour gate and terminal styling, `help.py` renders the
+transport, `triage.py` turns a lint result and its source text into the same result with
+Jev's verdicts, `ui.py` owns the colour gate and terminal styling, `help.py` renders the
 help screens, `completions.py` prints the shell completion scripts, and `cli.py` wires
 the commands. Write a failing test first, make it pass,
 and keep the suite green.
