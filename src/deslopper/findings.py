@@ -1,6 +1,7 @@
 """Finding and LintResult value types."""
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -11,6 +12,10 @@ class Finding:
     tier: str
     name: str
     message: str
+    # A verdict is set by a judging pass, not by the engine, so both default to none
+    # and every format renders a finding without one exactly as before.
+    verdict: Optional[str] = None
+    probability: Optional[float] = None
 
 
 @dataclass
