@@ -113,9 +113,11 @@ COMMANDS = {
         "description": "Judge a rewrite command against the slop fixtures.",
         "options": [
             ("", "--keep", "", "Leave the sandbox on disk and print its path."),
+            ("", "--plainness", "", "Also score plainness with Jev (needs AI_GATEWAY_API_KEY). Reported, never gated."),
         ],
         "examples": [
             ("deslopper eval 'my-rewriter {dir}'", "Seed a sandbox, rewrite it, judge the result."),
+            ("deslopper eval --plainness 'my-rewriter {dir}'", "The same, with a plainness score per fixture."),
         ],
     },
     "completions": {
