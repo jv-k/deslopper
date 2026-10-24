@@ -73,8 +73,9 @@ def test_render_sends_one_template_with_each_part_styled(gum_shim):
     out = gum.render([[("bold", "a.md")], [], [("", "  "), ("error", "✖ error")]])
     call = gum_shim()[0]
     assert call["args"] == ["format", "--type", "template"]
-    assert call["stdin"] == ('{{ Bold "a.md" }}\n\n{{ "  " }}'
-                             '{{ Color "%s" "✖ error" }}\n' % gum.PALETTE["error"])
+    # A marker line on each side is what gum trims, so the view keeps every line.
+    assert call["stdin"] == ('{{ "|" }}\n{{ Bold "a.md" }}\n\n{{ "  " }}'
+                             '{{ Color "%s" "✖ error" }}\n{{ "|" }}\n' % gum.PALETTE["error"])
     assert call["clicolor_force"] == "1"
     # gum drops the last newline; render puts it back.
     assert out.endswith("\n")
@@ -90,7 +91,7 @@ def test_render_combines_style_tokens():
 
 def test_render_keeps_template_syntax_in_the_text_literal(gum_shim):
     gum.render([[("faint", 'say "{{ .X }}" \\ here')]])
-    assert gum_shim()[0]["stdin"] == '{{ Faint "say \\"{{ .X }}\\" \\\\ here" }}\n'
+    assert gum_shim()[0]["stdin"].split("\n")[1] == '{{ Faint "say \\"{{ .X }}\\" \\\\ here" }}'
 
 
 def test_spin_runs_a_spinner_for_the_block_and_stops_it(gum_shim):
@@ -188,3 +189,73 @@ def test_render_takes_256_colour_numbers_and_the_ok_pill():
     assert gum._part("196", "d") == '{{ Color "196" "d" }}'
     assert gum._part("pill-ok", " v1 ") == \
         '{{ Bold (Color "%s" "%s" " v1 ") }}' % (gum.PALETTE["on-accent"], gum.PALETTE["ok"])
+
+
+# A table in a view: gum table draws it, with its cells styled in the view's one
+# format call.
+
+
+def _table():
+    return gum.Table(columns=["summary", ""], rows=[
+        [[("muted", "errors")], [("error", "2")]],
+        [[("muted", "cached")], [("ok", "3"), ("faint", " of 7")]],
+    ])
+
+
+def test_render_styles_table_cells_in_the_one_format_call_and_draws_the_table(gum_shim):
+    out = gum.render([[("bold", "above")], _table(), [("", "below")]])
+    fmt, table = gum_shim()
+    assert fmt["args"][0] == "format"
+    assert fmt["stdin"] == ('{{ "|" }}\n{{ Bold "above" }}\n'
+                            '{{ Color "%s" "errors" }}\t{{ Color "%s" "2" }}\n'
+                            '{{ Color "%s" "cached" }}\t{{ Color "%s" "3" }}{{ Faint " of 7" }}\n'
+                            '{{ "below" }}\n{{ "|" }}\n'
+                            % (gum.PALETTE["muted"], gum.PALETTE["error"],
+                               gum.PALETTE["muted"], gum.PALETTE["ok"]))
+    assert table["args"] == ["table", "--print", "--separator", "\t", "--columns", "summary,      ",
+                             "--border", "rounded", "--border.foreground", gum.PALETTE["rule"],
+                             "--lazy-quotes"]
+    assert table["clicolor_force"] == "1"
+    # The table sits in the view's place for it, indented to the view's margin.
+    assert out.split("\n")[:4] == [
+        '{{ Bold "above" }}',
+        "  <table " + " ".join(table["args"][1:]) + ">",
+        '  {{ Color "%s" "errors" }}\t{{ Color "%s" "2" }}' % (gum.PALETTE["muted"], gum.PALETTE["error"]),
+        '  {{ Color "%s" "cached" }}\t{{ Color "%s" "3" }}{{ Faint " of 7" }}' % (gum.PALETTE["muted"], gum.PALETTE["ok"]),
+    ]
+    assert out.endswith('{{ "below" }}\n')
+
+
+def test_plain_draws_a_table_as_the_same_box_in_plain_text():
+    assert gum.plain([_table()]).split("\n") == [
+        "  ╭─────────┬────────╮",
+        "  │ summary │        │",
+        "  ├─────────┼────────┤",
+        "  │ errors  │ 2      │",
+        "  │ cached  │ 3 of 7 │",
+        "  ╰─────────┴────────╯",
+        "",
+    ]
+
+
+def test_render_returns_none_when_the_table_fails(gum_shim, monkeypatch):
+    monkeypatch.setenv("GUM_SHIM_FAIL", "1")
+    assert gum.render([_table()]) is None
+
+
+def test_render_draws_a_view_that_ends_in_blank_lines(gum_shim):
+    assert gum.render([[("", "a")], [], _table(), []]) is not None
+
+
+def test_a_table_with_a_width_fills_it_with_the_columns_after_the_first():
+    table = gum.Table(columns=["Jev", "a", "b"], rows=[[[("", "now")], [("", "1")], [("", "2")]]],
+                      width=24)
+    lines = gum.plain([table]).split("\n")[:-1]
+    assert lines[0] == "  ╭─────┬───────┬────────╮"
+    assert {len(line) for line in lines} == {2 + 24}
+
+
+def test_gum_gets_the_width_as_padded_header_names(gum_shim):
+    gum.render([gum.Table(columns=["Jev", "a"], rows=[[[("", "now")], [("", "1")]]], width=16)])
+    table = [c for c in gum_shim() if c["args"][0] == "table"][0]
+    assert table["args"][table["args"].index("--columns") + 1] == "Jev,a     "
