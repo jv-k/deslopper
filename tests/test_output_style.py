@@ -1,11 +1,13 @@
 """The run output: the plain lines, and the gum layer an attended run adds over them.
 
-Everything drives the CLI seam — main(argv) with captured stdio — and the colour
-gate only ever moves through the environment (NO_COLOR, FORCE_COLOR).
+Everything drives the CLI seam, main(argv) with captured stdio. Whether a run is
+attended moves only through the environment (NO_COLOR, CLICOLOR_FORCE) and conftest's
+gum shim.
 """
 
 import os
 
+from deslopper import gum
 from deslopper.cli import main
 from tests.conftest import canned_jev
 
@@ -30,7 +32,6 @@ def write(tmp_path, rel, text):
 
 
 def test_piped_findings_are_plain(tmp_path, capsys, monkeypatch):
-    monkeypatch.delenv("FORCE_COLOR", raising=False)
     monkeypatch.delenv("CLICOLOR_FORCE", raising=False)
     write(tmp_path, "a.md", "a — dash\n")
     _, out, err = run(["lint", "a.md"], str(tmp_path), capsys)
@@ -75,7 +76,6 @@ def test_unreadable_path_is_a_trace_line(tmp_path, capsys):
 
 
 def test_rules_piped_keeps_tsv(tmp_path, capsys, monkeypatch):
-    monkeypatch.delenv("FORCE_COLOR", raising=False)
     code, out, _ = run(["rules"], str(tmp_path), capsys)
     assert code == 0
     assert "em-dash\terror\t" in out
@@ -103,7 +103,6 @@ def test_eval_verdict_speaks_through_log_lines(tmp_path, capsys):
 
 
 def test_rules_with_no_tells_prints_nothing(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
     write(tmp_path, "deslopper.config.json", '{"extends": []}')
     code, out, _ = run(["rules"], str(tmp_path), capsys)
     assert code == 0
@@ -111,7 +110,6 @@ def test_rules_with_no_tells_prints_nothing(tmp_path, capsys, monkeypatch):
 
 
 def test_piped_triage_keeps_the_number_and_no_glyphs(tmp_path, capsys, monkeypatch):
-    monkeypatch.delenv("FORCE_COLOR", raising=False)
     monkeypatch.delenv("CLICOLOR_FORCE", raising=False)
     canned_jev(monkeypatch, [("keep", 0.93)])
     write(tmp_path, "a.md", "a — dash\n")
@@ -203,6 +201,20 @@ def test_attended_check_and_rules_fall_back_when_gum_fails(tmp_path, capsys, gum
     assert code == 0 and out.startswith("a.md:1:3 [error] em-dash:")
     code, out, _ = run(["rules"], str(tmp_path), capsys)
     assert code == 0 and "em-dash\terror\t" in out
+
+
+def test_attended_eval_draws_the_remaining_findings_as_the_lint_view(tmp_path, capsys, gum_shim):
+    code, out, err = run(["eval", "true"], str(tmp_path), capsys)
+    assert code == 1
+    assert '{{ Bold "eval" }}' in out and '" deslopper "' in out
+    assert "[error]" not in out  # the plain lines give way to the view
+    assert "eval FAIL (efficacy)" in err
+
+
+def test_attended_status_lines_colour_their_icon(tmp_path, capsys, gum_shim):
+    code, out, _ = run(["init"], str(tmp_path), capsys)
+    assert code == 0
+    assert '{{ Color "%s" "✔" }}{{ " wrote deslopper.config.json" }}' % gum.PALETTE["ok"] in out
 
 
 def test_machine_formats_never_call_gum(tmp_path, capsys, gum_shim):

@@ -133,7 +133,7 @@ def _read_sources(result, items) -> dict:
     return sources
 
 
-def _do_lint(args, pal):
+def _do_lint(args):
     if args.jev:
         # Fail on the missing key before any scan output, so the hint is the
         # whole of what the user sees.
@@ -170,7 +170,7 @@ def _do_lint(args, pal):
     return code
 
 
-def _do_check(args, pal):
+def _do_check(args):
     cfg, result, items = _lint_command(args)
     if gum.attended(sys.stdout):
         if _view(result, _read_sources(result, items), items, cfg.strict, "check"):
@@ -182,7 +182,7 @@ def _do_check(args, pal):
     return 0
 
 
-def _do_rules(args, pal):
+def _do_rules(args):
     cfg, _ = load_config(getattr(args, "config", None), os.getcwd())
     if args.format == "json":
         payload = [
@@ -202,22 +202,22 @@ def _do_rules(args, pal):
     return 0
 
 
-def _do_init(args, pal):
+def _do_init(args):
     target = os.path.join(os.getcwd(), CONFIG_NAME)
     if os.path.exists(target) and not args.force:
         raise UsageError(f"{CONFIG_NAME} already exists; pass --force to overwrite")
     with open(target, "w", encoding="utf-8") as fh:
         json.dump(STARTER, fh, indent=2)
         fh.write("\n")
-    ui.log_success(pal, f"wrote {CONFIG_NAME}")
+    ui.log_success(f"wrote {CONFIG_NAME}")
     return 0
 
 
-def _do_eval(args, pal):
-    return run_eval(args.rewrite_command, keep=args.keep, pal=pal, plainness=args.plainness)
+def _do_eval(args):
+    return run_eval(args.rewrite_command, keep=args.keep, plainness=args.plainness)
 
 
-def _do_completions(args, pal):
+def _do_completions(args):
     sys.stdout.write(completions.script(args.shell or completions.detect()))
     return 0
 
@@ -239,11 +239,10 @@ def main(argv=None) -> int:
         return helped
     parser = _build_parser()
     args = parser.parse_args(argv)
-    pal = ui.palette()
     try:
-        return _COMMANDS[args.command](args, pal)
+        return _COMMANDS[args.command](args)
     except (ConfigError, UsageError, JevUnavailable) as exc:
-        ui.log_error(pal, str(exc))
+        ui.log_error(str(exc))
         return 2
 
 

@@ -16,7 +16,7 @@ import tempfile
 from decimal import Decimal, InvalidOperation
 from importlib import resources
 
-from . import jev, report, ui
+from . import gum, jev, report, ui
 from .config import resolve
 from .digest import diff_components, digest_text
 from .engine import lint_files
@@ -96,7 +96,7 @@ def _read_all(sandbox, names):
     return texts, unreadable
 
 
-def score_plainness(texts, unreadable, pal, label: str) -> PlainnessPass:
+def score_plainness(texts, unreadable, label: str) -> PlainnessPass:
     """Ask Jev how plainly each fixture reads, in one request.
 
     Every fixture goes into `state` under a heading of its name, with one score
@@ -108,7 +108,7 @@ def score_plainness(texts, unreadable, pal, label: str) -> PlainnessPass:
         return PlainnessPass(unreadable=unreadable)
     state = "".join(f"===== {name} =====\n{text}\n" for name, text in texts.items())
     if len(state) > jev.STATE_CHAR_BUDGET:
-        ui.log_error(pal, f"plainness ({label}): fixtures exceed the Jev state budget, skipped")
+        ui.log_error(f"plainness ({label}): fixtures exceed the Jev state budget, skipped")
         return PlainnessPass(unreadable=unreadable)
     questions = {
         name: jev.score(
@@ -121,7 +121,7 @@ def score_plainness(texts, unreadable, pal, label: str) -> PlainnessPass:
     try:
         result = jev.evaluate(state, questions)
     except (jev.JevError, jev.JevUnavailable) as err:
-        ui.log_error(pal, f"plainness ({label}): {err}")
+        ui.log_error(f"plainness ({label}): {err}")
         return PlainnessPass(unreadable=unreadable)
     scores = {}
     for name in texts:
@@ -140,13 +140,13 @@ def score_plainness(texts, unreadable, pal, label: str) -> PlainnessPass:
     return PlainnessPass(scores, unreadable, tokens, cost)
 
 
-def _plainness_pair(pal, before, after) -> str:
+def _plainness_pair(before, after) -> str:
     """`0.12 -> 0.84`, or just the one side that was scored, or `unscored`."""
     sides = [f"{v:.2f}" for v in (before, after) if v is not None]
-    return f" {pal.arrow} ".join(sides) or "unscored"
+    return " -> ".join(sides) or "unscored"
 
 
-def report_plainness(pal, names, before: PlainnessPass, after: PlainnessPass):
+def report_plainness(names, before: PlainnessPass, after: PlainnessPass):
     """Print one line per fixture and the mean, `before -> after`.
 
     A line shows the sides that were scored. A fixture the after pass could
@@ -156,15 +156,15 @@ def report_plainness(pal, names, before: PlainnessPass, after: PlainnessPass):
     """
     for name in names:
         if name in after.unreadable:
-            ui.log_info(pal, f"plainness {name}: unreadable")
+            ui.log_info(f"plainness {name}: unreadable")
             continue
-        pair = _plainness_pair(pal, before.scores.get(name), after.scores.get(name))
-        ui.log_info(pal, f"plainness {name}: {pair}")
+        pair = _plainness_pair(before.scores.get(name), after.scores.get(name))
+        ui.log_info(f"plainness {name}: {pair}")
     shared = [n for n in names if n in before.scores and n in after.scores]
     if shared:
-        mean = _plainness_pair(pal, before.mean_over(shared), after.mean_over(shared))
+        mean = _plainness_pair(before.mean_over(shared), after.mean_over(shared))
     else:
-        mean = _plainness_pair(pal, before.mean_over(names), after.mean_over(names))
+        mean = _plainness_pair(before.mean_over(names), after.mean_over(names))
     tokens = [p.tokens for p in (before, after) if p.tokens is not None]
     costs = [p.cost for p in (before, after) if p.cost is not None]
     tail = []
@@ -175,16 +175,28 @@ def report_plainness(pal, names, before: PlainnessPass, after: PlainnessPass):
         tail.append(f"${sum(costs):f}")
     line = f"plainness mean: {mean}"
     if tail:
-        line += f" {pal.sep} " + ", ".join(tail)
-    ui.log_info(pal, line)
+        line += " | " + ", ".join(tail)
+    ui.log_info(line)
 
 
-def _broken(pal, why: str) -> int:
-    ui.log_error(pal, f"eval harness broken: {why}")
+def _broken(why: str) -> int:
+    ui.log_error(f"eval harness broken: {why}")
     return EXIT_HARNESS_BROKEN
 
 
-def run_eval(command: str, keep: bool = False, pal=None, plainness: bool = False) -> int:
+def _show_remaining(result, sources, fixtures):
+    """The findings left after the rewrite: the lint view when attended, else the
+    plain lines. A clean result prints nothing here; the verdict says it."""
+    if result.findings and gum.attended(sys.stdout):
+        lines = report.lint_view(result, sources, fixtures, ui.term_cols(), command="eval")
+        drawn = gum.render(lines)
+        if drawn is not None:
+            sys.stdout.write(drawn)
+            return
+    sys.stdout.write(report.format_text(result))
+
+
+def run_eval(command: str, keep: bool = False, plainness: bool = False) -> int:
     """Seed a sandbox, run the rewrite command over it, judge the result.
 
     The command runs through the shell. A `{dir}` placeholder receives the
@@ -192,10 +204,9 @@ def run_eval(command: str, keep: bool = False, pal=None, plainness: bool = False
     With `plainness`, Jev scores the fixtures before and after the rewrite
     and the scores are reported without touching the verdict.
     """
-    pal = ui.palette() if pal is None else pal
     if plainness and not os.environ.get(jev.KEY_VAR):
         # Checked before the sandbox exists, so no rewrite runs unscored.
-        ui.log_error(pal, f"--plainness needs {jev.KEY_VAR}; export it to ask Jev")
+        ui.log_error(f"--plainness needs {jev.KEY_VAR}; export it to ask Jev")
         return EXIT_USAGE
     tells = resolve({}).tells
     sandbox = tempfile.mkdtemp(prefix="deslopper-eval-")
@@ -204,21 +215,19 @@ def run_eval(command: str, keep: bool = False, pal=None, plainness: bool = False
 
         baseline = _lint_sandbox(sandbox, names, tells)
         if baseline.errors == 0:
-            return _broken(pal, "the raw fixtures produced no error-tier findings")
+            return _broken("the raw fixtures produced no error-tier findings")
         if baseline.warnings == 0:
             # The strictly-below warn gate needs headroom, so a warnless baseline
             # could never pass either.
-            return _broken(pal, "the raw fixtures produced no warn-tier findings")
+            return _broken("the raw fixtures produced no warn-tier findings")
         seeded, _ = _read_all(sandbox, names)
         before = {n: digest_text(seeded[n]) for n in names}
-        ui.log_info(
-            pal,
-            f"seeded {len(names)} fixture(s), baseline "
+        ui.log_info(f"seeded {len(names)} fixture(s), baseline "
             f"{baseline.errors} error(s), {baseline.warnings} warning(s)",
             stream=sys.stderr,
         )
         if plainness:
-            plain_before = score_plainness(seeded, [], pal, "baseline")
+            plain_before = score_plainness(seeded, [], "baseline")
 
         # {dir} receives the path itself, so a template can place its own quotes.
         if "{dir}" in command:
@@ -228,7 +237,8 @@ def run_eval(command: str, keep: bool = False, pal=None, plainness: bool = False
         proc = subprocess.run(shell_command, shell=True)
 
         result = _lint_sandbox(sandbox, names, tells)
-        sys.stdout.write(report.format_text(result))
+        rewritten, unreadable = _read_all(sandbox, names)
+        _show_remaining(result, rewritten, len(names))
         efficacy_failures = []
         if result.errors:
             efficacy_failures.append(f"{result.errors} error(s) remain")
@@ -239,7 +249,6 @@ def run_eval(command: str, keep: bool = False, pal=None, plainness: bool = False
 
         # A fixture the rewrite deleted or made unreadable has lost every
         # protected component at once.
-        rewritten, unreadable = _read_all(sandbox, names)
         preservation_failures = [f"{name}: unreadable" for name in unreadable]
         for name, text in rewritten.items():
             for label in diff_components(before[name], digest_text(text)):
@@ -249,13 +258,13 @@ def run_eval(command: str, keep: bool = False, pal=None, plainness: bool = False
 
         # Reported, never gated: the verdict below does not read these.
         if plainness:
-            plain_after = score_plainness(rewritten, unreadable, pal, "after")
-            report_plainness(pal, names, plain_before, plain_after)
+            plain_after = score_plainness(rewritten, unreadable, "after")
+            report_plainness(names, plain_before, plain_after)
 
         # A nonzero command exit is judged and reported like any run, but the
         # broken-harness code wins over both judges.
         if proc.returncode != 0:
-            return _broken(pal, f"the rewrite command exited {proc.returncode}")
+            return _broken(f"the rewrite command exited {proc.returncode}")
 
         if preservation_failures:
             verdict, code = "FAIL (preservation)", EXIT_PRESERVATION
@@ -267,12 +276,12 @@ def run_eval(command: str, keep: bool = False, pal=None, plainness: bool = False
             f"0 error(s), {result.warnings} warning(s) < baseline {baseline.warnings}"
         )
         if code == EXIT_PASS:
-            ui.log_success(pal, f"eval {verdict}: {detail}", stream=sys.stderr)
+            ui.log_success(f"eval {verdict}: {detail}", stream=sys.stderr)
         else:
-            ui.log_error(pal, f"eval {verdict}: {detail}")
+            ui.log_error(f"eval {verdict}: {detail}")
         return code
     finally:
         if keep:
-            ui.log_info(pal, f"sandbox kept at {sandbox}", stream=sys.stderr)
+            ui.log_info(f"sandbox kept at {sandbox}", stream=sys.stderr)
         else:
             shutil.rmtree(sandbox, ignore_errors=True)
