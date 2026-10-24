@@ -56,7 +56,10 @@ Show
 Type "deslopper lint --jev notes.md"
 Sleep 600ms
 Enter
-Sleep 8s
+# Wait for Jev's totals line, which closes the view, then hold it. The gateway can
+# take up to 10 seconds, so a fixed sleep could hide the scene before the ratings.
+Wait+Screen@20s /Jev \d+ rewrite/
+Sleep 5s
 
 # Scene 3: rewrite the file off-camera, then lint it clean.
 Hide
