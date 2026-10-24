@@ -604,19 +604,28 @@ names each file while Jev reads it, and each place then starts with Jev's rating
   ──────────────────────────────────────────────────────────────────────────────────
   ✖ 1 error   ! 2 warnings
 
-  ╭──────────┬──────────────╮
-  │ summary  │              │
-  ├──────────┼──────────────┤
-  │ findings │ 3 in 1 file  │
-  │ errors   │ 1            │
-  │ warnings │ 2            │
-  │ rewrite  │ 1            │
-  │ keep     │ 2            │
-  │ cached   │ 0 of 3       │
-  │ tokens   │ 872          │
-  │ cost     │ $0.000032844 │
-  ╰──────────┴──────────────╯
+  ╭──────────┬─────────────────────────────────────────────────────────────────────╮
+  │ summary  │                                                                     │
+  ├──────────┼─────────────────────────────────────────────────────────────────────┤
+  │ findings │ 3 in 1 file                                                         │
+  │ errors   │ 1                                                                   │
+  │ warnings │ 2                                                                   │
+  │ rewrite  │ 1                                                                   │
+  │ keep     │ 2                                                                   │
+  ╰──────────┴─────────────────────────────────────────────────────────────────────╯
+  ╭─────────────┬─────────────────────┬─────────────────────┬──────────────────────╮
+  │ Jev         │ verdicts            │ tokens              │ cost                 │
+  ├─────────────┼─────────────────────┼─────────────────────┼──────────────────────┤
+  │ this run    │ 3                   │ 872                 │ $0.000033            │
+  │ cache saved │ 0                   │ 0                   │ $0                   │
+  ╰─────────────┴─────────────────────┴─────────────────────┴──────────────────────╯
 ```
+
+Two tables close the view, as wide as the rules above them. The summary table counts the
+findings and Jev's verdicts. The Jev table has one row for the verdicts asked for on this
+run, with their tokens and cost, and one row for the verdicts the cache answered, with what
+they cost when Jev first gave them. The tables round each cost to two significant figures.
+The `json` format keeps the exact cost.
 
 The bar fills in proportion to the probability. Its filled slots are green from 0.9,
 yellow from 0.7, and red below that. On a narrow terminal the rating drops the number
@@ -632,11 +641,11 @@ deslopper keeps each verdict in a cache on disk, in `$XDG_CACHE_HOME/deslopper/j
 verdict while the tell, its column, and the lines around the finding stay the same. A
 finding that only moved down the file is not sent again. A file whose findings are all
 cached sends no request. Each cached verdict also keeps its share of the tokens and the
-cost of the request that answered it. When the cache answers, the summary table counts
-the cached verdicts and adds a `saved` row with those tokens and that cost. The plain
+cost of the request that answered it. The `cache saved` row of the Jev table counts
+the cached verdicts and adds up those tokens and that cost. The plain
 summary line ends with the same saving, and the `json` format reports `cached`,
-`saved_tokens` and `saved_cost`. A verdict cached before 1.7.0 has no share, so it counts
-as cached but saves nothing that deslopper can count. Add `--no-cache` to ask Jev about every
+`saved_tokens` and `saved_cost`. A verdict cached before 1.7.0 has no share, so the row
+counts it, and shows its tokens and cost as `unknown`. Add `--no-cache` to ask Jev about every
 finding again, for example after Jev changes. To clear the cache, delete the folder.
 
 Triage only adds notes. It never changes the exit code, so a `keep` verdict cannot make a

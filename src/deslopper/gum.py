@@ -131,11 +131,30 @@ class Table:
     """A bordered table in a view, drawn by gum table. `columns` names the header
     cells, and each row is a list of cells, each a list of (style, text) parts like a
     line's. gum draws the first row in bold, as it draws a selection, so a caller puts
-    the row that leads first."""
+    the row that leads first.
+
+    `width`, when set, is the box's outer width: the columns after the first share
+    what the text leaves over. A table whose text is wider keeps its own width."""
 
     columns: list
     rows: list
     indent: int = 2
+    width: int = 0
+
+
+def _widths(table: Table) -> list:
+    """Each column's text width, widened so the box is `table.width` across. Each
+    column adds a space either side and a border."""
+    grid = [list(table.columns)] + [["".join(t for _s, t in cell) for cell in row]
+                                    for row in table.rows]
+    widths = [max(len(row[i]) for row in grid) for i in range(len(table.columns))]
+    spare = table.width - sum(widths) - 3 * len(widths) - 1
+    rest = len(widths) - 1
+    if spare > 0 and rest:
+        share, extra = divmod(spare, rest)
+        for i in range(1, len(widths)):
+            widths[i] += share + (i > rest - extra)
+    return widths
 
 
 def _template(line) -> list:
@@ -148,9 +167,12 @@ def _template(line) -> list:
 
 
 def _table(table: Table, cells: list):
-    """`table` drawn by gum table from its styled rows, indented, or None."""
+    """`table` drawn by gum table from its styled rows, indented, or None. gum sizes a
+    column to its widest cell and ignores --widths with --print, so padding the header
+    names sets the widths."""
+    names = [(c or " ").ljust(w) for c, w in zip(table.columns, _widths(table))]
     drawn = _run(["table", "--print", "--separator", "\t", "--columns",
-                  ",".join(c or " " for c in table.columns), "--border", "rounded",
+                  ",".join(names), "--border", "rounded",
                   "--border.foreground", PALETTE["rule"], "--lazy-quotes"],
                  "".join(row + "\n" for row in cells))
     if drawn is None:
@@ -229,7 +251,7 @@ def _plain_table(table: Table) -> list:
     """`table` as the same rounded box gum draws, in plain text."""
     grid = [list(table.columns)] + [["".join(t for _s, t in cell) for cell in row]
                                     for row in table.rows]
-    widths = [max(len(row[i]) for row in grid) for i in range(len(table.columns))]
+    widths = _widths(table)
 
     def edge(left, mid, right):
         return left + mid.join("─" * (w + 2) for w in widths) + right

@@ -1,6 +1,7 @@
 """Output formatting, the summary line, and the exit-code rule."""
 
 import json
+from decimal import ROUND_HALF_UP, Decimal
 
 from . import gum, tiers, ui
 from .findings import Finding
@@ -142,11 +143,12 @@ def _group_lines(group: list, lines: list, loc_w: int, width: int, rated: bool) 
 def lint_view(result, sources: dict, linted: int, width: int, judged=None,
               strict: bool = False, command: str = "lint") -> list:
     """The attended view of a lint run: a header, then a section per file with each
-    tell grouped once under it, then the status line and the summary table.
+    tell grouped once under it, then the status line and the summary tables.
 
     `sources` maps a finding's path to the file's text, for the excerpts. `judged` is
     the Triage a --jev run returned; it adds the rating to each row, its failed requests
-    to the footer, and Jev's verdicts, spend and cache to the table."""
+    to the footer, its verdicts to the summary table, and a table of what Jev cost and
+    what the cache saved. Both tables span the rules' width."""
     findings = result.findings
     files = {}
     for f in findings:
@@ -181,18 +183,24 @@ def lint_view(result, sources: dict, linted: int, width: int, judged=None,
     if result.warnings:
         status += [("", "   "), ("warn", f"{ui.I_WARN} "), ("bold warn", _plural(result.warnings, "warning"))]
     out.append([("", "  ")] + status + tag)
-    return out + [[], summary_table(result, judged, len(files)), []]
+    out += [[], summary_table(result, judged, len(files), width - 4)]
+    if judged is not None:
+        out.append(jev_table(result, judged, width - 4))
+    return out + [[]]
 
 
 def _money(cost) -> str:
-    # The gateway's cost can carry trailing zeros; normalize drops them.
-    return f"${cost.normalize():f}"
+    """A cost to two significant figures, which is all a glance needs; the json
+    format keeps the exact cost."""
+    if not cost:
+        return "$0"
+    rounded = cost.quantize(Decimal(1).scaleb(cost.adjusted() - 1), rounding=ROUND_HALF_UP)
+    return f"${rounded.normalize():f}"
 
 
-def summary_table(result, judged, with_slop: int) -> gum.Table:
-    """The run's totals as label and value rows: the findings, then, after a --jev
-    run, Jev's verdicts, its spend, and what the cache answered and saved. The cache
-    keeps no saving for a verdict stored before it recorded one."""
+def summary_table(result, judged, with_slop: int, width: int) -> gum.Table:
+    """The run's totals as label and value rows, `width` across: the findings, and
+    after a --jev run, Jev's verdicts."""
     rows = [("findings", [("bold", f"{len(result.findings)} in {_plural(with_slop, 'file')}")]),
             ("errors", [("error" if result.errors else "faint", str(result.errors))]),
             ("warnings", [("warn" if result.warnings else "faint", str(result.warnings))])]
@@ -200,17 +208,27 @@ def summary_table(result, judged, with_slop: int) -> gum.Table:
         rows.append(("unreadable", [("warn", str(len(result.unreadable)))]))
     if judged is not None:
         rows += [("rewrite", [("bold", str(result.rewrite))]),
-                 ("keep", [("", str(result.keep))]),
-                 ("cached", [("ok" if judged.cached else "", str(judged.cached)),
-                             ("faint", f" of {result.rewrite + result.keep}")]),
-                 ("tokens", [("", f"{judged.tokens:,}")]),
-                 ("cost", [("", _money(judged.cost))])]
-        if judged.cached:
-            saved = (("ok", f"{judged.saved_tokens:,} tokens, {_money(judged.saved_cost)}")
-                     if judged.saved_tokens or judged.saved_cost else ("faint", "not recorded"))
-            rows.append(("saved", [saved]))
-    return gum.Table(columns=["summary", ""],
+                 ("keep", [("", str(result.keep))])]
+    return gum.Table(columns=["summary", ""], width=width,
                      rows=[[[("muted", label)], value] for label, value in rows])
+
+
+def jev_table(result, judged, width: int) -> gum.Table:
+    """What Jev cost, `width` across: the verdicts asked for on this run with their
+    tokens and cost, then the verdicts the cache answered with what they cost when
+    Jev first gave them. The cache keeps no cost for a verdict stored before it
+    recorded one."""
+    asked = result.rewrite + result.keep - judged.cached
+    if judged.cached and not (judged.saved_tokens or judged.saved_cost):
+        saved = [[("faint", "unknown")], [("faint", "unknown")]]
+    else:
+        style = "ok" if judged.cached else ""
+        saved = [[(style, f"{judged.saved_tokens:,}")], [(style, _money(judged.saved_cost))]]
+    rows = [[[("muted", "this run")], [("", str(asked))], [("", f"{judged.tokens:,}")],
+             [("", _money(judged.cost))]],
+            [[("muted", "cache saved")], [("ok" if judged.cached else "", str(judged.cached))]]
+            + saved]
+    return gum.Table(columns=["Jev", "verdicts", "tokens", "cost"], rows=rows, width=width)
 
 
 def _lines(text: str) -> list:
