@@ -29,8 +29,8 @@ rewrite it or keep it. Jev only adds notes, so the gate stays deterministic.
   for 5 more.
 - Jev triage: `deslopper lint --jev` gives each finding a `keep` or `rewrite` verdict
   and a probability, for a fraction of a cent per run. Verdicts are cached on disk, so a
-  later run asks Jev only about new or changed findings. A cached verdict spends no
-  tokens, and the run reports what the cache saved.
+  later run asks Jev only about new or changed findings. A cached verdict does not
+  spend the same tokens again, and the run reports what the cache saved.
 - An eval for your rewrite pass: `deslopper eval` checks that a model rewrite removes the
   tells and keeps your code, headings, tables, and links. Jev can also score how plainly
   the text reads before and after.
