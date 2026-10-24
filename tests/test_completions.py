@@ -8,7 +8,7 @@ from deslopper import help as help_screen
 from deslopper.cli import main, _build_parser
 
 SHELLS = ("bash", "zsh", "fish")
-COMMANDS = ("lint", "check", "rules", "init", "eval", "completions")
+COMMANDS = ("lint", "check", "rules", "init", "eval", "completions", "update")
 
 
 def run(args, capsys):
