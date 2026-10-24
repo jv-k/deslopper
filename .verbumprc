@@ -1,8 +1,10 @@
 # VerBump config. The version lives in three files: package.json is the source
-# (VerBump reads and bumps it), and these two are kept in lock-step. Text patterns
-# rather than @dotted paths, so no tomlq is needed.
+# (VerBump reads and bumps it), and the others are kept in lock-step. Text patterns
+# rather than @dotted paths, so no tomlq is needed. The README pins the release tag
+# in its CI example, so that moves with each release too.
 BUMP_FILES="pyproject.toml:version = \"{{version}}\"
-src/deslopper/__init__.py:__version__ = \"{{version}}\""
+src/deslopper/__init__.py:__version__ = \"{{version}}\"
+README.md:jv-k/deslopper@v{{version}}"
 
 # Release gates. VerBump runs the first after its own preflights and before it touches a
 # file, and the second after the tag exists and before anything is pushed; a non-zero
