@@ -30,8 +30,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e .
-      # --triage joins only when the secret is set; a fork PR has none and lints plainly.
-      - run: deslopper lint --format github ${AI_GATEWAY_API_KEY:+--triage}
+      # --jev joins only when the secret is set; a fork PR has none and lints plainly.
+      - run: deslopper lint --format github ${AI_GATEWAY_API_KEY:+--jev}
         env:
           AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
 

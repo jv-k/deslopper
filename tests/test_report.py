@@ -2,9 +2,12 @@ import json
 
 import pytest
 
-from deslopper import ui
 from deslopper.findings import Finding, LintResult
-from deslopper.report import format_text, format_github, format_json, summary_line, exit_code
+from decimal import Decimal
+
+from deslopper.triage import Triage
+from deslopper.report import (exit_code, excerpt, format_github, format_json, format_text,
+                              lint_view, rule_lines, summary_line)
 from tests.conftest import check_finding as _check_finding, finding_schema as _finding_schema
 
 
@@ -116,52 +119,6 @@ def test_format_text_appends_verdict_only_when_present():
 # colour, the rest dim. Piped output above keeps the number and the pinned grammar.
 
 
-@pytest.mark.parametrize("score, filled, style", [
-    (0.93, 5, "ok"),
-    (0.88, 4, "warn"),
-    (0.70, 4, "warn"),
-    (0.55, 3, "error"),
-    (1.0, 5, "ok"),
-    (0.0, 0, "error"),
-])
-def test_rating_bar_fills_by_score_and_colours_by_confidence(score, filled, style):
-    pal = ui.Palette(True)
-    bar = ui.rating_bar(pal, score)
-    assert bar.count(ui.I_BAR) == ui.BAR_SLOTS
-    assert bar.startswith(getattr(pal, style) + ui.I_BAR * filled + pal.reset)
-    assert bar.endswith(pal.dim + ui.I_BAR * (ui.BAR_SLOTS - filled) + pal.reset)
-
-
-def test_rating_bar_is_plain_glyphs_when_the_gate_is_off():
-    assert ui.rating_bar(ui.PLAIN, 0.88) == ui.I_BAR * ui.BAR_SLOTS
-
-
-def test_format_text_styled_leads_with_the_rating_bar_and_keeps_the_verdict_tail():
-    pal = ui.Palette(True)
-    lines = format_text(annotated(), pal).splitlines()
-    assert lines[0].startswith(f"{ui.rating_bar(pal, 0.93)} {pal.bold}a.md{pal.reset}:3:5 ")
-    assert lines[0].endswith(" [keep]")
-    assert lines[1].startswith(f"{ui.rating_bar(pal, 0.88)} {pal.bold}a.md{pal.reset}:4:1 ")
-    assert lines[1].endswith(" [rewrite]")
-    assert "0.93" not in lines[0] and "0.88" not in lines[1]
-
-
-def test_format_text_styled_pads_an_unjudged_line_in_a_judged_run():
-    pal = ui.Palette(True)
-    line = format_text(annotated(), pal).splitlines()[2]
-    assert line.startswith(" " * (ui.BAR_SLOTS + 1) + f"{pal.bold}a.md{pal.reset}:5:1 ")
-    assert ui.I_BAR not in line
-    assert not line.endswith("]")
-
-
-def test_format_text_styled_has_no_prefix_without_triage():
-    pal = ui.Palette(True)
-    unjudged = LintResult(findings=[Finding("a.md", 3, 5, "error", "em-dash", "em dash"),
-                                    Finding("a.md", 4, 1, "warn", "semicolon", "semi")])
-    lines = format_text(unjudged, pal).splitlines()
-    assert all(line.startswith(f"{pal.bold}a.md{pal.reset}:") for line in lines)
-
-
 def test_format_json_carries_verdict_only_on_judged_findings():
     findings = json.loads(format_json(annotated()))["findings"]
     assert findings[0]["verdict"] == "keep"
@@ -203,3 +160,139 @@ def test_json_output_validates_with_and_without_verdicts():
     for result in (sample(), annotated()):
         for item in json.loads(format_json(result))["findings"]:
             _check_finding(item, schema)
+
+
+# The attended view: lines of (style, text) parts, which gum draws in one call. The
+# styles are space-separated tokens: bold, faint, pill, and the palette's colour names.
+
+
+def _text(lines):
+    return ["".join(text for _style, text in line) for line in lines]
+
+
+def _view_sample():
+    result = LintResult(findings=[
+        Finding("a.md", 1, 3, "error", "em-dash", "em dash in prose"),
+        Finding("a.md", 2, 2, "warn", "semicolon", "semicolon in prose"),
+        Finding("a.md", 3, 2, "warn", "semicolon", "semicolon in prose"),
+    ])
+    sources = {"a.md": "a — b\nc; d\ne; f\n"}
+    return result, sources
+
+
+def test_lint_view_groups_each_tell_under_its_file_with_a_caret_per_place():
+    result, sources = _view_sample()
+    text = _text(lint_view(result, sources, linted=3, width=60))
+    assert text == [
+        "",
+        "   deslopper  lint                    3 files, 1 with slop",
+        "",
+        "  a.md                                 1 error  2 warnings",
+        "  " + "─" * 56,
+        "  ✖ em-dash",
+        "    em dash in prose",
+        "      1:3  a — b",
+        "             ^",
+        "",
+        "  ! semicolon  ×2",
+        "    semicolon in prose",
+        "      2:2  c; d",
+        "            ^",
+        "      3:2  e; f",
+        "            ^",
+        "",
+        "  " + "─" * 56,
+        "  ✖ 1 error   ! 2 warnings",
+        "",
+    ]
+
+
+def test_lint_view_styles_the_parts():
+    result, sources = _view_sample()
+    lines = lint_view(result, sources, linted=3, width=60)
+    assert ("pill", " deslopper ") in lines[1]
+    assert ("bold accent", "a.md") in lines[3]
+    assert ("bold error", "em-dash") in lines[5]
+    assert lines[6][-1] == ("muted", "em dash in prose")
+    # The caught text is bold in its tier colour; the rest of the line is muted.
+    assert ("bold error", "—") in lines[7] and ("muted", "a ") in lines[7]
+    assert lines[8][-1] == ("error", "^")
+
+
+def test_lint_view_leads_each_row_with_jev_rating():
+    result = LintResult(findings=[
+        Finding("a.md", 1, 3, "error", "em-dash", "em dash", verdict="keep", probability=0.93),
+        Finding("a.md", 2, 2, "warn", "semicolon", "semi", verdict="rewrite", probability=0.71),
+        Finding("a.md", 3, 2, "warn", "semicolon", "semi"),
+    ])
+    sources = {"a.md": "a — b\nc; d\ne; f\n"}
+    judged = Triage(result=result, tokens=1577, cost=Decimal("0.000066"))
+    text = _text(lint_view(result, sources, linted=1, width=80, judged=judged))
+    rows = [line for line in text if ":" in line and line.startswith("      ")]
+    assert rows[0] == "      ❚❚❚❚❚ 0.93 keep     1:3  a — b"
+    assert rows[1] == "      ❚❚❚❚❚ 0.71 rewrite  2:2  c; d"
+    # A place Jev did not answer is padded, so the columns still line up.
+    assert rows[2] == "      " + " " * 20 + "3:2  e; f"
+    assert "  Jev 1 rewrite  ·  1 keep  ·  1,577 tokens  ·  $0.000066" in text
+
+
+def test_lint_view_shows_the_cost_without_trailing_zeros():
+    result, sources = _view_sample()
+    judged = Triage(result=result, tokens=3820, cost=Decimal("0.000140700"))
+    text = _text(lint_view(result, sources, linted=1, width=80, judged=judged))
+    assert any(line.endswith("3,820 tokens  ·  $0.0001407") for line in text)
+
+
+def test_lint_view_puts_a_failed_jev_request_and_an_unreadable_file_in_the_footer():
+    result, sources = _view_sample()
+    result.unreadable.append("gone.md")
+    judged = Triage(result=result, errors=["a.md: gateway returned 500"])
+    text = _text(lint_view(result, sources, linted=4, width=60, judged=judged))
+    assert "  ↳ cannot read gone.md" in text
+    assert "  ✖ Jev skipped a.md: gateway returned 500" in text
+
+
+def test_lint_view_of_a_clean_run_says_so():
+    text = _text(lint_view(LintResult(), {}, linted=2, width=60))
+    assert text[1].startswith("   deslopper  lint") and text[1].endswith("2 files, 0 with slop")
+    assert text[2:] == ["", "  ✔ no slop found", ""]
+
+
+def test_lint_view_fits_a_narrow_terminal():
+    long = "It is a seamless, robust and significantly faster toolkit for modern teams."
+    result = LintResult(findings=[
+        Finding("docs/a-long-file-name.md", 1, 30, "warn", "vague-intensifier",
+                "vague intensifier with no number behind it", verdict="rewrite", probability=0.95),
+    ])
+    for width in (100, 60, 50, 40):
+        judged = Triage(result=result, tokens=10, cost=Decimal("0.00001"))
+        text = _text(lint_view(result, {"docs/a-long-file-name.md": long + "\n"}, linted=1,
+                               width=width, judged=judged))
+        assert all(len(line) <= width for line in text), (width, max(text, key=len))
+        caret = next(line for line in text if line.strip() == "^")
+        row = text[text.index(caret) - 1]
+        # The caret sits under the first letter of the caught word.
+        assert row[caret.index("^"):].startswith("signif")
+
+
+def test_excerpt_keeps_the_caught_word_and_trims_around_it():
+    text = "Acme is a seamless, robust toolkit for modern teams — it just works."
+    before, word, after = excerpt(text, 11, 30)
+    assert word == "seamless"
+    assert len(before) + len(word) + len(after) <= 30
+    assert before.endswith("is a ") and after.startswith(", robust")
+    assert after.endswith("…")
+    # Punctuation that is itself the tell stays the caught word.
+    assert excerpt("c; d", 2, 30) == ("c", ";", " d")
+
+
+def test_rule_lines_align_the_tells():
+    from deslopper.rules import compile_tell
+    tells = [compile_tell({"name": "em-dash", "tier": "error", "phase": "post-entity",
+                           "message": "use a colon", "pattern": "x"}),
+             compile_tell({"name": "semicolon", "tier": "warn", "phase": "post-entity",
+                           "message": "prefer a full stop", "pattern": "y"})]
+    assert _text(rule_lines(tells, width=100)) == [
+        "  em-dash    ✖ error  post-entity all  use a colon",
+        "  semicolon  ! warn   post-entity all  prefer a full stop",
+    ]

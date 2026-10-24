@@ -1,6 +1,6 @@
 # Contributing to deslopper
 
-deslopper is a deterministic prose linter. Most contributions are one of three kinds: a new
+deslopper is a deterministic slop linter. Most contributions are one of three kinds: a new
 tell, a new preset, or a code change. This guide covers all three.
 
 ## Development setup
@@ -15,8 +15,27 @@ pre-commit install --hook-type pre-commit --hook-type commit-msg
 
 Run the tests with `pytest -q`. Run the linter on the repo's own docs with `deslopper lint`.
 
+`package.json` has shortcuts for the same work. Each one calls the build in `.venv`, so a
+Homebrew or pipx install of deslopper on your `PATH` never answers in its place. With
+pnpm, run them as `pnpm <name>`. The script is `bootstrap`, not `setup`, because
+`pnpm setup` is a built-in pnpm command that edits your shell profile. To pass arguments
+to `ds`, use `pnpm run ds <args>`.
+
+| Script | What it does |
+| --- | --- |
+| `bootstrap` | Makes the venv, installs the package, pytest, and pre-commit, and installs the git hooks. It changes no shell profile. |
+| `ds` | Runs the dev build with your arguments, such as `pnpm run ds lint --jev README.md`. |
+| `try` | Lints `tests/fixtures/ai_slop.md` with Jev, to show every part of the output. |
+| `try:json` | The same, as the JSON payload that a model reads. |
+| `test` | Runs the suite. |
+| `lint` | Lints the repo's own Markdown, with `--strict`. |
+| `gate` | Runs every pre-commit hook on every file. |
+| `tells:readme` | Writes the README tell tables again after a tell changes. |
+| `skill:check` | Checks that `npx skills add` finds exactly one skill. |
+| `preflight` | Runs the release gates without a version bump. |
+
 The pre-commit hook runs the suite and the lint. When `AI_GATEWAY_API_KEY` is set in your
-shell the lint also runs `--triage`, so a finding you introduce arrives with a keep or
+shell the lint also runs `--jev`, so a finding you introduce arrives with a keep or
 rewrite verdict. Without the key it lints plainly and makes no network call. CI does the
 same with the repo secret of that name, which fork PRs do not receive.
 
@@ -56,7 +75,9 @@ compiles kinds, `config.py` resolves, `discovery.py` finds files, `report.py` fo
 `digest.py` extracts the protected content the eval compares, `evaluate.py` runs the
 rewrite eval, `jev.py` asks the Jev model typed questions through one fake-able
 transport, `triage.py` turns a lint result and its source text into the same result with
-Jev's verdicts, `ui.py` owns the colour gate and terminal styling, `help.py` renders the
+Jev's verdicts, `gum.py` owns the attended check and every gum call (see
+[ADR 0002](docs/adr/0002-styled-output-is-a-gum-layer-over-plain-output.md)), `ui.py`
+owns the colour gate and styling the help and eval still use, `help.py` renders the
 help screens, `completions.py` prints the shell completion scripts, and `cli.py` wires
 the commands. Write a failing test first, make it pass,
 and keep the suite green.

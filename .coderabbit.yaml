@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# CodeRabbit reads this file from the branch of the pull request under review. Settings that are
+# not set here come from the organisation settings in the CodeRabbit web app.
+inheritance: true
+
+reviews:
+  request_changes_workflow: true
+  high_level_summary_in_walkthrough: true
+  review_details: true
+  path_filters:
+    # The design prototypes are throwaway scripts kept as a record of ADR 0002, not product code.
+    - "!docs/qa/**"
+  path_instructions:
+    - path: "src/deslopper/**/*.py"
+      instructions: >-
+        deslopper uses the Python standard library only; flag any new third-party import. Each
+        module has one job, as CONTRIBUTING.md lists. gum is an optional external program, called
+        only from gum.py, and the plain, github and json output must never depend on it.
+    - path: "**/*.md"
+      instructions: >-
+        The repo lints its own prose with deslopper (AGENTS.md, "Writing prose"). Flag
+        machine-generated tells: em dashes, filler verbs, marketing adjectives, throat-clearing
+        openers. Keep comments short and plain.
+    - path: "tests/**"
+      instructions: >-
+        Tests never call a real gum or the real Jev gateway: conftest.py fakes both. The golden
+        files in tests/fixtures pin the plain output and change only on purpose.

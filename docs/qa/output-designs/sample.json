@@ -1,0 +1,187 @@
+{
+  "findings": [
+    {
+      "path": "README.md",
+      "line": 3,
+      "col": 11,
+      "tier": "warn",
+      "name": "marketing-adjective",
+      "message": "marketing adjective, say what is true",
+      "verdict": "rewrite",
+      "probability": 1
+    },
+    {
+      "path": "README.md",
+      "line": 3,
+      "col": 21,
+      "tier": "warn",
+      "name": "marketing-adjective",
+      "message": "marketing adjective, say what is true",
+      "verdict": "rewrite",
+      "probability": 0.99
+    },
+    {
+      "path": "README.md",
+      "line": 3,
+      "col": 53,
+      "tier": "error",
+      "name": "em-dash",
+      "message": "em dash in prose, use a colon, comma, parentheses, or two sentences",
+      "verdict": "rewrite",
+      "probability": 0.71
+    },
+    {
+      "path": "README.md",
+      "line": 5,
+      "col": 4,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut",
+      "verdict": "rewrite",
+      "probability": 0.95
+    },
+    {
+      "path": "README.md",
+      "line": 5,
+      "col": 27,
+      "tier": "warn",
+      "name": "semicolon",
+      "message": "semicolon in prose, prefer a full stop",
+      "verdict": "keep",
+      "probability": 0.73
+    },
+    {
+      "path": "README.md",
+      "line": 5,
+      "col": 40,
+      "tier": "warn",
+      "name": "vague-intensifier",
+      "message": "vague intensifier with no number behind it",
+      "verdict": "rewrite",
+      "probability": 0.95
+    },
+    {
+      "path": "README.md",
+      "line": 7,
+      "col": 39,
+      "tier": "error",
+      "name": "em-dash",
+      "message": "em dash in prose, use a colon, comma, parentheses, or two sentences",
+      "verdict": "keep",
+      "probability": 0.93
+    },
+    {
+      "path": "docs/guide.md",
+      "line": 5,
+      "col": 1,
+      "tier": "warn",
+      "name": "throat-clearing",
+      "message": "throat-clearing or transition opener, start with the point",
+      "verdict": "rewrite",
+      "probability": 0.78
+    },
+    {
+      "path": "docs/guide.md",
+      "line": 7,
+      "col": 21,
+      "tier": "warn",
+      "name": "semicolon",
+      "message": "semicolon in prose, prefer a full stop",
+      "verdict": "keep",
+      "probability": 0.94
+    },
+    {
+      "path": "docs/guide.md",
+      "line": 11,
+      "col": 9,
+      "tier": "warn",
+      "name": "fancy-is",
+      "message": "fancy way to say 'is', say 'is' or 'has'",
+      "verdict": "rewrite",
+      "probability": 0.97
+    },
+    {
+      "path": "docs/guide.md",
+      "line": 11,
+      "col": 28,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words, or separate with ◦",
+      "verdict": "rewrite",
+      "probability": 0.95
+    },
+    {
+      "path": "docs/guide.md",
+      "line": 11,
+      "col": 35,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words, or separate with ◦",
+      "verdict": "rewrite",
+      "probability": 0.93
+    },
+    {
+      "path": "docs/guide.md",
+      "line": 11,
+      "col": 42,
+      "tier": "error",
+      "name": "middle-dot",
+      "message": "middle dot or bullet in prose, join the items with a comma or plain words, or separate with ◦",
+      "verdict": "rewrite",
+      "probability": 0.94
+    },
+    {
+      "path": "docs/guide.md",
+      "line": 13,
+      "col": 1,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut",
+      "verdict": "rewrite",
+      "probability": 0.99
+    },
+    {
+      "path": "docs/guide.md",
+      "line": 13,
+      "col": 22,
+      "tier": "warn",
+      "name": "trailing-participle",
+      "message": "trailing participle clause, say it straight or cut",
+      "verdict": "rewrite",
+      "probability": 0.6
+    },
+    {
+      "path": "docs/guide.md",
+      "line": 15,
+      "col": 1,
+      "tier": "warn",
+      "name": "chatbot-phrase",
+      "message": "chatbot phrase, delete it",
+      "verdict": "rewrite",
+      "probability": 0.98
+    }
+  ],
+  "unreadable": [],
+  "summary": {
+    "errors": 5,
+    "warnings": 11,
+    "unreadable": 0
+  },
+  "jev": {
+    "keep": 3,
+    "rewrite": 13,
+    "tokens": 3820,
+    "cost": "0.000140700",
+    "errors": []
+  },
+  "sources": {
+    "README.md": "# Acme CLI\n\nAcme is a seamless, robust toolkit for modern teams — it just works.\n\nIt leverages a smart cache; builds are significantly faster.\n\nAs the author put it: \"keep it simple — then ship\".\n",
+    "docs/guide.md": "# Guide\n\n## Install\n\nIt's worth noting that the installer handles everything for you.\n\nRun the setup script; it configures the project.\n\n## Usage\n\nThe CLI boasts three modes · fast · safe · simple.\n\nDelve into the config, ensuring every option is set.\n\nI hope this helps!\n"
+  },
+  "linted": [
+    "README.md",
+    "docs/guide.md",
+    "CHANGELOG.md",
+    "docs/install.md"
+  ]
+}

@@ -143,6 +143,9 @@ def lint_file(display_path, read_path, pre_tells, post_tells):
     for prose in scan_prose(raw_lines, display_path.endswith(".mdx")):
         findings.extend(_run_tells(pre_tells, prose.pre_entity, display_path, prose.lineno))
         findings.extend(_run_tells(post_tells, prose.post_entity, display_path, prose.lineno))
+    # Tells run one after another, so a line's findings arrive in tell order. Sort them
+    # into reading order; the sort is stable, so a shared column keeps the tell order.
+    findings.sort(key=lambda f: (f.line, f.col))
     return findings, True
 
 

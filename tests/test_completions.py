@@ -28,7 +28,7 @@ def test_script_names_every_command(shell, capsys):
 @pytest.mark.parametrize("shell", SHELLS)
 def test_script_names_every_flag_and_format_value(shell, capsys):
     _, out, _ = run(["completions", shell], capsys)
-    for flag in ("strict", "config", "format", "triage", "force", "keep", "plainness"):
+    for flag in ("strict", "config", "format", "jev", "force", "keep", "plainness"):
         assert flag in out
     for value in ("text", "github", "json"):
         assert value in out
@@ -123,7 +123,7 @@ def test_command_table_covers_every_parser_flag():
         }
         table_flags = {
             long for _short, long, _arg, _desc in help_screen.COMMANDS[name]["options"]
-        }
+        } | set(help_screen.COMMANDS[name].get("hidden", ()))
         assert parser_flags == table_flags, name
         parser_choices = {
             opt: tuple(action.choices)

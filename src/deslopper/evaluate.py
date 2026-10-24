@@ -228,7 +228,7 @@ def run_eval(command: str, keep: bool = False, pal=None, plainness: bool = False
         proc = subprocess.run(shell_command, shell=True)
 
         result = _lint_sandbox(sandbox, names, tells)
-        sys.stdout.write(report.format_text(result, pal))
+        sys.stdout.write(report.format_text(result))
         efficacy_failures = []
         if result.errors:
             efficacy_failures.append(f"{result.errors} error(s) remain")
