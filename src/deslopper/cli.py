@@ -13,7 +13,7 @@ from .engine import lint_files
 from .errors import ConfigError, UsageError
 from .evaluate import run_eval
 from .jev import JevUnavailable, require_key
-from . import completions
+from . import cache, completions
 from . import help as help_screen
 from . import gum, report, triage, ui
 
@@ -47,6 +47,7 @@ def _build_parser():
     # everyone who lints in it. --triage is the name it shipped under, kept as a
     # hidden alias so configs written before the rename still run.
     lint.add_argument("--jev", "--triage", dest="jev", action="store_true")
+    lint.add_argument("--no-cache", action="store_true")
 
     check = command("check")
     check.add_argument("paths", nargs="*")
@@ -151,7 +152,9 @@ def _do_lint(args):
     sources = _read_sources(result, items) if args.jev or attended else {}
     judged = None
     if args.jev:
-        judged = triage.run(result, sources, progress=_jev_spinner if attended else None)
+        store = None if args.no_cache else cache.Store(cache.default_dir("jev"))
+        judged = triage.run(result, sources, progress=_jev_spinner if attended else None,
+                            cache=store)
         result = judged.result
     if args.format == "json":
         # The payload is the whole output, so a model or a tool reads one stream. It

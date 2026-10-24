@@ -242,13 +242,46 @@ def test_json_with_jev_carries_the_totals_and_errors_in_the_payload(tmp_path, ca
     assert err == ""
     payload = json.loads(out)
     assert payload["jev"] == {
-        "keep": 1, "rewrite": 0, "tokens": 105, "cost": "0.000012",
+        "keep": 1, "rewrite": 0, "cached": 0, "tokens": 105, "cost": "0.000012",
         "errors": ["b.md: gateway returned 500: boom"],
     }
     schema = _output_schema()
     assert set(payload) <= set(schema["properties"])
     jev_schema = schema["properties"]["jev"]
     assert set(payload["jev"]) == set(jev_schema["required"]) == set(jev_schema["properties"])
+
+
+def test_a_second_jev_run_answers_from_the_cache(tmp_path, capsys, monkeypatch):
+    calls = canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.88)])
+    write(tmp_path, "a.md", "a — b\nc; d\n")
+    run(["lint", "--jev", "a.md"], str(tmp_path), capsys)
+    code, out, err = run(["lint", "--jev", "a.md"], str(tmp_path), capsys)
+    assert code == 1
+    assert len(calls) == 1
+    assert out.splitlines()[0].endswith("[keep 0.93]")
+    assert "· triage: 1 keep, 1 rewrite, 2 cached · 0 tokens, $0" in err
+
+
+def test_the_cache_lives_under_xdg_cache_home(tmp_path, capsys, monkeypatch):
+    canned_jev(monkeypatch, [("keep", 0.9)])
+    home = tmp_path / "cache-home"
+    monkeypatch.setenv("XDG_CACHE_HOME", str(home))
+    write(tmp_path, "a.md", "c; d\n")
+    run(["lint", "--jev", "a.md"], str(tmp_path), capsys)
+    assert list((home / "deslopper" / "jev").rglob("*.json"))
+
+
+def test_no_cache_asks_jev_every_time_and_writes_nothing(tmp_path, capsys, monkeypatch):
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    home = tmp_path / "cache-home"
+    monkeypatch.setenv("XDG_CACHE_HOME", str(home))
+    write(tmp_path, "a.md", "c; d\n")
+    run(["lint", "--jev", "--no-cache", "a.md"], str(tmp_path), capsys)
+    _, out, _ = run(["lint", "--jev", "--no-cache", "--format", "json", "a.md"],
+                    str(tmp_path), capsys)
+    assert len(calls) == 2
+    assert json.loads(out)["jev"]["cached"] == 0
+    assert not home.exists()
 
 
 def test_triage_clean_files_make_no_request(tmp_path, capsys, monkeypatch):
