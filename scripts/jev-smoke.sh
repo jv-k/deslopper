@@ -17,7 +17,8 @@ fi
 judged="$(mktemp)"
 trap 'rm -f "$judged"' EXIT
 # Exit 1 means findings, which is the point; anything else is a usage or key error.
-"$py" -m deslopper lint --jev --format json tests/fixtures/ai_slop.md >"$judged" || [ $? -eq 1 ]
+# --no-cache: cached verdicts would let the check pass without reaching the gateway.
+"$py" -m deslopper lint --jev --no-cache --format json tests/fixtures/ai_slop.md >"$judged" || [ $? -eq 1 ]
 "$py" - "$judged" <<'PY'
 import json, sys
 payload = json.load(open(sys.argv[1]))
