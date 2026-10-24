@@ -2,8 +2,9 @@ name: Screenshots
 
 # Regenerates the CLI visuals and commits them to main, VerBump-style.
 # Everything renders via charmbracelet/vhs, which drives a REAL terminal
-# emulator — so the inverted-video section pills, the rainbow wordmark, and
-# the dim styling all render faithfully.
+# emulator, so the wordmark and gum's styling render faithfully. gum is
+# installed too: without it deslopper prints its plain output and an install
+# hint, which is not what a README should show.
 #
 # vhs is installed directly as a sha256-pinned release binary, NOT via
 # charmbracelet/vhs-action: the action's Linux installer looks for an
@@ -11,7 +12,8 @@ name: Screenshots
 # also never checks PATH. ffmpeg + ttyd come from apt instead.
 #
 #   img/screenshot.png            — vhs, `deslopper --help` (wordmark + pills)
-#   img/deslopper-demo.gif        — vhs, a real lint run: findings, then clean
+#   img/deslopper-demo.gif        — vhs, a real lint run: the view, a live --jev
+#                                   run, then the clean run after a rewrite
 #   img/deslopper-demo-final.png  — the demo's finished ✔ frame, as a still
 #
 # Triggers: merges to main that touch the CLI's presentation (path-filtered,
@@ -29,6 +31,7 @@ on:
       - 'src/deslopper/ui.py'
       - 'src/deslopper/cli.py'
       - 'src/deslopper/report.py'
+      - 'src/deslopper/gum.py'
       - 'scripts/help.tape'
       - 'scripts/demo.tape'
       - 'scripts/screenshots.sh'
@@ -49,6 +52,10 @@ env:
   # sha256 of vhs_0.11.0_Linux_x86_64.tar.gz, verified against the release's
   # checksums.txt.
   VHS_SHA256: "99cb634587eaae0473c1ea377db80c3a048c27f99fe0a7febb1a1e8cb7ee5009"
+  GUM_VERSION: "2.0.2"
+  # sha256 of gum_2.0.2_Linux_x86_64.tar.gz, verified against the release's
+  # checksums.txt.
+  GUM_SHA256: "d842e06d93dbed90af48cb8dd10698db6f22e331fc40346bb37bbc753109edc2"
 
 jobs:
   render:
@@ -88,7 +95,30 @@ jobs:
           rm -f vhs.tar.gz vhs
           vhs --version
 
+      - name: Install gum (sha256-pinned release binary)
+        run: |
+          curl -fsSL -o gum.tar.gz \
+            "https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/gum_${GUM_VERSION}_Linux_x86_64.tar.gz"
+          echo "${GUM_SHA256}  gum.tar.gz" | sha256sum -c -
+          tar -xzf gum.tar.gz --wildcards '*/gum' --strip-components=1
+          sudo install -m 0755 gum /usr/local/bin/gum
+          rm -f gum.tar.gz gum
+          gum --version
+
+      # The demo records a live `lint --jev` run, so it needs the gateway key.
+      # Stop here without it, rather than commit a GIF of the missing-key hint.
+      - name: Check the gateway key for the Jev scene
+        env:
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
+        run: |
+          if [ -z "$AI_GATEWAY_API_KEY" ]; then
+            echo "::error::The demo records a live Jev run. Add the AI_GATEWAY_API_KEY repo secret."
+            exit 1
+          fi
+
       - name: Render help panel and demo gif
+        env:
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
         run: |
           mkdir -p img/tmp
           vhs scripts/help.tape
