@@ -87,11 +87,21 @@ def _jev_spinner(path, count, index, total):
     return gum.spin(f"Asking Jev about {count} {noun} in {path} ({index}/{total})")
 
 
-def _view(result, sources, items, strict, command, judged=None):
-    """The attended run's whole output: one view, drawn by gum, on stdout."""
+def _view(result, sources, items, strict, command, judged=None) -> bool:
+    """The attended run's whole output: one view, drawn by gum, on stdout. False when gum
+    could not draw it, so the caller prints the plain output instead."""
     lines = report.lint_view(result, sources, len(items), ui.term_cols(), judged=judged,
                              strict=strict, command=command)
-    sys.stdout.write(gum.render(lines))
+    return _draw(lines)
+
+
+def _draw(lines) -> bool:
+    """Write a gum view, or return False when gum could not draw it."""
+    drawn = gum.render(lines)
+    if drawn is None:
+        return False
+    sys.stdout.write(drawn)
+    return True
 
 
 def _finish(result, strict, judged=None):
@@ -148,8 +158,7 @@ def _do_lint(args, pal):
         # carries the summary, the unreadable paths, and the Jev totals and errors.
         sys.stdout.write(report.format_json(result, judged))
         return code
-    if attended:
-        _view(result, sources, items, strict, "lint", judged)
+    if attended and _view(result, sources, items, strict, "lint", judged):
         return code
     for error in judged.errors if judged else ():
         print(f"{ui.I_ERROR} triage skipped {error}", file=sys.stderr)
@@ -164,9 +173,10 @@ def _do_lint(args, pal):
 def _do_check(args, pal):
     cfg, result, items = _lint_command(args)
     if gum.attended(sys.stdout):
-        _view(result, _read_sources(result, items), items, cfg.strict, "check")
-        return 0
-    gum.hint(sys.stdout)
+        if _view(result, _read_sources(result, items), items, cfg.strict, "check"):
+            return 0
+    else:
+        gum.hint(sys.stdout)
     sys.stdout.write(report.format_text(result))
     _finish(result, cfg.strict)
     return 0
@@ -180,14 +190,15 @@ def _do_rules(args, pal):
             for t in cfg.tells
         ]
         print(json.dumps(payload, indent=2))
-    elif cfg.tells and gum.attended(sys.stdout):
-        # gum's view for eyes; the piped TSV below is the stable machine-side layout.
-        sys.stdout.write(gum.render(report.rule_lines(cfg.tells, ui.term_cols())))
-    else:
-        if cfg.tells:
-            gum.hint(sys.stdout)
-        for t in cfg.tells:
-            print(f"{t.name}\t{t.tier}\t{t.phase}\t{t.scope}\t{t.message}")
+    elif cfg.tells:
+        # gum's view for eyes; the TSV is the stable machine-side layout, and the
+        # fallback when gum is absent or cannot draw.
+        attended = gum.attended(sys.stdout)
+        if not (attended and _draw(report.rule_lines(cfg.tells, ui.term_cols()))):
+            if not attended:
+                gum.hint(sys.stdout)
+            for t in cfg.tells:
+                print(f"{t.name}\t{t.tier}\t{t.phase}\t{t.scope}\t{t.message}")
     return 0
 
 

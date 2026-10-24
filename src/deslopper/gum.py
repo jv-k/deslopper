@@ -61,11 +61,24 @@ def _env() -> dict:
     return {**os.environ, "CLICOLOR_FORCE": "1"}
 
 
-def _run(args, stdin=None) -> str:
-    done = subprocess.run([binary(), *args], input=stdin, capture_output=True,
-                          text=True, env=_env(), check=False)
-    # The caller gets everything gum wrote, on either stream.
-    return done.stdout + done.stderr
+# A view renders in well under a second; a gum that takes this long is stuck.
+_TIMEOUT_SECONDS = 30
+
+
+def _run(args, stdin=None):
+    """What gum drew, or None when gum is missing, fails, or hangs. gum is optional, so
+    a caller that gets None falls back to the plain output."""
+    exe = binary()
+    if exe is None:
+        return None
+    try:
+        done = subprocess.run([exe, *args], input=stdin, capture_output=True, text=True,
+                              env=_env(), check=False, timeout=_TIMEOUT_SECONDS)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if done.returncode != 0:
+        return None
+    return done.stdout
 
 
 # The palette a view's colour tokens name. "on-accent" is the text colour on a pill.
@@ -103,11 +116,15 @@ def _part(style: str, text: str) -> str:
     return "{{ %s }}" % call
 
 
-def render(lines) -> str:
-    """A view, a list of lines of (style, text) parts, drawn by gum in one call."""
+def render(lines):
+    """A view, a list of lines of (style, text) parts, drawn by gum in one call, or None
+    when gum cannot draw it."""
     template = "\n".join("".join(_part(s, t) for s, t in line) for line in lines) + "\n"
+    drawn = _run(["format", "--type", "template"], template)
+    if drawn is None:
+        return None
     # gum drops the last newline, so put it back.
-    return _run(["format", "--type", "template"], template).rstrip("\n") + "\n"
+    return drawn.rstrip("\n") + "\n"
 
 
 @contextmanager
@@ -117,7 +134,8 @@ def spin(title, stream=None):
     gum spin wraps a command, but the work here is Python, so the spinner wraps a
     command that waits, and stops when the block ends. Its title cannot change while it
     runs, so a caller starts one spinner per step."""
-    if not binary():
+    exe = binary()
+    if not exe:
         yield
         return
     stream = sys.stderr if stream is None else stream
@@ -127,11 +145,16 @@ def spin(title, stream=None):
         target = subprocess.DEVNULL
     # The waiting command ends itself once gum, its parent, is gone. Stopping gum alone
     # would otherwise orphan it, and an orphan keeps the terminal or a pipe open.
-    spinner = subprocess.Popen(
-        [binary(), "spin", "--spinner", "dot", "--title", title, "--",
-         "sh", "-c", "while kill -0 $PPID 2>/dev/null; do sleep 0.2; done"],
-        stdin=subprocess.DEVNULL, stdout=target, stderr=target, env=_env(),
-    )
+    try:
+        spinner = subprocess.Popen(
+            [exe, "spin", "--spinner", "dot", "--title", title, "--",
+             "sh", "-c", "while kill -0 $PPID 2>/dev/null; do sleep 0.2; done"],
+            stdin=subprocess.DEVNULL, stdout=target, stderr=target, env=_env(),
+        )
+    except OSError:
+        # gum went missing or cannot start: run the work without a spinner.
+        yield
+        return
     try:
         yield
     finally:

@@ -98,6 +98,9 @@ with open(os.environ["GUM_SHIM_LOG"], "a", encoding="utf-8") as fh:
     fh.write(json.dumps({{"args": args, "stdin": stdin,
                          "clicolor_force": os.environ.get("CLICOLOR_FORCE")}}) + "\\n")
 sub = args[0]
+if os.environ.get("GUM_SHIM_FAIL"):
+    sys.stderr.write("gum: something broke\\n")
+    sys.exit(1)
 if sub == "format":
     sys.stdout.write(stdin.rstrip("\\n"))
 elif sub == "style":
