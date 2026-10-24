@@ -38,6 +38,10 @@ jobs:
           test "$tag" = "$ver" || { echo "tag $tag != version $ver"; exit 1; }
 
   publish-pypi:
+    # Off until the PyPI trusted publisher exists (RELEASING.md, One-time setup). Every
+    # release from v1.5.0 to v1.7.0 failed here on the token exchange. Delete this `if`
+    # to publish again.
+    if: false
     needs: test
     runs-on: ubuntu-latest
     environment: pypi

@@ -17,7 +17,9 @@ A VerBump that only knows `package.json` fails there, while the tag is still loc
 
 ## One-time setup
 
-PyPI Trusted Publishing lets the release workflow publish without a stored token:
+PyPI Trusted Publishing lets the release workflow publish without a stored token. The
+`publish-pypi` job in `release.yml` is off (`if: false`) until these two steps are done, so
+a release publishes to Homebrew only:
 
 1. Create the `deslopper` project on PyPI (a first manual upload, or reserve the name).
 2. Under the project's publishing settings, add a GitHub publisher: owner `jv-k`, repo
@@ -60,7 +62,7 @@ The gates in steps 1 and 3 are VerBump's own hooks, `PRE_BUMP_CMD` and `POST_TAG
 4. VerBump pushes the commit and tag to `origin` (`-p origin`, so there is no prompt to
    decline) and writes the GitHub release with `gh release create --generate-notes`
    (`--release`). The tag triggers `release.yml`, which repeats the gates, publishes to
-   PyPI, and bumps the Homebrew tap.
+   PyPI when that job is on, and bumps the Homebrew tap.
 
 Any runner works in place of `pnpm`: `npm run bump-release`, or the command itself.
 
