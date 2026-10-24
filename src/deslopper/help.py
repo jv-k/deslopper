@@ -23,8 +23,8 @@ WORDMARK = (
 _AUTHOR = "John Valai"
 _HOMEPAGE = "https://github.com/jv-k/deslopper"
 _TAGLINE = (
-    "A deterministic prose linter for the mechanical tells of "
-    "machine-generated writing."
+    "A deterministic slop linter for Markdown: it finds the mechanical tells "
+    "of machine-generated writing."
 )
 
 
@@ -57,6 +57,7 @@ OPT_COL = 30
 # machine-readable keys the help itself ignores: "choices" enumerates a flag's
 # values, "paths" marks a file-path positional, and "positional_choices"
 # enumerates a positional. A flag whose arg is "<file>" completes as a path.
+# "hidden" lists parser flags that neither the help nor the completions show.
 COMMANDS = {
     "lint": {
         "synopsis": "[paths...] [options]",
@@ -67,14 +68,16 @@ COMMANDS = {
             ("", "--strict", "", "Fail on warn-tier findings too."),
             ("", "--config", "<file>", "Use this config file instead of discovering one."),
             ("", "--format", "<fmt>", "Output format: text (default), github, or json."),
-            ("", "--triage", "", "Ask Jev to mark each finding keep or rewrite. Needs AI_GATEWAY_API_KEY."),
+            ("", "--jev", "", "Ask Jev to mark each finding keep or rewrite. Needs AI_GATEWAY_API_KEY."),
         ],
+        # --triage is the old name of --jev.
+        "hidden": ("--triage",),
         "examples": [
             ("deslopper lint", "Lint the configured include set."),
             ("deslopper lint docs/ README.md", "Lint specific paths."),
             ("deslopper lint --strict", "Fail on warn-tier findings too."),
             ("deslopper lint --format github", "Emit GitHub Actions annotations."),
-            ("deslopper lint --triage docs/", "Sort the findings into keep and rewrite."),
+            ("deslopper lint --jev docs/", "Sort the findings into keep and rewrite."),
         ],
     },
     "check": {
@@ -248,6 +251,7 @@ def render_root(stream=None, pal=None):
     rend.pill("EXAMPLES")
     _example_row(rend, "deslopper lint", "Lint the configured include set.")
     _example_row(rend, "deslopper lint --strict", "Fail on warn-tier findings too.")
+    _example_row(rend, "deslopper lint --jev", "Ask Jev which findings to keep or rewrite.")
     _example_row(rend, "deslopper rules", "List the active tells.")
     _example_row(rend, "deslopper init", "Write a starter config.")
 

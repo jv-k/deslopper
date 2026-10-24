@@ -98,7 +98,7 @@ def test_triage_without_the_key_exits_two_with_the_hint(tmp_path):
     cwd = _stage(tmp_path, "ai_slop.md")
     env = {k: v for k, v in os.environ.items() if k != "AI_GATEWAY_API_KEY"}
     proc = subprocess.run(
-        [sys.executable, "-m", "deslopper", "lint", "--triage", "ai_slop.md"],
+        [sys.executable, "-m", "deslopper", "lint", "--jev", "ai_slop.md"],
         cwd=cwd, env=env, capture_output=True, text=True,
     )
     assert proc.returncode == 2

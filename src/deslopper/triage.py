@@ -6,6 +6,7 @@ finding Jev answered. The exit code is not this module's concern: a verdict is
 annotation, and the scan stays the gate.
 """
 
+from contextlib import nullcontext
 from dataclasses import dataclass, field, replace
 from decimal import Decimal, InvalidOperation
 
@@ -86,12 +87,14 @@ def _decimal(cost) -> Decimal:
         return Decimal(0)
 
 
-def run(result: LintResult, sources: dict) -> Triage:
+def run(result: LintResult, sources: dict, progress=None) -> Triage:
     """Ask Jev about every finding in `result`, one request per file.
 
     `sources` maps a finding's path to that file's raw text. A file with no
     findings makes no request. A request that fails, or a reply missing usable
     answers, adds one line to `errors` and leaves those findings unjudged.
+    `progress(path, count, index, total)`, when given, returns a context that
+    wraps each request, which is how the CLI shows a spinner per file.
     """
     judged = list(result.findings)
     errors = []
@@ -100,7 +103,7 @@ def run(result: LintResult, sources: dict) -> Triage:
     by_file = {}
     for index, finding in enumerate(result.findings):
         by_file.setdefault(finding.path, []).append(index)
-    for path, indexes in by_file.items():
+    for number, (path, indexes) in enumerate(by_file.items(), 1):
         lines = _lines(sources.get(path, ""))
         keyed = {f"f{n}": index for n, index in enumerate(indexes, 1)}
         state = "\n\n".join([FRAMING] + [
@@ -112,8 +115,10 @@ def run(result: LintResult, sources: dict) -> Triage:
                                             col=result.findings[index].col), OPTIONS)
             for key, index in keyed.items()
         }
+        wrap = progress(path, len(indexes), number, len(by_file)) if progress else nullcontext()
         try:
-            reply = jev.evaluate(state, questions)
+            with wrap:
+                reply = jev.evaluate(state, questions)
         except jev.JevError as exc:
             # One failed request never fails the lint: its findings stay
             # unjudged and the next file is still asked.
