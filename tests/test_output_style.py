@@ -1,4 +1,4 @@
-"""The styled run output: the colour gate and the summary log line.
+"""The run output: the plain lines, and the gum layer an attended run adds over them.
 
 Everything drives the CLI seam — main(argv) with captured stdio — and the colour
 gate only ever moves through the environment (NO_COLOR, FORCE_COLOR).
@@ -6,7 +6,6 @@ gate only ever moves through the environment (NO_COLOR, FORCE_COLOR).
 
 import os
 
-from deslopper import ui
 from deslopper.cli import main
 from tests.conftest import canned_jev
 
@@ -38,34 +37,6 @@ def test_piped_findings_are_plain(tmp_path, capsys, monkeypatch):
     assert "a.md:1:3 [error] em-dash:" in out
     assert ANSI not in out
     assert ANSI not in err
-
-
-def test_force_color_styles_findings(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
-    monkeypatch.delenv("NO_COLOR", raising=False)
-    write(tmp_path, "a.md", "a — dash\n")
-    _, out, err = run(["lint", "a.md"], str(tmp_path), capsys)
-    assert ANSI in out
-    assert "[error]" in out
-    assert ANSI in err
-
-
-def test_no_color_beats_force_color(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
-    monkeypatch.setenv("NO_COLOR", "1")
-    write(tmp_path, "a.md", "a — dash\n")
-    _, out, err = run(["lint", "a.md"], str(tmp_path), capsys)
-    assert ANSI not in out
-    assert ANSI not in err
-
-
-def test_machine_formats_never_styled(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
-    write(tmp_path, "a.md", "a — dash\n")
-    _, out, _ = run(["lint", "--format", "json", "a.md"], str(tmp_path), capsys)
-    assert ANSI not in out
-    _, out, _ = run(["lint", "--format", "github", "a.md"], str(tmp_path), capsys)
-    assert ANSI not in out
 
 
 def test_clean_lint_summary_is_a_success_line(tmp_path, capsys):
@@ -111,14 +82,6 @@ def test_rules_piped_keeps_tsv(tmp_path, capsys, monkeypatch):
     assert ANSI not in out
 
 
-def test_rules_forced_color_aligns_and_styles(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
-    code, out, _ = run(["rules"], str(tmp_path), capsys)
-    assert code == 0
-    assert ANSI in out
-    assert "\t" not in out
-
-
 def test_init_confirms_with_a_success_line(tmp_path, capsys):
     code, out, _ = run(["init"], str(tmp_path), capsys)
     assert code == 0
@@ -147,34 +110,94 @@ def test_rules_with_no_tells_prints_nothing(tmp_path, capsys, monkeypatch):
     assert out == ""
 
 
-def test_styled_rules_wrap_to_the_width(tmp_path, capsys, monkeypatch):
-    import re
-    monkeypatch.setenv("FORCE_COLOR", "1")
-    monkeypatch.setenv("COLUMNS", "100")
-    code, out, _ = run(["rules"], str(tmp_path), capsys)
-    assert code == 0
-    visible = [re.sub(r"\x1b\[[0-9;]*m", "", line) for line in out.splitlines()]
-    too_wide = [line for line in visible if len(line) > 100]
-    assert not too_wide, too_wide[0]
-
-
-def test_force_color_triage_draws_a_rating_bar(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
-    monkeypatch.delenv("NO_COLOR", raising=False)
-    canned_jev(monkeypatch, [("keep", 0.93)])
-    write(tmp_path, "a.md", "a — dash\n")
-    _, out, _ = run(["lint", "--triage", "a.md"], str(tmp_path), capsys)
-    assert out.startswith(ANSI) and ui.I_BAR * 5 in out.split("a.md")[0]
-    assert out.rstrip().endswith(" [keep]")
-    assert "0.93" not in out
-
-
 def test_piped_triage_keeps_the_number_and_no_glyphs(tmp_path, capsys, monkeypatch):
     monkeypatch.delenv("FORCE_COLOR", raising=False)
     monkeypatch.delenv("CLICOLOR_FORCE", raising=False)
     canned_jev(monkeypatch, [("keep", 0.93)])
     write(tmp_path, "a.md", "a — dash\n")
-    _, out, _ = run(["lint", "--triage", "a.md"], str(tmp_path), capsys)
+    _, out, _ = run(["lint", "--jev", "a.md"], str(tmp_path), capsys)
     assert out.rstrip().endswith("[keep 0.93]")
-    assert ui.I_BAR not in out
     assert ANSI not in out
+
+
+# The gum layer. gum_shim forces an attended run and records each gum call.
+
+
+def _calls_of(calls, sub):
+    return [c for c in calls() if c["args"][0] == sub]
+
+
+def _record_spins(monkeypatch):
+    """The spinner titles the CLI asks for. gum.spin itself is tested in test_gum."""
+    from contextlib import nullcontext
+    from deslopper import gum
+    titles = []
+    monkeypatch.setattr(gum, "spin", lambda title, stream=None: titles.append(title) or nullcontext())
+    return titles
+
+
+def test_attended_lint_draws_the_whole_view_in_one_gum_call(tmp_path, capsys, gum_shim):
+    write(tmp_path, "a.md", "a — dash\nc; d\n")
+    write(tmp_path, "b.md", "e; f\n")
+    code, out, err = run(["lint", "a.md", "b.md"], str(tmp_path), capsys)
+    assert code == 1
+    assert [c["args"][0] for c in gum_shim()] == ["format"]
+    # The header, a section per file, and the totals, all in the one view.
+    assert '" deslopper "' in out and '"2 files, 2 with slop"' in out
+    assert '"a.md"' in out and '"b.md"' in out
+    assert '"1 error"' in out and '"2 warnings"' in out
+    # The plain lines and the stderr summary give way to the view.
+    assert "a.md:1:3 [error]" not in out
+    assert err == ""
+
+
+def test_attended_view_shows_the_line_and_a_caret(tmp_path, capsys, gum_shim):
+    write(tmp_path, "a.md", "a — dash\n")
+    _, out, _ = run(["lint", "a.md"], str(tmp_path), capsys)
+    assert '"a "' in out and '"—"' in out and '" dash"' in out
+    assert '"^"' in out
+
+
+def test_attended_check_draws_the_view_and_exits_zero(tmp_path, capsys, gum_shim):
+    write(tmp_path, "a.md", "a — dash\n")
+    code, out, _ = run(["check", "a.md"], str(tmp_path), capsys)
+    assert code == 0
+    assert '{{ Bold "check" }}' in out
+
+
+def test_attended_jev_spins_per_file_and_rates_each_place(tmp_path, capsys, gum_shim, monkeypatch):
+    canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.62), ("keep", 0.8)])
+    spins = _record_spins(monkeypatch)
+    write(tmp_path, "a.md", "a — dash\nc; d\n")
+    write(tmp_path, "b.md", "e; f\n")
+    _, out, err = run(["lint", "--jev", "a.md", "b.md"], str(tmp_path), capsys)
+    assert spins == ["Asking Jev about 2 findings in a.md (1/2)",
+                     "Asking Jev about 1 finding in b.md (2/2)"]
+    assert '{{ " 0.93 " }}{{ Faint "keep" }}' in out
+    assert '{{ "2 keep" }}' in out and '"  ·  3,154 tokens  ·  $0.000132"' in out
+    assert err == ""
+
+
+def test_attended_rules_draw_one_gum_view(tmp_path, capsys, gum_shim):
+    code, out, _ = run(["rules"], str(tmp_path), capsys)
+    assert code == 0
+    assert len(_calls_of(gum_shim, "format")) == 1
+    assert '{{ Bold "em-dash' in out
+    assert "\t" not in out
+
+
+def test_machine_formats_never_call_gum(tmp_path, capsys, gum_shim):
+    write(tmp_path, "a.md", "a — dash\n")
+    run(["lint", "--format", "json", "a.md"], str(tmp_path), capsys)
+    run(["lint", "--format", "github", "a.md"], str(tmp_path), capsys)
+    run(["rules", "--format", "json"], str(tmp_path), capsys)
+    assert gum_shim() == []
+
+
+def test_a_forced_run_without_gum_prints_plain_and_one_hint(tmp_path, capsys, monkeypatch):
+    from deslopper import gum
+    monkeypatch.setenv("CLICOLOR_FORCE", "1")
+    write(tmp_path, "a.md", "a — dash\n")
+    _, out, err = run(["lint", "a.md"], str(tmp_path), capsys)
+    assert "a.md:1:3 [error] em-dash:" in out
+    assert err.count(gum.HINT) == 1
