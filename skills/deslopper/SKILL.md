@@ -14,17 +14,19 @@ before finishing.
 Find a runnable deslopper, in this order:
 
 1. `deslopper` on PATH, which respects a project venv or a pinned install
-2. `uvx deslopper`, or `pipx run deslopper`
+2. `uvx --from git+https://github.com/jv-k/deslopper deslopper`, or
+   `pipx run --spec git+https://github.com/jv-k/deslopper deslopper`
 
 Use the runner you found for every deslopper command in this skill. A command written as
-`deslopper rules` here means that runner's spelling, for example `uvx deslopper rules`.
+`deslopper rules` here means that runner's spelling, for example
+`uvx --from git+https://github.com/jv-k/deslopper deslopper rules`.
 
 Run `deslopper rules` once when the skill activates. The output is the live tell list for
 this project, including its own config and presets. Keep those tells out of every piece of
 prose you produce while the skill is active. Write plainly, like a sharp engineer.
 
 If neither command runs, follow the writing guidance anyway, skip the lint steps, and tell
-the user in one line that deslopper is not installed. Suggest `pipx install deslopper` or
+the user in one line that deslopper is not installed. Suggest `pipx install git+https://github.com/jv-k/deslopper` or
 `brew install jv-k/tap/deslopper`. Never install it yourself.
 
 ## Verify before finishing
