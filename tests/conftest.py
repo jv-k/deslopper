@@ -41,6 +41,15 @@ def jev_envelope(verdicts, keys, tokens=(1577, 0), cost="0.000066"):
     }
 
 
+@pytest.fixture(autouse=True)
+def no_hook_git_env(monkeypatch):
+    """Drop the git variables a hook inherits. In a worktree's pre-commit hook git
+    exports GIT_DIR, and discovery's `git ls-files` in a temp folder would read
+    this repo instead of the folder."""
+    for name in ("GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE"):
+        monkeypatch.delenv(name, raising=False)
+
+
 def canned_jev(monkeypatch, verdicts, **envelope):
     """Swap `jev.post` for a transport answering every question from `verdicts`,
     export a fake key, and return the list the bodies are recorded on."""
