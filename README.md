@@ -6,34 +6,64 @@
     <a href="https://github.com/jv-k/deslopper/actions/workflows/ci.yml"><img src="https://github.com/jv-k/deslopper/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-blue.svg" alt="MIT licence"></a>
   </p>
-  <p><strong>A prose linter for the tells of machine-generated writing.</strong></p>
+  <p><strong>A slop linter for Markdown.</strong></p>
 </div>
 
-deslopper finds the habits that make text read as machine-written: the em-dash aside, the
-filler verb, the marketing adjective, the `not just X but Y` padding. It checks Markdown
-with plain patterns. The lint uses no model and no network, so a run is free, fast, and
-gives the same result every time. That makes it safe to use as a gate in CI and
-pre-commit.
+Slop is the set of habits that make text read as machine-written: the em-dash aside, the
+filler verb, the marketing adjective, the `not just X but Y` padding. deslopper finds slop
+in Markdown with plain patterns. It makes no LLM calls. The lint uses no model and no
+network, so a run is free, fast, and gives the same result every time. That makes it safe
+to use as a gate in CI and pre-commit.
 
 When a pattern is not enough, ask [Jev](https://vercel.com/ai-gateway/models/jev),
-TypeSafe AI's System One decision model (`typesafe-ai/jev`) on the Vercel AI Gateway. With
-`--triage`, Jev reads each finding in context and says whether to rewrite it or keep it. Jev only adds notes, so the gate stays deterministic.
+TypeSafe AI's System One decision model (`typesafe-ai/jev`) on the Vercel AI Gateway. Jev
+brings judgement without the guesswork of an LLM. It does not generate text, so it cannot
+invent a rewrite or drift off the question. It answers a fixed question with a typed
+verdict and a calibrated probability, in a single pass, and gives consistent answers for
+similar inputs. With `--jev`, Jev reads each finding in context and says whether to
+rewrite it or keep it. Jev only adds notes, so the gate stays deterministic.
 
 ## Highlights
 
-- A deterministic lint for 20 tells, with an opt-in `aggressive` preset for 5 more.
-- Jev triage: `deslopper lint --triage` gives each finding a `keep` or `rewrite` verdict
+- No LLM calls. A deterministic lint for 20 tells, with an opt-in `aggressive` preset
+  for 5 more.
+- Jev triage: `deslopper lint --jev` gives each finding a `keep` or `rewrite` verdict
   and a probability, for a fraction of a cent per run.
 - An eval for your rewrite pass: `deslopper eval` checks that a model rewrite removes the
   tells and keeps your code, headings, tables, and links. Jev can also score how plainly
   the text reads before and after.
 - A skill for coding agents, so the agent writes within the tells and lints its own work.
 - No dependencies beyond Python 3.9. It runs in GitHub Actions, pre-commit, and the
-  terminal.
+  terminal. Install gum as well for colours and spinners on a terminal.
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/deslopper-demo.gif" alt="Animated demo: deslopper lint reports an em-dash error and four warnings on a sloppy file, then passes clean after a rewrite.">
 </div>
+
+## Contents
+
+- [Getting started](#getting-started)
+- [Fix slop with an LLM](#fix-slop-with-an-llm)
+  - [With a coding agent](#with-a-coding-agent)
+  - [With a script](#with-a-script)
+  - [Check the rewrite with `deslopper eval`](#check-the-rewrite-with-deslopper-eval)
+- [Why deslopper?](#why-deslopper)
+- [Install](#install)
+- [Commands](#commands)
+- [Tiers and exit codes](#tiers-and-exit-codes)
+- [The tells](#the-tells)
+- [The `aggressive` preset](#the-aggressive-preset)
+- [Configure](#configure)
+  - [The fields of a tell](#the-fields-of-a-tell)
+- [Disable directives](#disable-directives)
+- [Use it in CI](#use-it-in-ci)
+- [Use it in pre-commit](#use-it-in-pre-commit)
+- [Agent skill](#agent-skill)
+- [The `json` format](#the-json-format)
+- [Triage findings with Jev](#triage-findings-with-jev)
+- [Eval a rewrite pass](#eval-a-rewrite-pass)
+- [Contributing](#contributing)
+- [Licence](#licence)
 
 ## Getting started
 
@@ -51,27 +81,53 @@ TypeSafe AI's System One decision model (`typesafe-ai/jev`) on the Vercel AI Gat
    deslopper lint
    ```
 
-   Each finding names the file, line, column, tier, and tell, and says how to fix it:
+   On a terminal with [gum](https://github.com/charmbracelet/gum) installed, deslopper
+   gives each file a section. Inside it, each tell appears once with its fix, then every
+   place it fired: the line and column, the line itself with the caught words
+   highlighted, and a caret under them. The colours show in your terminal:
 
    ```text
-   ✖ 1 error(s), 2 warning(s)
-   notes.md:3:20 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
-   notes.md:5:25 [warn] semicolon: semicolon in prose, prefer a full stop
-   notes.md:5:6 [warn] filler-verb: filler verb, use a plain verb or cut
+      deslopper  lint                                  1 file, 1 with slop
+
+     notes.md                                          1 error  2 warnings
+     ─────────────────────────────────────────────────────────────────────
+     ✖ em-dash
+       em dash in prose, use a colon, comma, parentheses, or two sentences
+         3:20  The fix was simple — restart the server.
+                                  ^
+
+     ! filler-verb
+       filler verb, use a plain verb or cut
+          5:6  This leverages the cache; it is fast.
+                    ^
+
+     ! semicolon
+       semicolon in prose, prefer a full stop
+         5:25  This leverages the cache; it is fast.
+                                       ^
+
+     ─────────────────────────────────────────────────────────────────────
+     ✖ 1 error   ! 2 warnings
    ```
 
-3. Fix the findings and run the lint again. An error fails the run. A warning only
-   reports, unless you add `--strict`.
+   On a narrow terminal, the line is cut around the caught words, so nothing wraps.
 
-4. Ask Jev which findings to fix. Export your Vercel AI Gateway key, then add `--triage`:
+   Without gum, and whenever the output is piped, deslopper prints one
+   `path:line:col [tier] tell: message` line per finding, for editors and scripts.
+
+3. Fix the findings and run the lint again. An error fails the run. A warning only
+   reports, unless you add `--strict`. To let an LLM do the fixing, see
+   [Fix slop with an LLM](#fix-slop-with-an-llm).
+
+4. Ask Jev which findings to fix. Export your Vercel AI Gateway key, then add `--jev`:
 
    ```sh
    export AI_GATEWAY_API_KEY=...
-   deslopper lint --triage
+   deslopper lint --jev
    ```
 
-   Each finding then ends with Jev's verdict and its probability, such as
-   `[rewrite 0.88]` or `[keep 0.97]`. See
+   A spinner shows each file while Jev reads it. Each place then starts with Jev's
+   rating: a bar, the probability, and the verdict. See
    [Triage findings with Jev](#triage-findings-with-jev).
 
 5. To tune the tells and the files to lint, write a starter config:
@@ -85,15 +141,75 @@ TypeSafe AI's System One decision model (`typesafe-ai/jev`) on the Vercel AI Gat
 6. Add the lint to your pipeline. See [Use it in CI](#use-it-in-ci) and
    [Use it in pre-commit](#use-it-in-pre-commit).
 
+## Fix slop with an LLM
+
+deslopper finds slop, and an LLM can fix it. deslopper never calls an LLM itself, so you
+bring your own. The loop is always the same:
+
+1. deslopper lints the files and lists the findings.
+2. The LLM rewrites the text at each finding, and changes nothing else.
+3. deslopper lints again. The loop ends when no error-tier finding is left.
+
+The lint is the judge in this loop, not the LLM. So the loop ends on a fact, and the LLM
+cannot declare the job done too early.
+
+### With a coding agent
+
+[Install the agent skill](#agent-skill), then ask your agent in plain words:
+
+```text
+De-slop README.md and docs/.
+```
+
+The skill tells the agent to load the active tells, rewrite the text, lint the files it
+touched, and repeat until the error tier is clean. It fixes a warning only when the
+rewrite is clearly better, and it reports the other warnings to you.
+
+### With a script
+
+Any LLM that can read and edit files works. This example runs Claude Code without a
+session, and allows it to run the lint and edit files only:
+
+```sh
+claude -p "Run 'deslopper lint --format json docs/'. Fix each finding in place. \
+Keep code, headings, tables, and links exactly as they are. \
+Run the lint again, and repeat until it exits 0." \
+  --allowedTools "Bash(deslopper lint:*)" Read Edit
+```
+
+Each finding carries a short fix hint in its `message`, such as "use a plain verb or cut".
+The LLM can follow the hint without a long prompt.
+
+On a large backlog, ask Jev first, so that the LLM rewrites only the findings that need
+it. This command keeps the findings that Jev did not mark `keep`:
+
+```sh
+deslopper lint --jev --format json docs/ | jq '[.findings[] | select(.verdict != "keep")]'
+```
+
+### Check the rewrite with `deslopper eval`
+
+An LLM rewrite can remove the tells and still damage the document. `deslopper eval` tests
+your rewrite command on sample files before you run it on real ones. It checks that the
+tells are gone, and that code, front matter, headings, tables, and links did not change.
+Put the rewrite in a script that takes a folder path, then run:
+
+```sh
+deslopper eval './scripts/deslop.sh {dir}'
+```
+
+See [Eval a rewrite pass](#eval-a-rewrite-pass) for the judges and the exit codes.
+
 ## Why deslopper?
 
-A model can rewrite machine-written prose, but each check then costs a model call and
-gives a different answer each run. That does not work as a gate.
+An LLM can rewrite machine-written prose, but then each check costs an LLM call and
+can give a different answer each run. That does not work as a gate.
 
 deslopper catches the mechanical tells with plain patterns instead. The check costs
 nothing, finishes at once, and gives the same findings for the same input. Use deslopper
-as the deterministic floor. Leave the judgement calls to Jev, to a model rewrite, or to a
-person.
+as the deterministic floor. For the judgement calls that a pattern cannot make, ask Jev.
+Jev gives a typed verdict with a probability, not free text. Leave the rewrite itself to
+an LLM or to a person.
 
 Vale and proselint check spelling, house style, and readability. deslopper does one
 narrower job: it finds the tells of machine-generated writing. It is a single Python
@@ -114,6 +230,10 @@ Install it from the Homebrew tap, or from the GitHub repo with a Python tool.
 Homebrew also installs the shell completions for bash, zsh, and fish. With pip, install
 into a virtual environment, so that deslopper does not change your system Python.
 
+For colours and spinners on a terminal, also install
+[gum](https://github.com/charmbracelet/gum) (`brew install gum`). gum is optional.
+Without it, deslopper prints plain output and one line that names the install.
+
 To run deslopper once without installing it, use `uvx` or `pipx run`. Each one runs it in
 a temporary environment:
 
@@ -122,7 +242,7 @@ a temporary environment:
 
 ## Commands
 
-    deslopper lint  [PATHS...] [--strict] [--config P] [--format text|github|json] [--triage]
+    deslopper lint  [PATHS...] [--strict] [--config P] [--format text|github|json] [--jev]
     deslopper check [PATHS...] [--config P]   # report only, exits 0 on findings
     deslopper rules [--config P]              # list the active tells
     deslopper init                            # write a starter config
@@ -133,9 +253,15 @@ With no paths, deslopper lints the Markdown and MDX files that match the configu
 In a git work tree it finds them with `git ls-files`. Outside a work tree it walks the
 file system.
 
-Output is coloured on a terminal and plain when piped. `NO_COLOR` turns colour off.
-`FORCE_COLOR=1` turns it on without a terminal. The `github` and `json` formats never use
-colour.
+A folder path, such as `docs/`, lints the same files that a bare run would lint inside
+that folder. A file path lints that file as given, even when the config excludes it.
+
+On a terminal with gum, deslopper draws its output with gum: a header, a section per
+file with each tell and the places it fired, a spinner while Jev works, and the totals.
+Piped output, the `github` format, and the `json` format are always plain, and never
+call gum. `NO_COLOR`
+turns the gum output off. `CLICOLOR_FORCE=1` turns it on without a terminal. These are the
+two variables that gum itself reads.
 
 Homebrew installs tab completion for you. For the other install methods, print the script
 with `deslopper completions` and save it where your shell reads it. With no argument, the
@@ -349,9 +475,9 @@ repos:
 The hook runs the deslopper on your `PATH`, so [install it](#install) first.
 
 `pass_filenames: false` makes the hook lint the configured globs, not the staged files.
-This keeps the local result the same as the CI result. deslopper lints explicit paths as
-given and ignores the config excludes for them. So a hook that passes the staged files
-would flag files that your config excludes.
+This keeps the local result the same as the CI result. deslopper lints explicit file
+paths as given and ignores the config excludes for them. So a hook that passes the staged
+files would flag files that your config excludes.
 
 ## Agent skill
 
@@ -381,7 +507,9 @@ floor.
 
 ## The `json` format
 
-`deslopper lint --format json` prints one object for other tools to read:
+`deslopper lint --format json` is the format for tools and for models. It prints one JSON
+object to stdout and nothing to stderr, so the payload is the whole output. Only a usage
+error, such as a missing gateway key, prints one line to stderr and exits 2.
 
     {
       "findings": [
@@ -398,6 +526,11 @@ floor.
       "summary": { "errors": 0, "warnings": 1, "unreadable": 0 }
     }
 
+With `--jev`, the object also has a `jev` key with the totals of the run. Its `errors`
+list has one line for each Jev request that failed:
+
+    "jev": { "keep": 2, "rewrite": 1, "tokens": 872, "cost": "0.000032844", "errors": [] }
+
 The package ships a JSON Schema for each side of the contract:
 [output.schema.json](src/deslopper/schema/output.schema.json) for this object, and
 [config.schema.json](src/deslopper/schema/config.schema.json) for the config file.
@@ -408,36 +541,54 @@ A regex cannot tell a decorative em dash from one inside a quoted title. It also
 tell `delve` the filler verb from Delve the debugger. So on a repo with real prose, the
 warn tier fills up with findings that a careful editor would keep.
 
-`deslopper lint --triage` runs the normal scan first. Then it sends each flagged line,
+`deslopper lint --jev` runs the normal scan first. Then it sends each flagged line,
 with the line above and below it, to [Jev](https://vercel.com/ai-gateway/models/jev)
 (`typesafe-ai/jev`) through the
 [Vercel AI Gateway](https://vercel.com/docs/ai-gateway). For each finding it asks one
 question: is this a machine-writing habit to rewrite, or a deliberate use to keep? Each
-finding comes back with a verdict and a probability:
+finding comes back with a verdict and a probability. On a terminal with gum, a spinner
+names each file while Jev reads it, and each place then starts with Jev's rating:
 
-    docs/guide.md:6:27 [warn] semicolon: semicolon in prose, prefer a full stop [rewrite 0.88]
-    docs/guide.md:9:14 [warn] filler-verb: filler verb, say what it does [keep 0.97]
+```text
+  ✖ em-dash
+    em dash in prose, use a colon, comma, parentheses, or two sentences
+      ❚❚❚❚❚ 0.76 keep     3:20  The fix was simple — restart the server.
+                                                   ^
 
-On a terminal, a five-slot bar at the start of each line shows the probability. The bar is
-green from 0.9, yellow from 0.7, and red below that, and the line ends with the verdict
-only: `❚❚❚❚❚ docs/guide.md:9:14 … [keep]`. Piped output shows the number. The `json` format
-adds `verdict` and `probability` to each judged finding. The `github` format puts the
-verdict in the annotation message. The summary line counts the `keep` and `rewrite`
-verdicts, and reports the tokens and the gateway cost of the run.
+  ! filler-verb
+    filler verb, use a plain verb or cut
+      ❚❚❚❚❚ 0.87 rewrite   5:6  This leverages the cache; it is fast.
+                                     ^
+
+  ──────────────────────────────────────────────────────────────────────────────────
+  ✖ 1 error   ! 2 warnings
+  Jev 1 rewrite  ·  2 keep  ·  872 tokens  ·  $0.000032844
+```
+
+The bar fills in proportion to the probability. Its filled slots are green from 0.9,
+yellow from 0.7, and red below that. On a narrow terminal the rating drops the number
+and keeps the bar and the verdict.
+
+Piped output adds the verdict to the end of each line, such as `[rewrite 0.87]`. The
+`json` format adds `verdict` and `probability` to each judged finding. The `github`
+format puts the verdict in the annotation message. The plain summary line counts the
+`keep` and `rewrite` verdicts, and reports the tokens and the gateway cost of the run.
 
 Triage only adds notes. It never changes the exit code, so a `keep` verdict cannot make a
 lint pass, and the deterministic gate holds in CI. Some other limits apply:
 
 - deslopper never sends findings on a disabled line.
 - A file with no findings sends no request. A file with findings sends one request.
-- `--triage` is a command-line flag only, never a config key. So no repo can turn on
+- `--jev` is a command-line flag only, never a config key. So no repo can turn on
   network calls for everyone who lints it.
-- `check` does not accept `--triage`.
+- `check` does not accept `--jev`.
+- `--triage`, the old name of the flag, still works.
 
-The gateway key comes from `AI_GATEWAY_API_KEY`. Without it, `--triage` exits 2 with a
+The gateway key comes from `AI_GATEWAY_API_KEY`. Without it, `--jev` exits 2 with a
 one-line hint and prints no findings. A test run of nine findings cost $0.000066 and took
 less than half a second. If a request fails, deslopper prints one error line to stderr,
 leaves the findings of that file without verdicts, and exits with the code of the scan.
+With `--format json`, the error goes into the payload instead.
 
 ## Eval a rewrite pass
 

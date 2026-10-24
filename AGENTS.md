@@ -1,6 +1,6 @@
 # Agent instructions
 
-deslopper is a deterministic prose linter, Python with the standard library only. When you
+deslopper is a deterministic slop linter, Python with the standard library only. When you
 work on it, follow these.
 
 ## Build and test
