@@ -30,7 +30,10 @@ Hide
 # Put the installed command on PATH so the screenshot shows plain
 # `deslopper`, not a repo path. Clear AFTER so the setup line never
 # lingers on screen when we Show.
-Type 'command -v deslopper >/dev/null || source .venv/bin/activate' Enter
+# The repo's .venv build wins over any older deslopper on PATH; PATH, not
+# `activate`, which would change the prompt. One prompt, so local matches CI.
+Type '[ -x .venv/bin/deslopper ] && export PATH="$PWD/.venv/bin:$PATH"' Enter
+Type "PROMPT='%F{#AB9DF2}>%f '" Enter
 Type "clear" Enter
 Show
 

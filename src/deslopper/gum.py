@@ -90,24 +90,29 @@ PALETTE = {
     "ok": "#87d787",
     "muted": "#8a8a8a",
     "rule": "#444444",
+    "bullet": "#ab9df2",
 }
 
 
 def _part(style: str, text: str) -> str:
-    """One part as a template call. `style` is space-separated tokens: bold, faint, pill,
-    and palette colour names; "" is plain. A JSON string is a valid Go template string,
+    """One part as a template call. `style` is space-separated tokens: bold, faint, pill
+    (accent background), pill-ok (ok background), palette colour names, and 256-colour
+    numbers such as 196; "" is plain. A JSON string is a valid Go template string,
     so quotes, backslashes and any template syntax in the text stay literal."""
     call = json.dumps(text, ensure_ascii=False)
     nested = False  # a function call, which needs brackets when another wraps it
     tokens = style.split()
-    if "pill" in tokens:
-        call = 'Color "%s" "%s" %s' % (PALETTE["on-accent"], PALETTE["accent"], call)
+    pills = {"pill": "accent", "pill-ok": "ok"}
+    pill = next((t for t in tokens if t in pills), None)
+    if pill:
+        call = 'Color "%s" "%s" %s' % (PALETTE["on-accent"], PALETTE[pills[pill]], call)
         nested = True
-        tokens = ["bold"] + [t for t in tokens if t not in ("pill", "bold")]
+        tokens = ["bold"] + [t for t in tokens if t not in pills and t != "bold"]
     else:
-        colours = [t for t in tokens if t in PALETTE]
+        colours = [PALETTE[t] if t in PALETTE else t for t in tokens
+                   if t in PALETTE or t.isdigit()]
         if colours:
-            call = 'Color "%s" %s' % (PALETTE[colours[-1]], call)
+            call = 'Color "%s" %s' % (colours[-1], call)
             nested = True
     for token, func in (("faint", "Faint"), ("bold", "Bold")):
         if token in tokens:
@@ -164,3 +169,18 @@ def spin(title, stream=None):
         except subprocess.TimeoutExpired:
             spinner.kill()
             spinner.wait()
+
+
+def plain(lines) -> str:
+    """A view as plain text: every part's text, no styling."""
+    return "".join("".join(text for _style, text in line) + "\n" for line in lines)
+
+
+def write(lines, stream=None) -> None:
+    """Write a view to `stream`: drawn by gum on an attended run, else as plain text.
+
+    Every styled screen goes through here, so a run without gum, a pipe, or a gum that
+    fails all print the same words, unstyled."""
+    stream = sys.stdout if stream is None else stream
+    drawn = render(lines) if attended(stream) else None
+    stream.write(drawn if drawn is not None else plain(lines))
