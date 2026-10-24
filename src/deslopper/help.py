@@ -138,6 +138,17 @@ COMMANDS = {
             ("deslopper completions fish > ~/.config/fish/completions/deslopper.fish", "Install for fish."),
         ],
     },
+    "update": {
+        "synopsis": "[options]",
+        "description": "Update deslopper with the tool that installed it.",
+        "options": [
+            ("", "--dry-run", "", "Print the upgrade command and run nothing."),
+        ],
+        "examples": [
+            ("deslopper update", "Run the Homebrew, pipx, or uv upgrade."),
+            ("deslopper update --dry-run", "See which command would run."),
+        ],
+    },
 }
 
 

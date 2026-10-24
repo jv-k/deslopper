@@ -15,7 +15,7 @@ from .evaluate import run_eval
 from .jev import JevUnavailable, require_key
 from . import cache, completions
 from . import help as help_screen
-from . import gum, report, triage, ui
+from . import gum, report, triage, ui, update
 
 STARTER = {
     "extends": [RECOMMENDED],
@@ -73,6 +73,9 @@ def _build_parser():
     # nargs="?" without choices: an unknown shell goes through UsageError for
     # the same styled error path as every other usage mistake.
     comp.add_argument("shell", nargs="?")
+
+    upd = command("update")
+    upd.add_argument("--dry-run", action="store_true")
     return parser
 
 
@@ -225,6 +228,10 @@ def _do_completions(args):
     return 0
 
 
+def _do_update(args):
+    return update.run(dry_run=args.dry_run)
+
+
 _COMMANDS = {
     "lint": _do_lint,
     "check": _do_check,
@@ -232,6 +239,7 @@ _COMMANDS = {
     "init": _do_init,
     "eval": _do_eval,
     "completions": _do_completions,
+    "update": _do_update,
 }
 
 

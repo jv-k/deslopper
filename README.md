@@ -49,6 +49,7 @@ rewrite it or keep it. Jev only adds notes, so the gate stays deterministic.
   - [Check the rewrite with `deslopper eval`](#check-the-rewrite-with-deslopper-eval)
 - [Why deslopper?](#why-deslopper)
 - [Install](#install)
+- [Update](#update)
 - [Commands](#commands)
 - [Tiers and exit codes](#tiers-and-exit-codes)
 - [The tells](#the-tells)
@@ -240,6 +241,43 @@ a temporary environment:
     uvx --from git+https://github.com/jv-k/deslopper deslopper lint
     pipx run --spec git+https://github.com/jv-k/deslopper deslopper lint
 
+## Update
+
+Read the [changelog](CHANGELOG.md) before you update. A new release can add a tell or
+change a tier, so prose that passed before can fail after the update.
+
+Check the version you have with `deslopper --version`. Then run:
+
+    deslopper update
+
+The command finds the tool that installed deslopper and runs its upgrade. It knows
+Homebrew, pipx, and uv. For any other install, it prints the command to run yourself and
+changes nothing. Add `--dry-run` to see the command without running it.
+
+You can also run the upgrade yourself, with the tool that installed deslopper:
+
+| Tool | Command |
+| --- | --- |
+| Homebrew | `brew update && brew upgrade jv-k/tap/deslopper` |
+| pipx | `pipx upgrade deslopper` |
+| uv | `uv tool upgrade deslopper` |
+| pip | `pip install --upgrade git+https://github.com/jv-k/deslopper` |
+
+Run `deslopper --version` again to confirm the new version. If you are not sure which tool
+installed deslopper, run `which -a deslopper`. A path under the Homebrew prefix, such as
+`/opt/homebrew/bin`, is the Homebrew install.
+
+Some setups do not keep their own install, so they update in other ways:
+
+- `uvx` caches the package it builds. Add `--refresh` to fetch the latest `main`:
+  `uvx --refresh --from git+https://github.com/jv-k/deslopper deslopper lint`.
+- A CI job that pins a release tag stays on that release. To update it, change the tag in
+  the workflow, for example from `@v1.5.0` to `@v1.6.0`. See [Use it in CI](#use-it-in-ci).
+- The pre-commit hook runs the deslopper on your `PATH`, so it updates when you update the
+  install.
+- To update the [agent skill](#agent-skill), run `npx skills update deslopper`. If you
+  copied the skill by hand, copy `skills/deslopper/` again.
+
 ## Commands
 
     deslopper lint  [PATHS...] [--strict] [--config P] [--format text|github|json] [--jev] [--no-cache]
@@ -248,6 +286,7 @@ a temporary environment:
     deslopper init                            # write a starter config
     deslopper eval 'COMMAND' [--keep] [--plainness]   # judge a rewrite command
     deslopper completions [bash|zsh|fish]     # print a completion script for your shell
+    deslopper update [--dry-run]              # update with the tool that installed it
 
 With no paths, deslopper lints the Markdown and MDX files that match the configured globs.
 In a git work tree it finds them with `git ls-files`. Outside a work tree it walks the
