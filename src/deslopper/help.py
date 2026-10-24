@@ -11,7 +11,7 @@ colour gate still strips styling there).
 import sys
 from importlib import metadata as importlib_metadata
 
-from . import __version__, ui
+from . import __version__, gum, ui
 
 # figlet "future", one 3-cell chunk per letter of "deslopper".
 WORDMARK = (
@@ -141,42 +141,39 @@ COMMANDS = {
 
 
 class _Renderer:
-    def __init__(self, stream, pal):
+    """Collects a help screen as lines of (style, text) parts; gum.write draws it."""
+
+    def __init__(self, stream):
         self.stream = stream
-        self.pal = pal
         self.cols = ui.term_cols(stream)
+        self.lines = []
 
-    def line(self, text=""):
-        print(text, file=self.stream)
+    def line(self, *parts):
+        self.lines.append([p if isinstance(p, tuple) else ("", p) for p in parts])
 
-    def pill(self, text, style=None):
-        pal = self.pal
+    def pill(self, text, style="pill"):
         self.line()
-        self.line(ui.pill(pal, style or pal.hdr_cyan, text))
+        self.line((style, f" {text} "))
 
     def _desc_width(self) -> int:
         avail = self.cols - OPT_COL
         return avail if avail >= 20 else 20
 
-    def row(self, label_plain, label_styled, desc, dim=False):
-        """A two-column row: label, description at OPT_COL, wrapped and hung."""
-        pal = self.pal
-        if dim:
-            desc_open, desc_close = pal.dim, pal.reset
-        else:
-            desc_open = desc_close = ""
-        # Stack once the label would leave less than the 2-space gutter.
-        if len(label_plain) > OPT_COL - 2:
-            self.line(label_styled)
-            for wline in self._flow(desc):
-                self.line(f"{' ' * OPT_COL}{desc_open}{wline}{desc_close}")
-            return
-        pad = " " * (OPT_COL - len(label_plain))
+    def row(self, label, desc, dim=False):
+        """A two-column row: label parts, description at OPT_COL, wrapped and hung."""
+        width = sum(len(text) for _style, text in label)
+        style = "faint" if dim else ""
         flowed = self._flow(desc)
+        # Stack once the label would leave less than the 2-space gutter.
+        if width > OPT_COL - 2:
+            self.line(*label)
+            for wline in flowed:
+                self.line(" " * OPT_COL, (style, wline))
+            return
         first = flowed[0] if flowed else ""
-        self.line(f"{label_styled}{pad}{desc_open}{first}{desc_close}")
+        self.line(*label, " " * (OPT_COL - width), (style, first))
         for wline in flowed[1:]:
-            self.line(f"{' ' * OPT_COL}{desc_open}{wline}{desc_close}")
+            self.line(" " * OPT_COL, (style, wline))
 
     def _flow(self, desc) -> list:
         if not desc:
@@ -184,65 +181,54 @@ class _Renderer:
         return ui.wrap(self._desc_width(), desc)
 
     def prose(self, text, indent=2):
-        """Dim wrapped prose (the tagline)."""
-        pal = self.pal
+        """Faint wrapped prose (the tagline)."""
         width = self.cols - indent
         for wline in ui.wrap(width if width >= 20 else 20, text):
-            self.line(f"{' ' * indent}{pal.dim}{wline}{pal.reset}")
+            self.line(" " * indent, ("faint", wline))
+
+    def done(self):
+        gum.write(self.lines, self.stream)
 
 
 def _option_row(rend, short, long, arg, desc, dim=False):
-    pal = rend.pal
     if short:
-        plain = f"  {short}, {long}"
-        styled = f"  {pal.dim}{short}{pal.reset}, {pal.bold}{long}{pal.reset}"
+        label = [("", "  "), ("faint", short), ("", ", "), ("bold", long)]
     else:
         # Align long-only flags under the long column: gutter + "-x, " = 6.
-        plain = f"      {long}"
-        styled = f"      {pal.bold}{long}{pal.reset}"
+        label = [("", "      "), ("bold", long)]
     if arg:
-        plain += f" {arg}"
-        styled += f" {arg}"
-    rend.row(plain, styled, desc, dim=dim)
+        label.append(("", f" {arg}"))
+    rend.row(label, desc, dim=dim)
 
 
 def _example_row(rend, command, desc):
-    pal = rend.pal
-    plain = f"  {command}"
-    styled = f"  {pal.dim}{command}{pal.reset}"
-    rend.row(plain, styled, desc, dim=True)
+    rend.row([("", "  "), ("faint", command)], desc, dim=True)
 
 
 def _banner(rend):
-    pal = rend.pal
     tagline, author, homepage = _package_facts()
     for row in WORDMARK:
-        chunks = [f"{colour}{chunk}" for colour, chunk in zip(pal.rainbow, row)]
-        rend.line("".join(chunks) + pal.reset)
+        rend.line(*[(str(stop), chunk) for stop, chunk in zip(ui.RAINBOW_STOPS, row)])
     rend.line()
-    rend.line(ui.pill(pal, pal.hdr_green, f"deslopper v{__version__}"))
-    rend.line(f" {pal.bullet}{ui.I_BULLET}{pal.reset} Author:   {author}")
-    rend.line(f" {pal.bullet}{ui.I_BULLET}{pal.reset} Homepage: {homepage}")
+    rend.line(("pill-ok", f" deslopper v{__version__} "))
+    rend.line(" ", ("bullet", ui.I_BULLET), f" Author:   {author}")
+    rend.line(" ", ("bullet", ui.I_BULLET), f" Homepage: {homepage}")
     rend.line()
     rend.prose(tagline)
 
 
-def render_root(stream=None, pal=None):
-    stream = stream or sys.stdout
-    rend = _Renderer(stream, pal or ui.palette(stream))
+def render_root(stream=None):
+    rend = _Renderer(stream or sys.stdout)
     _banner(rend)
 
     rend.pill("USAGE")
-    rend.line(f"  {rend.pal.bold}deslopper{rend.pal.reset} <command> [options]")
+    rend.line("  ", ("bold", "deslopper"), " <command> [options]")
 
     rend.pill("COMMANDS")
     for name, spec in COMMANDS.items():
         hint = spec["synopsis"].replace("[options]", "").strip()
-        plain = f"  {name}" + (f" {hint}" if hint else "")
-        styled = f"  {rend.pal.bold}{name}{rend.pal.reset}" + (
-            f" {rend.pal.dim}{hint}{rend.pal.reset}" if hint else ""
-        )
-        rend.row(plain, styled, spec["description"])
+        label = [("", "  "), ("bold", name)] + ([("faint", f" {hint}")] if hint else [])
+        rend.row(label, spec["description"])
 
     rend.pill("OPTIONS")
     _option_row(rend, "-h", "--help", "", "Show this help message.")
@@ -258,20 +244,19 @@ def render_root(stream=None, pal=None):
     rend.line()
     rend.prose("(run 'deslopper <command> --help' for that command's options)")
     rend.line()
+    rend.done()
 
 
-def render_command(name, stream=None, pal=None):
-    stream = stream or sys.stdout
-    rend = _Renderer(stream, pal or ui.palette(stream))
-    pal = rend.pal
+def render_command(name, stream=None):
+    rend = _Renderer(stream or sys.stdout)
     spec = COMMANDS[name]
 
     rend.line()
-    rend.line(ui.pill(pal, pal.hdr_green, f"deslopper {name}"))
+    rend.line(("pill-ok", f" deslopper {name} "))
     rend.prose(spec["description"])
 
     rend.pill("USAGE")
-    rend.line(f"  {pal.bold}deslopper {name}{pal.reset} {spec['synopsis']}")
+    rend.line("  ", ("bold", f"deslopper {name}"), f" {spec['synopsis']}")
 
     rend.pill("OPTIONS")
     for short, long, arg, desc in spec["options"]:
@@ -283,12 +268,11 @@ def render_command(name, stream=None, pal=None):
         for command, desc in spec["examples"]:
             _example_row(rend, command, desc)
     rend.line()
+    rend.done()
 
 
-def render_version(stream=None, pal=None):
-    stream = stream or sys.stdout
-    pal = pal or ui.palette(stream)
-    print(ui.pill(pal, pal.hdr_green, f"deslopper v{__version__}"), file=stream)
+def render_version(stream=None):
+    gum.write([[("pill-ok", f" deslopper v{__version__} ")]], stream or sys.stdout)
 
 
 def maybe_help(argv):

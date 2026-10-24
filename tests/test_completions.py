@@ -85,11 +85,11 @@ def test_unsupported_explicit_shell_is_a_usage_error(capsys):
         assert shell in err
 
 
-def test_stdout_is_plain_even_under_forced_color(capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
-    monkeypatch.delenv("NO_COLOR", raising=False)
+def test_stdout_is_plain_even_on_an_attended_run(capsys, gum_shim):
+    # A completion script is code for a shell, so gum never touches it.
     _, out, _ = run(["completions", "bash"], capsys)
-    assert "\x1b[" not in out
+    assert "\x1b[" not in out and "{{" not in out
+    assert gum_shim() == []
 
 
 def test_root_help_lists_completions(capsys):
