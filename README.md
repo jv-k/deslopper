@@ -1,7 +1,7 @@
 # deslopper
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/screenshot.png" alt="A bare deslopper run: the rainbow wordmark logo, the version pill, and the USAGE, COMMANDS, OPTIONS, and EXAMPLES sections of the help.">
+  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/deslopper-demo.gif" alt="Animated demo: deslopper lint shows an em-dash error and four warnings, each tell with its fix and a caret under the caught words. A lint --jev run then rates each place with a bar, a probability and a rewrite verdict, and after a rewrite the file lints clean.">
   <p>
     <a href="https://github.com/jv-k/deslopper/actions/workflows/ci.yml"><img src="https://github.com/jv-k/deslopper/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-blue.svg" alt="MIT licence"></a>
@@ -37,7 +37,7 @@ rewrite it or keep it. Jev only adds notes, so the gate stays deterministic.
   terminal. Install gum as well for colours and spinners on a terminal.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/deslopper-demo.gif" alt="Animated demo: deslopper lint shows an em-dash error and four warnings, each tell with its fix and a caret under the caught words. A lint --jev run then rates each place with a bar, a probability and a rewrite verdict, and after a rewrite the file lints clean.">
+  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/screenshot.png" alt="A bare deslopper run: the rainbow wordmark logo, the version pill, and the USAGE, COMMANDS, OPTIONS, and EXAMPLES sections of the help.">
 </div>
 
 ## Contents
