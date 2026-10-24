@@ -20,9 +20,18 @@ A named, built-in bundle of tells, shipped as one `<name>.json` file and opted i
 `extends: ["deslopper:<name>"]`. `recommended` is the default.
 _Avoid_: rule set, ruleset.
 
-**Finding**:
-One place where a tell matched, reported at a path, line, and column. A finding is an
-instance. The tell is the definition behind it.
+**Active tells**:
+The tells that a project's lint uses: the tells from its presets, plus the tells it adds,
+with its overrides applied, minus the tells it disables.
+_Avoid_: ruleset, enabled rules.
+
+**Smell**:
+One place where a tell matched, reported at a path, line, and column. A smell is an
+instance. The tell is the definition behind it. A smell has the tier of its tell, so there
+are error smells and warn smells. Triage can judge a smell worth keeping, and it is still a
+smell.
+_Avoid_: finding, warning, match. The code and output still say finding for now. Warning
+collides with the `warn` tier.
 
 ## A tell's shape
 
@@ -31,10 +40,20 @@ A tell's severity, either `error` or `warn` and nothing else. An `error` always 
 lint. A `warn` fails only under strict. The set is closed.
 _Avoid_: severity, level.
 
+**Strict**:
+The lint mode in which a `warn` smell fails the lint too. Off by default. It changes
+which smells fail, never which smells are reported.
+_Avoid_: pedantic, warnings-as-errors.
+
 **Phase**:
 When a tell scans a line, relative to HTML-entity masking. A `pre-entity` tell runs before
 entities are blanked, a `post-entity` tell after. Only a pre-entity tell can catch a tic
 spelled as an entity.
+
+**Tell identity**:
+A tell is identified by its name and its phase together, written `name@phase`. Two tells
+can share a name if their phases differ. They are still two tells. The name alone is
+enough only when one tell has it.
 
 **Scope**:
 How many times a tell reports on one line: `all` for every match, `first` to stop after
@@ -52,25 +71,54 @@ _Avoid_: calling `words` a word list. The entries are regex.
 
 ## Scanning
 
+**Prose line**:
+A line that tells scan. Every line is a prose line unless it is skipped.
+
+**Skipped line**:
+A line that no tell scans. Front matter, fenced code, MDX import and export lines, and
+exempt regions are skipped.
+
 **Masking**:
-Blanking a region to spaces before tells scan it, so no tell fires inside it. Fenced code,
-inline code, front matter, and HTML entities are masked. The entity step is the one the
-phase names key on.
+Blanking part of a prose line to spaces before tells scan it, so no tell fires inside that
+part. The rest of the line is still scanned. Inline code and HTML entities are masked. The
+entity step is the one the phase names key on.
+
+**Exempt region**:
+Lines that the author takes out of the scan with a `deslop-lint-disable` comment, up to the
+next `deslop-lint-enable`. An exempt line is one line taken out with
+`deslop-lint-disable-line`. An exemption covers every tell. It cannot exempt one tell only.
+_Avoid_: disable region, suppression. Disable means removing a tell from the config.
+
+**Disable**:
+To remove a tell from the project's set in the config, so that no file is scanned for it.
+_Avoid_: using disable for an exempt region.
+
+## Output
+
+**Plain output**:
+The output that every run can produce: smell lines, `github` annotations, or the
+`json` payload. Editors, CI, models and the golden files read it, so it is a contract.
+
+**Attended run**:
+A run where a person is assumed to watch a terminal, so deslopper draws a styled view
+through gum in place of the plain text. Whether a run is attended is decided from the
+environment. The person cannot pick it with a flag.
+_Avoid_: interactive, TTY mode, pretty mode.
 
 ## Triage
 
 **Triage**:
-The opt-in pass, `lint --jev`, that asks Jev about each finding after the scan. It
+The opt-in pass, `lint --jev`, that asks Jev about each smell after the scan. It
 annotates and never gates: the exit code is the scan's alone.
 _Avoid_: classification, labelling.
 
 **Verdict**:
-Jev's answer for one finding, `keep` or `rewrite`, with the probability of that answer. A
-finding without one renders exactly as before.
+Jev's answer for one smell, `keep` or `rewrite`, with the probability of that answer. A
+smell without one renders exactly as before.
 _Avoid_: label, score.
 
 **Verdict cache**:
-The verdicts kept on disk between `--jev` runs. A finding is not sent to Jev again while
+The verdicts kept on disk between `--jev` runs. A smell is not sent to Jev again while
 its tell, column, and context lines are unchanged. The line number is not part of the key.
 `--no-cache` skips it.
 _Avoid_: memo, history.
@@ -88,7 +136,7 @@ The temporary directory an eval seeds with the fixtures and hands to the rewrite
 command. Made fresh per run and removed unless kept for inspection.
 
 **Efficacy**:
-The judge that lints the rewritten fixtures. Zero error-tier findings is the hard gate,
+The judge that lints the rewritten fixtures. Zero error-tier smells is the hard gate,
 and the warn count must land strictly below the raw baseline.
 
 **Preservation**:
