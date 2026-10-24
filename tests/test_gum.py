@@ -134,3 +134,24 @@ def test_spin_without_gum_just_runs_the_block():
     with gum.spin("unused"):
         ran.append(True)
     assert ran == [True]
+
+
+# gum is optional, so a gum that fails must never cost the run its output.
+
+
+def test_render_returns_none_when_gum_fails(gum_shim, monkeypatch):
+    monkeypatch.setenv("GUM_SHIM_FAIL", "1")
+    assert gum.render([[("bold", "a.md")]]) is None
+
+
+def test_render_returns_none_when_gum_has_vanished(monkeypatch):
+    monkeypatch.setattr(gum, "binary", lambda: "/nonexistent/gum")
+    assert gum.render([[("bold", "a.md")]]) is None
+
+
+def test_spin_runs_the_block_when_gum_cannot_start(monkeypatch):
+    monkeypatch.setattr(gum, "binary", lambda: "/nonexistent/gum")
+    ran = []
+    with gum.spin("Asking Jev"):
+        ran.append(True)
+    assert ran == [True]
