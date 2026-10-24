@@ -37,7 +37,7 @@ rewrite it or keep it. Jev only adds notes, so the gate stays deterministic.
   terminal. Install gum as well for colours and spinners on a terminal.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/deslopper-demo.gif" alt="Animated demo: deslopper lint reports an em-dash error and four warnings on a sloppy file, then passes clean after a rewrite.">
+  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/deslopper-demo.gif" alt="Animated demo: deslopper lint shows an em-dash error and four warnings, each tell with its fix and a caret under the caught words. A lint --jev run then rates each place with a bar, a probability and a rewrite verdict, and after a rewrite the file lints clean.">
 </div>
 
 ## Contents
