@@ -23,8 +23,10 @@ PyPI Trusted Publishing lets the release workflow publish without a stored token
 2. Under the project's publishing settings, add a GitHub publisher: owner `jv-k`, repo
    `deslopper`, workflow `release.yml`, environment `pypi`.
 
-For Homebrew, create the tap repo `jv-k/homebrew-tap` once. Each release, a maintainer
-copies `packaging/homebrew/deslopper.rb` into it, as described under After publishing.
+For Homebrew, create the tap repo `jv-k/homebrew-tap` with `Formula/deslopper.rb` once.
+Then add a fine-grained token with Contents read and write on that repo alone as the
+`HOMEBREW_TAP_TOKEN` repository secret. Each release, `release.yml` rewrites the formula's
+`url` and `sha256` for the new tag and pushes it to the tap.
 
 ## Cut a release
 
@@ -57,8 +59,8 @@ The gates in steps 1 and 3 are VerBump's own hooks, `PRE_BUMP_CMD` and `POST_TAG
    and the tests.
 4. VerBump pushes the commit and tag to `origin` (`-p origin`, so there is no prompt to
    decline) and writes the GitHub release with `gh release create --generate-notes`
-   (`--release`). The tag triggers `release.yml`, which repeats the gates and publishes to
-   PyPI.
+   (`--release`). The tag triggers `release.yml`, which repeats the gates, publishes to
+   PyPI, and bumps the Homebrew tap.
 
 Any runner works in place of `pnpm`: `npm run bump-release`, or the command itself.
 
@@ -73,10 +75,14 @@ and `git push origin :refs/tags/vX.Y.Z`, fix the problem, commit, and re-cut the
 version with `verbump -c -v X.Y.Z`. If it fails during or after the upload, PyPI will not
 accept the same version a second time: bump a new patch version and release that instead.
 
+If only a publish job failed, for example because a secret was missing, fix the cause and
+run the release again for the same tag. Within 30 days of the run, re-run its failed jobs
+from the Actions tab. After that, GitHub refuses the re-run, so dispatch the workflow by
+hand: `gh workflow run release.yml -f tag=vX.Y.Z`. A dispatched run checks out the tag,
+skips a version PyPI already holds, and leaves a tap that is already current alone.
+
 ## After publishing
 
-- Update the Homebrew formula: set the new `url` and `sha256` from the published sdist in
-  `packaging/homebrew/deslopper.rb` (the source of truth), then copy it into the tap as
-  `Formula/deslopper.rb`, by hand or with `brew bump-formula-pr`.
+- Check that the tap moved: `Formula/deslopper.rb` in `jv-k/homebrew-tap` names the new tag.
 - Move consumers off the git ref. In a repo that pins `uvx --from git+...@main`, change it to
   `uvx deslopper@X.Y.Z`.

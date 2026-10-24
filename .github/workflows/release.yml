@@ -2,15 +2,26 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # Re-runs the release for an existing tag, once GitHub's 30-day re-run window has closed.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release, e.g. v1.4.0"
+        required: true
 
 permissions:
   contents: read
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.TAG }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -22,7 +33,7 @@ jobs:
           AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
       - name: Verify the tag matches the package version
         run: |
-          tag="${GITHUB_REF_NAME#v}"
+          tag="${TAG#v}"
           ver="$(python -c 'import deslopper; print(deslopper.__version__)')"
           test "$tag" = "$ver" || { echo "tag $tag != version $ver"; exit 1; }
 
@@ -34,12 +45,17 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.TAG }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install build
       - run: python -m build
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # A dispatched re-run must not fail on a version PyPI already holds.
+          skip-existing: true
 
   # Independent of publish-pypi on purpose: a PyPI failure must not block the tap.
   bump-homebrew-formula:
@@ -49,7 +65,7 @@ jobs:
       - name: Compute the tag tarball checksum
         id: tarball
         run: |
-          url="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz"
+          url="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${TAG}.tar.gz"
           sha="$(curl -fsSL "$url" | shasum -a 256 | cut -d' ' -f1)"
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "sha256=$sha" >> "$GITHUB_OUTPUT"
@@ -69,11 +85,11 @@ jobs:
           grep -qF "url \"${TARBALL_URL}\"" Formula/deslopper.rb
           grep -qF "sha256 \"${TARBALL_SHA256}\"" Formula/deslopper.rb
           if git diff --quiet; then
-            echo "Formula already at ${GITHUB_REF_NAME}, nothing to push"
+            echo "Formula already at ${TAG}, nothing to push"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Formula/deslopper.rb
-          git commit -m "chore(formula): bump deslopper to ${GITHUB_REF_NAME}"
+          git commit -m "chore(formula): bump deslopper to ${TAG}"
           git push
