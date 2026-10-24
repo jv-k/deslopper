@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from deslopper import gum
 from deslopper.findings import Finding, LintResult
 from decimal import Decimal
 
@@ -57,6 +58,23 @@ def test_summary_line():
     assert summary_line(LintResult(), False) == "✔ no slop found"
     warn_only = LintResult(findings=[Finding("a.md", 1, 1, "warn", "x", "m")])
     assert summary_line(warn_only, False) == "! 0 error(s), 1 warning(s)"
+
+
+def test_summary_line_adds_what_the_cache_saved_to_the_triage_tail():
+    result = annotated()
+    judged = Triage(result=result, tokens=0, cost=Decimal(0), cached=2,
+                    saved_tokens=1577, saved_cost=Decimal("0.000066"))
+    assert summary_line(result, False, judged).endswith(
+        ", 2 cached · 0 tokens, $0 · saved 1577 tokens, $0.000066")
+    # Nothing recorded, nothing claimed.
+    judged = Triage(result=result, cached=2)
+    assert "saved" not in summary_line(result, False, judged)
+
+
+def test_format_json_reports_what_the_cache_saved():
+    judged = Triage(result=annotated(), cached=1, saved_tokens=40, saved_cost=Decimal("0.0000015"))
+    payload = json.loads(format_json(annotated(), judged))["jev"]
+    assert (payload["saved_tokens"], payload["saved_cost"]) == (40, "0.0000015")
 
 
 def test_exit_code():
@@ -167,7 +185,14 @@ def test_json_output_validates_with_and_without_verdicts():
 
 
 def _text(lines):
-    return ["".join(text for _style, text in line) for line in lines]
+    return gum.plain(lines).split("\n")[:-1]
+
+
+def _table(lines):
+    """The view's summary table, as {label: value}."""
+    table = next(line for line in lines if isinstance(line, gum.Table))
+    return {"".join(t for _s, t in label): "".join(t for _s, t in value)
+            for label, value in table.rows}
 
 
 def _view_sample():
@@ -204,6 +229,14 @@ def test_lint_view_groups_each_tell_under_its_file_with_a_caret_per_place():
         "  " + "─" * 56,
         "  ✖ 1 error   ! 2 warnings",
         "",
+        "  ╭──────────┬─────────────╮",
+        "  │ summary  │             │",
+        "  ├──────────┼─────────────┤",
+        "  │ findings │ 3 in 1 file │",
+        "  │ errors   │ 1           │",
+        "  │ warnings │ 2           │",
+        "  ╰──────────┴─────────────╯",
+        "",
     ]
 
 
@@ -233,21 +266,53 @@ def test_lint_view_leads_each_row_with_jev_rating():
     assert rows[1] == "      ❚❚❚❚❚ 0.71 rewrite  2:2  c; d"
     # A place Jev did not answer is padded, so the columns still line up.
     assert rows[2] == "      " + " " * 20 + "3:2  e; f"
-    assert "  Jev 1 rewrite  ·  1 keep  ·  1,577 tokens  ·  $0.000066" in text
+    assert _table(lint_view(result, sources, linted=1, width=80, judged=judged)) == {
+        "findings": "3 in 1 file", "errors": "1", "warnings": "2",
+        "rewrite": "1", "keep": "1", "cached": "0 of 2", "tokens": "1,577", "cost": "$0.000066",
+    }
 
 
-def test_lint_view_counts_the_cached_answers_beside_the_spend():
+def test_lint_view_counts_the_cached_answers_and_what_they_saved():
     result, sources = _view_sample()
-    judged = Triage(result=result, tokens=120, cost=Decimal("0.00001"), cached=3)
-    text = _text(lint_view(result, sources, linted=1, width=100, judged=judged))
-    assert any(line.endswith("120 tokens  ·  $0.00001  ·  3 cached") for line in text)
+    judged = Triage(result=result, tokens=120, cost=Decimal("0.00001"), cached=3,
+                    saved_tokens=2400, saved_cost=Decimal("0.000090"))
+    table = _table(lint_view(result, sources, linted=1, width=100, judged=judged))
+    assert table["saved"] == "2,400 tokens, $0.00009"
+
+
+def test_lint_view_says_when_the_cache_kept_no_record_of_its_saving():
+    result, sources = _view_sample()
+    judged = Triage(result=result, cached=2)
+    assert _table(lint_view(result, sources, linted=1, width=80, judged=judged))["saved"] == \
+        "not recorded"
+
+
+def test_lint_view_leaves_out_the_saving_when_nothing_was_cached():
+    result, sources = _view_sample()
+    judged = Triage(result=result, tokens=10, cost=Decimal("0.00001"))
+    assert "saved" not in _table(lint_view(result, sources, linted=1, width=80, judged=judged))
 
 
 def test_lint_view_shows_the_cost_without_trailing_zeros():
     result, sources = _view_sample()
     judged = Triage(result=result, tokens=3820, cost=Decimal("0.000140700"))
-    text = _text(lint_view(result, sources, linted=1, width=80, judged=judged))
-    assert any(line.endswith("3,820 tokens  ·  $0.0001407") for line in text)
+    table = _table(lint_view(result, sources, linted=1, width=80, judged=judged))
+    assert (table["tokens"], table["cost"]) == ("3,820", "$0.0001407")
+
+
+def test_lint_view_counts_unreadable_files_in_the_table():
+    result, sources = _view_sample()
+    result.unreadable.append("gone.md")
+    assert _table(lint_view(result, sources, linted=2, width=80))["unreadable"] == "1"
+
+
+def test_lint_view_styles_the_table():
+    result, sources = _view_sample()
+    lines = lint_view(result, sources, linted=3, width=60)
+    table = next(line for line in lines if isinstance(line, gum.Table))
+    assert table.rows[0] == [[("muted", "findings")], [("bold", "3 in 1 file")]]
+    assert table.rows[1][1] == [("error", "1")]
+    assert table.rows[2][1] == [("warn", "2")]
 
 
 def test_lint_view_puts_a_failed_jev_request_and_an_unreadable_file_in_the_footer():

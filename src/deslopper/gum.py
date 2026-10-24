@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 from contextlib import contextmanager
+from dataclasses import dataclass
 
 HINT = "styled output needs gum (brew install gum)"
 
@@ -121,15 +122,68 @@ def _part(style: str, text: str) -> str:
     return "{{ %s }}" % call
 
 
-def render(lines):
-    """A view, a list of lines of (style, text) parts, drawn by gum in one call, or None
-    when gum cannot draw it."""
-    template = "\n".join("".join(_part(s, t) for s, t in line) for line in lines) + "\n"
-    drawn = _run(["format", "--type", "template"], template)
+# The line render puts before and after a view, for gum to trim instead of the view.
+_MARK = "{{ \"|\" }}"
+
+
+@dataclass
+class Table:
+    """A bordered table in a view, drawn by gum table. `columns` names the header
+    cells, and each row is a list of cells, each a list of (style, text) parts like a
+    line's. gum draws the first row in bold, as it draws a selection, so a caller puts
+    the row that leads first."""
+
+    columns: list
+    rows: list
+    indent: int = 2
+
+
+def _template(line) -> list:
+    """A view line as template lines: one for a line of parts, one per row for a table,
+    its cells split by tabs."""
+    if isinstance(line, Table):
+        return ["\t".join("".join(_part(s, t) for s, t in cell) for cell in row)
+                for row in line.rows]
+    return ["".join(_part(s, t) for s, t in line)]
+
+
+def _table(table: Table, cells: list):
+    """`table` drawn by gum table from its styled rows, indented, or None."""
+    drawn = _run(["table", "--print", "--separator", "\t", "--columns",
+                  ",".join(c or " " for c in table.columns), "--border", "rounded",
+                  "--border.foreground", PALETTE["rule"], "--lazy-quotes"],
+                 "".join(row + "\n" for row in cells))
     if drawn is None:
         return None
-    # gum drops the last newline, so put it back.
-    return drawn.rstrip("\n") + "\n"
+    return [" " * table.indent + row for row in drawn.rstrip("\n").split("\n")]
+
+
+def render(lines):
+    """A view, a list of lines of (style, text) parts and tables, drawn by gum, or None
+    when gum cannot draw it. One format call styles every line and table cell; each
+    table adds one gum table call."""
+    templates = [_template(line) for line in lines]
+    # gum trims the whitespace around what it draws, blank lines included, which would
+    # shift a table's rows. A marker line on each side keeps every line in its place.
+    drawn = _run(["format", "--type", "template"], "\n".join(
+        [_MARK] + [t for group in templates for t in group] + [_MARK]) + "\n")
+    if drawn is None:
+        return None
+    styled = drawn.split("\n")
+    if len(styled) != 2 + sum(len(group) for group in templates):
+        return None
+    styled = styled[1:-1]
+    out = []
+    for line, group in zip(lines, templates):
+        rows, styled = styled[:len(group)], styled[len(group):]
+        if isinstance(line, Table):
+            rows = _table(line, rows)
+            if rows is None:
+                return None
+        out += rows
+    # Trim the view as gum trims a drawing, so a view looks the same with or without
+    # a table, then put back the last newline gum drops.
+    return "\n".join(out).strip() + "\n"
 
 
 @contextmanager
@@ -171,9 +225,32 @@ def spin(title, stream=None):
             spinner.wait()
 
 
+def _plain_table(table: Table) -> list:
+    """`table` as the same rounded box gum draws, in plain text."""
+    grid = [list(table.columns)] + [["".join(t for _s, t in cell) for cell in row]
+                                    for row in table.rows]
+    widths = [max(len(row[i]) for row in grid) for i in range(len(table.columns))]
+
+    def edge(left, mid, right):
+        return left + mid.join("─" * (w + 2) for w in widths) + right
+
+    def row(cells):
+        return "│" + "│".join(f" {c.ljust(w)} " for c, w in zip(cells, widths)) + "│"
+
+    out = [edge("╭", "┬", "╮"), row(grid[0]), edge("├", "┼", "┤")]
+    out += [row(cells) for cells in grid[1:]] + [edge("╰", "┴", "╯")]
+    return [" " * table.indent + line for line in out]
+
+
 def plain(lines) -> str:
-    """A view as plain text: every part's text, no styling."""
-    return "".join("".join(text for _style, text in line) + "\n" for line in lines)
+    """A view as plain text: every part's text, no styling, and each table as a box."""
+    out = []
+    for line in lines:
+        if isinstance(line, Table):
+            out += _plain_table(line)
+        else:
+            out.append("".join(text for _style, text in line))
+    return "".join(line + "\n" for line in out)
 
 
 def write(lines, stream=None) -> None:

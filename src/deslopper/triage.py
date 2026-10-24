@@ -7,7 +7,9 @@ annotation, and the scan stays the gate.
 
 With a cache, a finding Jev answered before is not asked about again while its
 tell, message, column and the lines around it are unchanged. The line number is
-left out of the key, so a finding that only moved down the file still hits.
+left out of the key, so a finding that only moved down the file still hits. Each
+stored verdict keeps its share of the request that answered it, so a hit can count
+what it saved.
 """
 
 from contextlib import nullcontext
@@ -43,14 +45,16 @@ CACHE_VERSION = 1
 @dataclass
 class Triage:
     """What a triage pass came back with: the judged result, one error line per
-    request that failed or came back garbled, what the run spent, and how many
-    verdicts came from the cache."""
+    request that failed or came back garbled, what the run spent, how many verdicts
+    came from the cache, and what those verdicts cost when Jev first gave them."""
 
     result: LintResult
     errors: list = field(default_factory=list)
     tokens: int = 0
     cost: Decimal = Decimal(0)
     cached: int = 0
+    saved_tokens: int = 0
+    saved_cost: Decimal = Decimal(0)
 
 
 def _block(key, finding, lines) -> str:
@@ -79,16 +83,32 @@ def _cache_key(finding, lines):
 
 
 def _recall(cache, key, finding):
-    """The finding with its cached verdict, or None on a miss or an entry Finding rejects."""
+    """The cache entry for `finding`, as the finding with its verdict and the share of
+    tokens and cost it saved, or None on a miss or an entry Finding rejects. An entry
+    with no share, or a garbled one, saved nothing that can be counted."""
     if cache is None or key is None:
         return None
     entry = cache.get(key)
     if not isinstance(entry, dict):
         return None
     try:
-        return replace(finding, verdict=entry.get("verdict"), probability=entry.get("probability"))
+        hit = replace(finding, verdict=entry.get("verdict"), probability=entry.get("probability"))
     except (ValueError, TypeError):
         return None
+    tokens = entry.get("tokens")
+    if isinstance(tokens, bool) or not isinstance(tokens, int) or tokens < 0:
+        tokens = 0
+    cost = _decimal(entry.get("cost"))
+    return hit, tokens, cost if cost.is_finite() and cost >= 0 else Decimal(0)
+
+
+def _shares(tokens: int, cost: Decimal, count: int) -> list:
+    """One request's spend split evenly over its `count` findings, as (tokens, cost)
+    pairs. The token remainder goes to the first shares, so the shares add up to the
+    request. The cost is cut to the nano-dollar, finer than the gateway reports."""
+    base, extra = divmod(tokens, count)
+    each = (cost / count).quantize(Decimal("1e-9"))
+    return [(base + (i < extra), each) for i in range(count)]
 
 
 def _lines(text: str) -> list:
@@ -139,6 +159,8 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
     tokens = 0
     cost = Decimal(0)
     cached = 0
+    saved_tokens = 0
+    saved_cost = Decimal(0)
     by_file = {}
     for index, finding in enumerate(result.findings):
         by_file.setdefault(finding.path, []).append(index)
@@ -151,8 +173,10 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
             if hit is None:
                 asking.setdefault(path, (lines, []))[1].append((index, key))
             else:
-                judged[index] = hit
+                judged[index], hit_tokens, hit_cost = hit
                 cached += 1
+                saved_tokens += hit_tokens
+                saved_cost += hit_cost
     for number, (path, (lines, pending)) in enumerate(asking.items(), 1):
         keyed = {f"f{n}": item for n, item in enumerate(pending, 1)}
         state = "\n\n".join([FRAMING] + [
@@ -173,10 +197,13 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
             # unjudged and the next file is still asked.
             errors.append(f"{path}: {exc}")
             continue
-        tokens += (reply.input_tokens or 0) + (reply.output_tokens or 0)
-        cost += _decimal(reply.market_cost)
+        spent = (reply.input_tokens or 0) + (reply.output_tokens or 0)
+        price = _decimal(reply.market_cost)
+        tokens += spent
+        cost += price
         unusable = 0
-        for key, (index, cache_key) in keyed.items():
+        shares = _shares(spent, price, len(keyed))
+        for (key, (index, cache_key)), (share_tokens, share_cost) in zip(keyed.items(), shares):
             finding = _judge(result.findings[index], reply.answers.get(key))
             if finding is None:
                 unusable += 1
@@ -184,7 +211,8 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
             judged[index] = finding
             if cache is not None and cache_key is not None:
                 cache.put(cache_key, {"verdict": finding.verdict,
-                                      "probability": finding.probability})
+                                      "probability": finding.probability,
+                                      "tokens": share_tokens, "cost": f"{share_cost:f}"})
         if unusable:
             errors.append(
                 f"{path}: the reply had no usable answer for {unusable} of {len(keyed)} findings"
@@ -195,4 +223,6 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
         tokens=tokens,
         cost=cost,
         cached=cached,
+        saved_tokens=saved_tokens,
+        saved_cost=saved_cost,
     )

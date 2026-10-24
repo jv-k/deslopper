@@ -34,11 +34,13 @@
     "jev": {
       "description": "Present only when the run used --jev.",
       "type": "object",
-      "required": ["keep", "rewrite", "cached", "tokens", "cost", "errors"],
+      "required": ["keep", "rewrite", "cached", "saved_tokens", "saved_cost", "tokens", "cost", "errors"],
       "properties": {
         "keep": { "type": "integer" },
         "rewrite": { "type": "integer" },
         "cached": { "type": "integer", "description": "How many verdicts came from the local cache, not a new request." },
+        "saved_tokens": { "type": "integer", "description": "The tokens the cached verdicts cost when Jev first gave them. A verdict cached before 1.7.0 counts none." },
+        "saved_cost": { "type": "string", "description": "The cost of the cached verdicts when Jev first gave them, in US dollars, as a decimal string." },
         "tokens": { "type": "integer" },
         "cost": { "type": "string", "description": "The gateway cost in US dollars, as a decimal string." },
         "errors": {
