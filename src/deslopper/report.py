@@ -6,39 +6,235 @@ from . import tiers, ui
 from .findings import Finding
 
 
-def tier_style(pal, tier):
-    return pal.error if tier == "error" else pal.warn
-
-
-def _verdict_suffix(f: Finding, pal=ui.PLAIN) -> str:
-    """The ` [keep 0.93]` tail a judged finding carries, or nothing for an unjudged one.
-    Styled, the probability leads the line as a rating bar instead, and only the verdict
-    stays in the tail; piped output keeps the number so the grammar stays pinned."""
+def _verdict_suffix(f: Finding) -> str:
+    """The ` [keep 0.93]` tail a judged finding carries, or nothing for an unjudged one."""
     if f.verdict is None:
         return ""
-    if pal.enabled:
-        return f" [{f.verdict}]"
     return f" [{f.verdict} {f.probability:.2f}]"
 
 
-def _rating_prefix(f: Finding, pal) -> str:
-    """The bar that leads a judged line, or blank padding of the same width so the paths
-    of a run's unjudged findings still line up."""
-    if f.verdict is None:
-        return " " * (ui.BAR_SLOTS + 1)
-    return f"{ui.rating_bar(pal, f.probability)} "
+# The attended view is data: a list of lines, each a list of (style, text) parts, which
+# gum.render draws in one call. A style is space-separated tokens: bold, faint, pill, and
+# the palette's colour names (accent, error, warn, ok, muted, rule). "" is plain text.
+
+BAR_SLOTS = 5
+I_BAR = "❚"
+I_CARET = "^"
+# The rating that leads a judged row: the bar, " 0.93 ", and the verdict padded to "rewrite".
+_RATING_WIDTH = BAR_SLOTS + 6 + 7
+# Below this width the rating drops its probability: the bar and the verdict.
+_COMPACT_BELOW = 64
+_HINT_INDENT = 4
+_ROW_INDENT = 6
 
 
-def format_text(result, pal=ui.PLAIN) -> str:
-    # With the plain palette every sequence is empty, so the line collapses to
-    # the pinned `path:line:col [tier] name: message` grammar byte for byte.
-    # The rating column appears only styled, and only once something was judged.
-    rated = pal.enabled and any(f.verdict is not None for f in result.findings)
+def _plural(n: int, word: str) -> str:
+    return f"{n} {word}" if n == 1 else f"{n} {word}s"
+
+
+def _tier_style(tier: str) -> str:
+    return "error" if tier == "error" else "warn"
+
+
+def _tier_mark(tier: str) -> tuple:
+    return (_tier_style(tier), ui.I_ERROR if tier == "error" else ui.I_WARN)
+
+
+def caught(text: str, col: int) -> str:
+    """The text a tell caught at `col`: up to the next space, without trailing
+    punctuation unless the punctuation is all there is, at most 24 characters."""
+    rest = text[col - 1:]
+    end = rest.find(" ")
+    word = rest if end == -1 else rest[:end]
+    word = word.rstrip(".,;:!?\"')") or word
+    return word[:24] or rest[:1]
+
+
+def excerpt(text: str, col: int, room: int) -> tuple:
+    """The line around the caught text, cut to fit `room`: (before, caught, after).
+
+    The caught text always shows. A cut side ends in an ellipsis, and the text after
+    the catch gets the larger share, because it reads on from the tell."""
+    word = caught(text, col)[:max(room - 2, 1)]
+    before = text[:col - 1]
+    after = text[col - 1 + len(word):]
+    if len(before) + len(word) + len(after) <= room:
+        return before, word, after
+    keep_before = min(len(before), max((room - len(word)) // 3, room - len(word) - len(after)))
+    if len(before) > keep_before:
+        before = ("…" + before[len(before) - keep_before + 1:]) if keep_before > 0 else ""
+    space = room - len(before) - len(word)
+    if len(after) > space:
+        after = (after[:space - 1] + "…") if space > 0 else ""
+    return before, word, after
+
+
+def _rating_parts(f: Finding, compact: bool) -> list:
+    """Jev's rating: a five-slot bar in the confidence colour (ok from 0.9, warn from
+    0.7, error below), then the probability, then the verdict. Compact drops the
+    probability."""
+    filled = round(f.probability * BAR_SLOTS)
+    style = "ok" if f.probability >= 0.9 else "warn" if f.probability >= 0.7 else "error"
+    parts = [(style, I_BAR * filled)]
+    if filled < BAR_SLOTS:
+        parts.append(("rule", I_BAR * (BAR_SLOTS - filled)))
+    parts.append(("", " " if compact else f" {f.probability:.2f} "))
+    parts.append(("bold" if f.verdict == "rewrite" else "faint", f.verdict))
+    parts.append(("", " " * (7 - len(f.verdict))))
+    return parts
+
+
+def _right(left: list, right: list, width: int) -> list:
+    """`left`, then `right` pushed to end at `width`, with at least two spaces between."""
+    used = sum(len(t) for _s, t in left) + sum(len(t) for _s, t in right)
+    return left + [("", " " * max(width - used, 2))] + right
+
+
+def _header(command: str, linted: int, with_slop: int, width: int) -> list:
+    left = [("", "  "), ("pill", " deslopper "), ("", " "), ("bold", command)]
+    right = [("faint", f"{_plural(linted, 'file')}, {with_slop} with slop")]
+    # Everything on the right ends where the rules end, two columns in from the edge.
+    return [[], _right(left, right, width - 2), []]
+
+
+def _tally(errors: int, warnings: int) -> list:
+    parts = []
+    if errors:
+        parts.append(("error", _plural(errors, "error")))
+    if warnings:
+        parts += [("", "  ")] if parts else []
+        parts.append(("warn", _plural(warnings, "warning")))
+    return parts
+
+
+def _rule(width: int) -> list:
+    return [("", "  "), ("rule", "─" * (width - 4))]
+
+
+def _group_lines(group: list, lines: list, loc_w: int, width: int, rated: bool) -> list:
+    """One tell in one file: its name and count, its hint once, then a row per place
+    with the caught text in its line and a caret under the first letter."""
+    first = group[0]
+    style = _tier_style(first.tier)
+    head = [("", "  "), _tier_mark(first.tier), ("", " "), (f"bold {style}", first.name)]
+    if len(group) > 1:
+        head.append(("faint", f"  ×{len(group)}"))
+    out = [head]
+    for part in ui.wrap(width - _HINT_INDENT - 2, first.message):
+        out.append([("", " " * _HINT_INDENT), ("muted", part)])
+    compact = width < _COMPACT_BELOW
+    lead_w = (_RATING_WIDTH - (5 if compact else 0) + 2) if rated else 0
+    for f in group:
+        row = [("", " " * _ROW_INDENT)]
+        if rated:
+            row += (_rating_parts(f, compact) + [("", "  ")] if f.verdict
+                    else [("", " " * lead_w)])
+        row.append(("faint", f"{f.line}:{f.col}".rjust(loc_w) + "  "))
+        text = lines[f.line - 1] if 0 < f.line <= len(lines) else ""
+        prefix = _ROW_INDENT + lead_w + loc_w + 2
+        before, word, after = excerpt(text, f.col, max(width - prefix - 2, 8))
+        row += [("muted", before), (f"bold {style}", word), ("muted", after)]
+        out.append([p for p in row if p[1]])
+        out.append([("", " " * (prefix + len(before))), (style, I_CARET)])
+    return out
+
+
+def lint_view(result, sources: dict, linted: int, width: int, judged=None,
+              strict: bool = False, command: str = "lint") -> list:
+    """The attended view of a lint run: a header, then a section per file with each
+    tell grouped once under it, then the totals.
+
+    `sources` maps a finding's path to the file's text, for the excerpts. `judged` is
+    the Triage a --jev run returned; it adds the rating to each row and Jev's totals and
+    failed requests to the footer."""
+    findings = result.findings
+    files = {}
+    for f in findings:
+        files.setdefault(f.path, []).append(f)
+    out = _header(command, linted, len(files), width)
+    tag = [("faint", "  [strict]")] if strict else []
+    if not findings and not result.unreadable:
+        return out + [[("", "  "), ("ok", f"{ui.I_OK} "), ("bold ok", "no slop found")] + tag, []]
+    rated = any(f.verdict is not None for f in findings)
+    loc_w = max((len(f"{f.line}:{f.col}") for f in findings), default=0)
+    for path, fs in files.items():
+        errors = sum(f.tier == "error" for f in fs)
+        out.append(_right([("", "  "), ("bold accent", path)], _tally(errors, len(fs) - errors), width - 2))
+        out.append(_rule(width))
+        lines = _lines(sources.get(path, ""))
+        groups = {}
+        for f in fs:
+            groups.setdefault(f.name, []).append(f)
+        ordered = sorted(groups.values(), key=lambda g: (g[0].tier != "error", g[0].line, g[0].col))
+        for i, group in enumerate(ordered):
+            if i:
+                out.append([])
+            out += _group_lines(group, lines, loc_w, width, rated)
+        out.append([])
+    out.append(_rule(width))
+    for path in result.unreadable:
+        out.append([("", "  "), ("warn", f"{ui.I_TRACE} cannot read {path}")])
+    for error in judged.errors if judged else ():
+        out.append([("", "  "), ("error", f"{ui.I_ERROR} Jev skipped {error}")])
+    status = ([("error", f"{ui.I_ERROR} "), ("bold error", _plural(result.errors, "error"))]
+              if result.errors else [("ok", f"{ui.I_OK} "), ("bold ok", "no errors")])
+    if result.warnings:
+        status += [("", "   "), ("warn", f"{ui.I_WARN} "), ("bold warn", _plural(result.warnings, "warning"))]
+    out.append([("", "  ")] + status + tag)
+    if judged is not None:
+        out += _jev_lines(result, judged, width)
+    return out + [[]]
+
+
+def _jev_lines(result, judged, width: int) -> list:
+    """Jev's totals: the verdicts, then the tokens and cost, on a second line when narrow."""
+    verdicts = [("", "  "), ("accent", "Jev "), ("", f"{result.rewrite} rewrite"),
+                ("faint", "  ·  "), ("", f"{result.keep} keep")]
+    # The gateway's cost can carry trailing zeros; normalize drops them.
+    spend = f"{judged.tokens:,} tokens  ·  ${judged.cost.normalize():f}"
+    if sum(len(t) for _s, t in verdicts) + 5 + len(spend) <= width - 2:
+        return [verdicts + [("faint", "  ·  " + spend)]]
+    return [verdicts, [("", "      "), ("faint", spend)]]
+
+
+def _lines(text: str) -> list:
+    """The file's lines, numbered as the engine numbers them."""
+    lines = text.split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()
+    return lines
+
+
+def rule_lines(tells, width: int) -> list:
+    """The attended rules view: one aligned row per tell, the message after it, or
+    below it when the terminal is too narrow for a column."""
+    name_w = max(len(t.name) for t in tells)
+    phase_w = max(len(t.phase) for t in tells)
+    scope_w = max(len(t.scope) for t in tells)
+    column = 2 + name_w + 2 + 9 + phase_w + 1 + scope_w + 2
+    room = width - column
+    out = []
+    for t in tells:
+        style = _tier_style(t.tier)
+        row = [("", "  "), ("bold", t.name), ("", " " * (name_w - len(t.name) + 2)),
+               (style, f"{ui.I_ERROR} error" if t.tier == "error" else f"{ui.I_WARN} warn"),
+               ("", "  " if t.tier == "error" else "   "),
+               ("faint", t.phase.ljust(phase_w) + " " + t.scope.ljust(scope_w)), ("", "  ")]
+        if room >= 20:
+            parts = ui.wrap(room, t.message) or [""]
+            out.append(row + [("", parts[0])])
+            out += [[("", " " * column), ("", part)] for part in parts[1:]]
+        else:
+            out.append(row[:-1])
+            out += [[("", "      "), ("", part)] for part in ui.wrap(max(width - 8, 20), t.message)]
+    return out
+
+
+def format_text(result) -> str:
+    """One `path:line:col [tier] name: message` line per finding, the pinned grammar,
+    with the ` [keep 0.93]` tail on a judged finding."""
     lines = [
-        f"{_rating_prefix(f, pal) if rated else ''}"
-        f"{pal.bold}{f.path}{pal.reset}:{f.line}:{f.col} "
-        f"{tier_style(pal, f.tier)}[{f.tier}]{pal.reset} "
-        f"{f.name}: {pal.dim}{f.message}{pal.reset}{_verdict_suffix(f, pal)}"
+        f"{f.path}:{f.line}:{f.col} [{f.tier}] {f.name}: {f.message}{_verdict_suffix(f)}"
         for f in result.findings
     ]
     return "\n".join(lines) + ("\n" if lines else "")
@@ -74,7 +270,9 @@ def _finding_json(f: Finding) -> dict:
     return item
 
 
-def format_json(result) -> str:
+def format_json(result, judged=None) -> str:
+    """The json payload. `judged` is the Triage a --jev run returned, which adds the
+    `jev` object with its totals and the requests that failed."""
     payload = {
         "findings": [_finding_json(f) for f in result.findings],
         "unreadable": list(result.unreadable),
@@ -84,6 +282,14 @@ def format_json(result) -> str:
             "unreadable": len(result.unreadable),
         },
     }
+    if judged is not None:
+        payload["jev"] = {
+            "keep": result.keep,
+            "rewrite": result.rewrite,
+            "tokens": judged.tokens,
+            "cost": f"{judged.cost:f}",
+            "errors": list(judged.errors),
+        }
     return json.dumps(payload, indent=2) + "\n"
 
 
@@ -97,18 +303,18 @@ def _triage_tail(result, judged) -> str:
             f" · {judged.tokens} tokens, ${judged.cost:f}")
 
 
-def summary_line(result, strict: bool, pal=ui.PLAIN, judged=None) -> str:
+def summary_line(result, strict: bool, judged=None) -> str:
+    """The run's one summary line, with its status icon."""
     tag = " [strict]" if strict else ""
     unreadable = len(result.unreadable)
     if not result.findings and not unreadable:
-        return ui.status_line(pal, pal.ok, ui.I_OK, f"no slop found{tag}")
+        return f"{ui.I_OK} no slop found{tag}"
     counts = f"{result.errors} error(s), {result.warnings} warning(s)"
     if unreadable:
         counts += f", {unreadable} unreadable"
     counts += _triage_tail(result, judged)
-    if result.errors or unreadable:
-        return ui.status_line(pal, pal.error, ui.I_ERROR, f"{counts}{tag}")
-    return ui.status_line(pal, pal.warn, ui.I_WARN, f"{counts}{tag}")
+    icon = ui.I_ERROR if result.errors or unreadable else ui.I_WARN
+    return f"{icon} {counts}{tag}"
 
 
 def exit_code(result, strict: bool) -> int:

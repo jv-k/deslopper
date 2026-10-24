@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.5.0
+
+- On a terminal with [gum](https://github.com/charmbracelet/gum), `lint` and `check` draw
+  one view: a header, a section per file, each tell once with its fix, then every place it
+  fired, with the line, the caught words highlighted, and a caret under them. With `--jev`,
+  each place starts with Jev's rating, and a spinner names each file while Jev reads it.
+  Without gum, a terminal gets the plain output and one install hint. Piped, `github`, and
+  `json` output are unchanged.
+- `--jev` replaces `--triage`, which still works as a hidden alias.
+- `--format json` writes only its payload. With `--jev`, a `jev` object carries the totals
+  and any failed requests, and the output schema describes it.
+- A folder argument, such as `deslopper lint docs/`, lints the files a bare run would lint
+  in that folder. It used to report the folder as unreadable.
+- Findings on one line list in column order.
+- The README calls deslopper "A slop linter for Markdown", and adds a contents list, a
+  guide to fixing slop with an LLM, and install steps that work while the package is not
+  on PyPI.
+- The release workflow can run for an existing tag (`gh workflow run release.yml -f
+  tag=vX.Y.Z`), and the Homebrew tap now follows each release.
+
 ## 0.2.0 (2026-07-17)
 
 Carries everything that was staged for 0.1.2, which was bumped but never tagged.

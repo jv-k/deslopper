@@ -66,6 +66,56 @@ def test_resolve_inputs_path_outside_root_shows_absolute_not_dotdot(tmp_path):
     assert read == target
 
 
+def test_resolve_inputs_directory_expands_to_the_discovered_files_under_it(tmp_path):
+    # A directory stands for what a bare run would lint beneath it: include and exclude
+    # apply, and the display paths stay relative to root.
+    make_files(str(tmp_path), ["top.md", "docs/a.md", "docs/deep/b.mdx", "docs/c.txt",
+                               "docs/node_modules/d.md", "other/e.md"])
+    items = resolve_inputs(["docs"], str(tmp_path), str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    assert items == [
+        ("docs/a.md", os.path.join(str(tmp_path), "docs/a.md")),
+        ("docs/deep/b.mdx", os.path.join(str(tmp_path), "docs/deep/b.mdx")),
+    ]
+
+
+def test_resolve_inputs_directory_honours_config_excludes(tmp_path):
+    make_files(str(tmp_path), ["docs/a.md", "docs/old/b.md"])
+    items = resolve_inputs(["docs/"], str(tmp_path), str(tmp_path), DEFAULT_INCLUDE, ["docs/old/**"])
+    assert [display for display, _ in items] == ["docs/a.md"]
+
+
+def test_resolve_inputs_dot_is_the_whole_root(tmp_path):
+    make_files(str(tmp_path), ["a.md", "docs/b.md"])
+    items = resolve_inputs(["."], str(tmp_path), str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    assert [display for display, _ in items] == ["a.md", "docs/b.md"]
+
+
+def test_resolve_inputs_directory_outside_root_shows_absolute_paths(tmp_path):
+    root = tmp_path / "proj"
+    root.mkdir()
+    make_files(str(tmp_path), ["outside/x.md"])
+    target = str(tmp_path / "outside")
+    items = resolve_inputs([target], str(root), str(root), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    expected = os.path.join(target, "x.md")
+    assert items == [(expected.replace(os.sep, "/"), expected)]
+
+
+def test_resolve_inputs_lists_a_file_once_when_arguments_overlap(tmp_path):
+    # `lint . docs docs/a.md` names docs/a.md three ways; it is linted once, where it
+    # first appears.
+    make_files(str(tmp_path), ["top.md", "docs/a.md"])
+    items = resolve_inputs([".", "docs", "docs/a.md"], str(tmp_path), str(tmp_path),
+                           DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    assert [display for display, _ in items] == ["docs/a.md", "top.md"]
+
+
+def test_resolve_inputs_follows_a_symlinked_directory(tmp_path):
+    make_files(str(tmp_path), ["docs/a.md"])
+    os.symlink(str(tmp_path / "docs"), str(tmp_path / "docs-link"))
+    items = resolve_inputs(["docs-link"], str(tmp_path), str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    assert items == [("docs/a.md", os.path.join(str(tmp_path), "docs/a.md"))]
+
+
 def test_discover_files_includes_mdx(tmp_path):
     make_files(str(tmp_path), ["a.md", "b.mdx", "docs/c.mdx", "d.txt"])
     found = discover_files(str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)

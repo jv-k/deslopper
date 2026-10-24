@@ -30,6 +30,22 @@
         "warnings": { "type": "integer" },
         "unreadable": { "type": "integer" }
       }
+    },
+    "jev": {
+      "description": "Present only when the run used --jev.",
+      "type": "object",
+      "required": ["keep", "rewrite", "tokens", "cost", "errors"],
+      "properties": {
+        "keep": { "type": "integer" },
+        "rewrite": { "type": "integer" },
+        "tokens": { "type": "integer" },
+        "cost": { "type": "string", "description": "The gateway cost in US dollars, as a decimal string." },
+        "errors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "One line per Jev request that failed. Those findings carry no verdict."
+        }
+      }
     }
   }
 }
