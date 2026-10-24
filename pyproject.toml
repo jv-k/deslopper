@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "deslopper"
-version = "1.7.1"
+version = "1.7.2"
 description = "A deterministic slop linter for Markdown: it finds the mechanical tells of machine-generated writing."
 readme = "README.md"
 license = "MIT"
