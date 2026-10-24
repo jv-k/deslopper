@@ -1,3 +1,3 @@
 """deslopper: a deterministic slop linter for machine-generated tells."""
 
-__version__ = "1.5.0"
+__version__ = "1.6.0"
