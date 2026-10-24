@@ -32,6 +32,8 @@ on:
       - 'src/deslopper/cli.py'
       - 'src/deslopper/report.py'
       - 'src/deslopper/gum.py'
+      - 'src/deslopper/triage.py'
+      - 'src/deslopper/jev.py'
       - 'scripts/help.tape'
       - 'scripts/demo.tape'
       - 'scripts/screenshots.sh'
@@ -105,24 +107,20 @@ jobs:
           rm -f gum.tar.gz gum
           gum --version
 
-      # The demo records a live `lint --jev` run, so it needs the gateway key.
-      # Stop here without it, rather than commit a GIF of the missing-key hint.
-      - name: Check the gateway key for the Jev scene
+      # The demo records a live `lint --jev` run. A missing or rejected key, or a
+      # gateway failure, would still record a GIF, without ratings, because lint
+      # keeps the scan's exit code. So prove Jev answers first, or stop here.
+      - name: Check that Jev answers before recording it
         env:
           AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
-        run: |
-          if [ -z "$AI_GATEWAY_API_KEY" ]; then
-            echo "::error::The demo records a live Jev run. Add the AI_GATEWAY_API_KEY repo secret."
-            exit 1
-          fi
+        run: bash scripts/jev-smoke.sh python
 
       - name: Render help panel and demo gif
         env:
           AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
-        run: |
-          mkdir -p img/tmp
-          vhs scripts/help.tape
-          vhs scripts/demo.tape
+        # screenshots.sh, not vhs directly: it measures the help and sizes the window
+        # to fit, where the tape's own Height is only a fallback and cut the top off.
+        run: bash scripts/screenshots.sh all
 
       - name: Optimize deslopper-demo.gif (lossless)
         run: |
