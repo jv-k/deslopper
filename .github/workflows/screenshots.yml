@@ -118,10 +118,9 @@ jobs:
       - name: Render help panel and demo gif
         env:
           AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
-        run: |
-          mkdir -p img/tmp
-          vhs scripts/help.tape
-          vhs scripts/demo.tape
+        # screenshots.sh, not vhs directly: it measures the help and sizes the window
+        # to fit, where the tape's own Height is only a fallback and cut the top off.
+        run: bash scripts/screenshots.sh all
 
       - name: Optimize deslopper-demo.gif (lossless)
         run: |
