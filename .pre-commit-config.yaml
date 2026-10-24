@@ -23,7 +23,9 @@ repos:
     hooks:
       - id: pytest
         name: pytest
-        entry: pytest -q
+        # The repo's own venv first, so a pytest elsewhere on PATH never tests a different
+        # install. CI has no .venv and installs into the runner's Python instead.
+        entry: bash -c 'p=.venv/bin/pytest; [ -x "$p" ] || p=pytest; "$p" -q'
         language: system
         pass_filenames: false
         always_run: true
@@ -31,7 +33,9 @@ repos:
         name: deslopper (de-slop lint on Markdown)
         # Triage joins only when the committer's own shell holds the key, so a repo clone
         # never makes a network call on someone else's behalf.
-        entry: bash -c 'deslopper lint ${AI_GATEWAY_API_KEY:+--triage}'
+        # The working tree's build, not a Homebrew or pipx install on PATH, which may be an
+        # older release without the flags this repo now uses.
+        entry: bash -c 'd=.venv/bin/deslopper; [ -x "$d" ] || d=deslopper; "$d" lint ${AI_GATEWAY_API_KEY:+--jev}'
         language: system
         types: [markdown]
         pass_filenames: false
