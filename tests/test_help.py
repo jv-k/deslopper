@@ -2,7 +2,7 @@
 
 import pytest
 
-from deslopper import __version__
+from deslopper import __version__, gum
 from deslopper.cli import main
 
 ANSI = "\x1b["
@@ -27,39 +27,36 @@ def test_root_help_shows_banner_and_sections(capsys):
 
 
 def test_root_help_piped_is_plain(capsys, monkeypatch):
-    monkeypatch.delenv("FORCE_COLOR", raising=False)
     monkeypatch.delenv("CLICOLOR_FORCE", raising=False)
     _, out, _ = run(["-h"], capsys)
     assert ANSI not in out
 
 
-def test_root_help_forced_color_has_pills_and_rainbow(capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
-    monkeypatch.delenv("NO_COLOR", raising=False)
+def test_attended_root_help_is_drawn_by_gum_with_pills_and_rainbow(capsys, gum_shim):
     _, out, _ = run(["--help"], capsys)
-    assert "\x1b[7;1;36m" in out  # cyan section pill
-    assert "\x1b[38;5;196m" in out  # first rainbow stop
-    assert "\x1b[7;1;32m" in out  # green version pill
+    assert [c["args"][0] for c in gum_shim()] == ["format"]
+    assert '{{ Bold (Color "%s" "%s" " USAGE ") }}' % (
+        gum.PALETTE["on-accent"], gum.PALETTE["accent"]) in out  # section pill
+    assert '{{ Color "196" "╺┳┓" }}' in out  # first rainbow stop
+    assert f'" deslopper v{__version__} "' in out  # version pill
 
 
-def test_no_color_strips_help_styling(capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
+def test_no_color_keeps_help_plain_even_with_gum(capsys, gum_shim, monkeypatch):
+    monkeypatch.delenv("CLICOLOR_FORCE")
     monkeypatch.setenv("NO_COLOR", "1")
     _, out, _ = run(["--help"], capsys)
-    assert ANSI not in out
+    assert gum_shim() == []
+    assert ANSI not in out and "{{" not in out
 
 
-def test_version_flag_renders_the_green_pill(capsys, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
-    monkeypatch.delenv("NO_COLOR", raising=False)
+def test_attended_version_is_the_green_pill(capsys, gum_shim):
     code, out, _ = run(["--version"], capsys)
     assert code == 0
-    assert "\x1b[7;1;32m" in out  # same green pill as the help banner
-    assert f"deslopper v{__version__}" in out
+    assert '{{ Bold (Color "%s" "%s" " deslopper v%s ") }}' % (
+        gum.PALETTE["on-accent"], gum.PALETTE["ok"], __version__) in out
 
 
 def test_version_flag_piped_is_plain(capsys, monkeypatch):
-    monkeypatch.delenv("FORCE_COLOR", raising=False)
     monkeypatch.delenv("CLICOLOR_FORCE", raising=False)
     code, out, _ = run(["--version"], capsys)
     assert code == 0
