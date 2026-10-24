@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.1
+
+- The `--jev` spinner puts the file count first, right after the spinner:
+  `(1/2) Asking Jev about 2 findings in a.md`.
+
 ## 1.7.0
 
 - `deslopper update` upgrades deslopper with the tool that installed it: Homebrew, pipx,
