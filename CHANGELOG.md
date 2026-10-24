@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.2
+
+- The README is shorter. It leads with the tells, install, and the CI and pre-commit
+  gates, and links to new pages in `docs/` for configuration, output formats, Jev triage,
+  the rewrite eval, and updating.
+- The README's CI example pins a release tag instead of `main`, and each release now
+  moves the pin.
+
 ## 1.7.1
 
 - The `--jev` spinner puts the file count first, right after the spinner:
