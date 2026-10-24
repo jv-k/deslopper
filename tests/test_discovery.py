@@ -100,6 +100,22 @@ def test_resolve_inputs_directory_outside_root_shows_absolute_paths(tmp_path):
     assert items == [(expected.replace(os.sep, "/"), expected)]
 
 
+def test_resolve_inputs_lists_a_file_once_when_arguments_overlap(tmp_path):
+    # `lint . docs docs/a.md` names docs/a.md three ways; it is linted once, where it
+    # first appears.
+    make_files(str(tmp_path), ["top.md", "docs/a.md"])
+    items = resolve_inputs([".", "docs", "docs/a.md"], str(tmp_path), str(tmp_path),
+                           DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    assert [display for display, _ in items] == ["docs/a.md", "top.md"]
+
+
+def test_resolve_inputs_follows_a_symlinked_directory(tmp_path):
+    make_files(str(tmp_path), ["docs/a.md"])
+    os.symlink(str(tmp_path / "docs"), str(tmp_path / "docs-link"))
+    items = resolve_inputs(["docs-link"], str(tmp_path), str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)
+    assert items == [("docs/a.md", os.path.join(str(tmp_path), "docs/a.md"))]
+
+
 def test_discover_files_includes_mdx(tmp_path):
     make_files(str(tmp_path), ["a.md", "b.mdx", "docs/c.mdx", "d.txt"])
     found = discover_files(str(tmp_path), DEFAULT_INCLUDE, BUILTIN_EXCLUDE)

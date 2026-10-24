@@ -144,7 +144,7 @@ def resolve_inputs(paths, root: str, start_dir: str, include, exclude) -> list:
             if display == ".." or display.startswith("../"):
                 display = os.path.abspath(full).replace(os.sep, "/")
             items.append((display, full))
-        return items
+        return _unique(items)
     rels = discover_files(root, include, exclude)
     return [(rel, os.path.join(root, rel)) for rel in rels]
 
@@ -152,8 +152,9 @@ def resolve_inputs(paths, root: str, start_dir: str, include, exclude) -> list:
 def _expand_dir(full: str, root: str, include, exclude) -> list:
     """A directory argument stands for what a bare run would lint beneath it, so include
     and exclude apply to it as they do to the whole tree."""
-    base = os.path.abspath(full)
-    rel = os.path.relpath(base, root).replace(os.sep, "/")
+    # A symlinked folder resolves to its target, so the root's file list can match it.
+    base = os.path.realpath(full)
+    rel = os.path.relpath(base, os.path.realpath(root)).replace(os.sep, "/")
     if rel == ".." or rel.startswith("../"):
         # Outside root no root-relative path is usable, so discover from the directory
         # itself and show absolute paths, as a single file outside root does.
@@ -162,6 +163,18 @@ def _expand_dir(full: str, root: str, include, exclude) -> list:
     prefix = "" if rel == "." else rel + "/"
     return [(r, os.path.join(root, r))
             for r in discover_files(root, include, exclude) if r.startswith(prefix)]
+
+
+def _unique(items) -> list:
+    """The items without repeats, kept where each first appears. Overlapping arguments,
+    such as `. docs`, would otherwise lint a file twice and count its findings twice."""
+    seen, out = set(), []
+    for display, read in items:
+        key = os.path.realpath(read)
+        if key not in seen:
+            seen.add(key)
+            out.append((display, read))
+    return out
 
 
 def resolve_worklist(paths, config_path, start_dir: str, include, exclude) -> list:
