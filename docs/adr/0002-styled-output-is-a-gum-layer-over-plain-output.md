@@ -18,6 +18,11 @@ same way the engineering-playbook's ship scripts do (its ADR 0006). The rules:
   and gum draws the whole of it, header to totals, in one `gum format --type template`
   call. The Jev wait goes through `gum spin`. `gum.py` makes every gum call and owns the
   palette.
+- Every styled screen uses that one path: the lint and check view, the rules list, the
+  help screens, the eval report, and the status lines for `init` and errors. Each builds
+  its lines of parts and hands them to `gum.write`, which draws them through gum when
+  the run is attended and prints the same words as plain text otherwise. There is no
+  other source of colour.
 - On a terminal without gum, deslopper prints the plain output and one line that names
   the install. gum is never a dependency.
 - The `github` and `json` formats never call gum.

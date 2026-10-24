@@ -258,6 +258,7 @@ that folder. A file path lints that file as given, even when the config excludes
 
 On a terminal with gum, deslopper draws its output with gum: a header, a section per
 file with each tell and the places it fired, a spinner while Jev works, and the totals.
+The help screens, the eval report, and the status lines go through gum too.
 Piped output, the `github` format, and the `json` format are always plain, and never
 call gum. `NO_COLOR`
 turns the gum output off. `CLICOLOR_FORCE=1` turns it on without a terminal. These are the

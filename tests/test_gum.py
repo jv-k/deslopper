@@ -155,3 +155,36 @@ def test_spin_runs_the_block_when_gum_cannot_start(monkeypatch):
     with gum.spin("Asking Jev"):
         ran.append(True)
     assert ran == [True]
+
+
+# write: the one way every styled screen reaches the terminal.
+
+
+def test_write_prints_the_plain_text_when_unattended(capsys):
+    gum.write([[("pill", " USAGE ")], [("bold", "deslopper"), ("", " <command>")]])
+    assert capsys.readouterr().out == " USAGE \ndeslopper <command>\n"
+
+
+def test_write_draws_through_gum_when_attended(gum_shim, capsys):
+    gum.write([[("bold", "deslopper")]])
+    assert [c["args"][0] for c in gum_shim()] == ["format"]
+    assert capsys.readouterr().out == '{{ Bold "deslopper" }}\n'
+
+
+def test_write_follows_the_stream_it_is_given(gum_shim, capsys):
+    import sys
+    gum.write([[("", "to stderr")]], sys.stderr)
+    captured = capsys.readouterr()
+    assert captured.out == "" and "to stderr" in captured.err
+
+
+def test_write_falls_back_to_plain_text_when_gum_fails(gum_shim, capsys, monkeypatch):
+    monkeypatch.setenv("GUM_SHIM_FAIL", "1")
+    gum.write([[("bold", "deslopper")]])
+    assert capsys.readouterr().out == "deslopper\n"
+
+
+def test_render_takes_256_colour_numbers_and_the_ok_pill():
+    assert gum._part("196", "d") == '{{ Color "196" "d" }}'
+    assert gum._part("pill-ok", " v1 ") == \
+        '{{ Bold (Color "%s" "%s" " v1 ") }}' % (gum.PALETTE["on-accent"], gum.PALETTE["ok"])
