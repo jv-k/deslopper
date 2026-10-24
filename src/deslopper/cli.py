@@ -15,7 +15,7 @@ from .evaluate import run_eval
 from .jev import JevUnavailable, require_key
 from . import completions
 from . import help as help_screen
-from . import report, triage, ui
+from . import gum, report, triage, ui
 
 STARTER = {
     "extends": [RECOMMENDED],
@@ -44,8 +44,9 @@ def _build_parser():
     lint.add_argument("--format", default="text",
                       choices=list(help_screen.COMMANDS["lint"]["choices"]["--format"]))
     # A flag and never a config key, so no repo can switch on network calls for
-    # everyone who lints in it.
-    lint.add_argument("--triage", action="store_true")
+    # everyone who lints in it. --triage is the name it shipped under, kept as a
+    # hidden alias so configs written before the rename still run.
+    lint.add_argument("--jev", "--triage", dest="jev", action="store_true")
 
     check = command("check")
     check.add_argument("paths", nargs="*")
@@ -81,20 +82,36 @@ def _lint_command(args):
     return cfg, result, items
 
 
-def _emit(result, fmt, pal):
-    # Only the text format is ever styled; github and json are machine contracts.
-    if fmt == "text":
-        sys.stdout.write(report.format_text(result, pal))
-    elif fmt == "github":
-        sys.stdout.write(report.format_github(result))
-    elif fmt == "json":
-        sys.stdout.write(report.format_json(result))
+def _jev_spinner(path, count, index, total):
+    noun = "finding" if count == 1 else "findings"
+    return gum.spin(f"Asking Jev about {count} {noun} in {path} ({index}/{total})")
 
 
-def _finish(result, strict, pal, judged=None):
+def _view(result, sources, items, strict, command, judged=None) -> bool:
+    """The attended run's whole output: one view, drawn by gum, on stdout. False when gum
+    could not draw it, so the caller prints the plain output instead."""
+    lines = report.lint_view(result, sources, len(items), ui.term_cols(), judged=judged,
+                             strict=strict, command=command)
+    return _draw(lines)
+
+
+def _draw(lines) -> bool:
+    """Write a gum view, or return False when gum could not draw it."""
+    drawn = gum.render(lines)
+    if drawn is None:
+        return False
+    sys.stdout.write(drawn)
+    return True
+
+
+def _finish(result, strict, judged=None):
+    """The plain run's ending: the unreadable paths and the summary, on stderr."""
+    # The findings go to stdout and the summary to stderr. Flush first, so the summary
+    # follows the findings when both streams share one pipe.
+    sys.stdout.flush()
     for path in result.unreadable:
-        print(ui.trace_line(pal, f"cannot read {path}"), file=sys.stderr)
-    print(report.summary_line(result, strict, pal, judged), file=sys.stderr)
+        print(f"  {ui.I_TRACE} cannot read {path}", file=sys.stderr)
+    print(report.summary_line(result, strict, judged), file=sys.stderr)
 
 
 def _read_sources(result, items) -> dict:
@@ -117,7 +134,7 @@ def _read_sources(result, items) -> dict:
 
 
 def _do_lint(args, pal):
-    if args.triage:
+    if args.jev:
         # Fail on the missing key before any scan output, so the hint is the
         # whole of what the user sees.
         require_key()
@@ -126,21 +143,42 @@ def _do_lint(args, pal):
     # The exit code is taken from the scan before triage, so a verdict can never
     # move it: triage is annotation and the scan stays the gate.
     code = report.exit_code(result, strict)
+    # Only the text format is ever styled. github and json are machine contracts.
+    attended = args.format == "text" and gum.attended(sys.stdout)
+    if args.format == "text" and not attended:
+        gum.hint(sys.stdout)
+    # Read once: Jev gets the lines around each finding, and the view shows them.
+    sources = _read_sources(result, items) if args.jev or attended else {}
     judged = None
-    if args.triage:
-        judged = triage.run(result, _read_sources(result, items))
-        for error in judged.errors:
-            ui.log_error(pal, f"triage skipped {error}")
+    if args.jev:
+        judged = triage.run(result, sources, progress=_jev_spinner if attended else None)
         result = judged.result
-    _emit(result, args.format, pal)
-    _finish(result, strict, pal, judged)
+    if args.format == "json":
+        # The payload is the whole output, so a model or a tool reads one stream. It
+        # carries the summary, the unreadable paths, and the Jev totals and errors.
+        sys.stdout.write(report.format_json(result, judged))
+        return code
+    if attended and _view(result, sources, items, strict, "lint", judged):
+        return code
+    for error in judged.errors if judged else ():
+        print(f"{ui.I_ERROR} triage skipped {error}", file=sys.stderr)
+    if args.format == "github":
+        sys.stdout.write(report.format_github(result))
+    else:
+        sys.stdout.write(report.format_text(result))
+    _finish(result, strict, judged)
     return code
 
 
 def _do_check(args, pal):
-    cfg, result, _items = _lint_command(args)
-    sys.stdout.write(report.format_text(result, pal))
-    _finish(result, cfg.strict, pal)
+    cfg, result, items = _lint_command(args)
+    if gum.attended(sys.stdout):
+        if _view(result, _read_sources(result, items), items, cfg.strict, "check"):
+            return 0
+    else:
+        gum.hint(sys.stdout)
+    sys.stdout.write(report.format_text(result))
+    _finish(result, cfg.strict)
     return 0
 
 
@@ -152,27 +190,15 @@ def _do_rules(args, pal):
             for t in cfg.tells
         ]
         print(json.dumps(payload, indent=2))
-    elif pal.enabled and cfg.tells:
-        # Aligned, tier-coloured columns for eyes; the piped TSV below is the
-        # stable machine-side layout. The message column wraps to the terminal
-        # and hangs under itself, like the help.
-        name_w = max(len(t.name) for t in cfg.tells)
-        msg_col = 2 + name_w + 2 + 5 + 2 + 11 + 1 + 5 + 2
-        avail = ui.term_cols() - msg_col
-        if avail < 20:
-            avail = 20
-        for t in cfg.tells:
-            lines = ui.wrap(avail, t.message) or [""]
-            print(
-                f"  {pal.bold}{t.name:<{name_w}}{pal.reset}  "
-                f"{report.tier_style(pal, t.tier)}{t.tier:<5}{pal.reset}  "
-                f"{pal.dim}{t.phase:<11} {t.scope:<5}{pal.reset}  {lines[0]}"
-            )
-            for cont in lines[1:]:
-                print(f"{' ' * msg_col}{cont}")
-    else:
-        for t in cfg.tells:
-            print(f"{t.name}\t{t.tier}\t{t.phase}\t{t.scope}\t{t.message}")
+    elif cfg.tells:
+        # gum's view for eyes; the TSV is the stable machine-side layout, and the
+        # fallback when gum is absent or cannot draw.
+        attended = gum.attended(sys.stdout)
+        if not (attended and _draw(report.rule_lines(cfg.tells, ui.term_cols()))):
+            if not attended:
+                gum.hint(sys.stdout)
+            for t in cfg.tells:
+                print(f"{t.name}\t{t.tier}\t{t.phase}\t{t.scope}\t{t.message}")
     return 0
 
 

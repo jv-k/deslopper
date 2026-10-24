@@ -45,7 +45,7 @@ if [ -z "${AI_GATEWAY_API_KEY:-}" ]; then
   exit 1
 fi
 judged="$(mktemp)"
-"$py" -m deslopper lint --triage --format json tests/fixtures/ai_slop.md >"$judged" || [ $? -eq 1 ]
+"$py" -m deslopper lint --jev --format json tests/fixtures/ai_slop.md >"$judged" || [ $? -eq 1 ]
 "$py" - "$judged" <<'PY'
 import json, sys
 findings = json.load(open(sys.argv[1]))["findings"]

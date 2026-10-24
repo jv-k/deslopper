@@ -135,23 +135,55 @@ def resolve_inputs(paths, root: str, start_dir: str, include, exclude) -> list:
         items = []
         for p in paths:
             full = p if os.path.isabs(p) else os.path.join(start_dir, p)
+            if os.path.isdir(full):
+                items.extend(_expand_dir(full, root, include, exclude))
+                continue
             display = os.path.relpath(full, root).replace(os.sep, "/")
             # A file outside root relpaths to ../.., which is not a usable finding path;
             # fall back to the absolute path so the finding still points somewhere real.
             if display == ".." or display.startswith("../"):
                 display = os.path.abspath(full).replace(os.sep, "/")
             items.append((display, full))
-        return items
+        return _unique(items)
     rels = discover_files(root, include, exclude)
     return [(rel, os.path.join(root, rel)) for rel in rels]
+
+
+def _expand_dir(full: str, root: str, include, exclude) -> list:
+    """A directory argument stands for what a bare run would lint beneath it, so include
+    and exclude apply to it as they do to the whole tree."""
+    # A symlinked folder resolves to its target, so the root's file list can match it.
+    base = os.path.realpath(full)
+    rel = os.path.relpath(base, os.path.realpath(root)).replace(os.sep, "/")
+    if rel == ".." or rel.startswith("../"):
+        # Outside root no root-relative path is usable, so discover from the directory
+        # itself and show absolute paths, as a single file outside root does.
+        found = [os.path.join(base, r) for r in discover_files(base, include, exclude)]
+        return [(f.replace(os.sep, "/"), f) for f in found]
+    prefix = "" if rel == "." else rel + "/"
+    return [(r, os.path.join(root, r))
+            for r in discover_files(root, include, exclude) if r.startswith(prefix)]
+
+
+def _unique(items) -> list:
+    """The items without repeats, kept where each first appears. Overlapping arguments,
+    such as `. docs`, would otherwise lint a file twice and count its findings twice."""
+    seen, out = set(), []
+    for display, read in items:
+        key = os.path.realpath(read)
+        if key not in seen:
+            seen.add(key)
+            out.append((display, read))
+    return out
 
 
 def resolve_worklist(paths, config_path, start_dir: str, include, exclude) -> list:
     """Turn CLI inputs into the work list of (display, read) items.
 
     Owns the discovery root — a config directory, else the git top level, else start_dir —
-    so callers never compute or pass it. With explicit paths, include and exclude do not
-    apply; without them, the tracked or walked tree is filtered by both.
+    so callers never compute or pass it. An explicit file is read as given, with no
+    include or exclude check. A directory, or no paths at all, takes the tracked or walked
+    tree filtered by both.
     """
     root = discovery_root(config_path, start_dir)
     return resolve_inputs(paths, root, start_dir, include, exclude)

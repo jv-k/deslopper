@@ -134,12 +134,19 @@ def test_wide_columns_keep_rows_on_one_line(capsys, monkeypatch):
     assert "  Lint files and fail on findings." in out
 
 
-def test_lint_help_lists_triage_and_check_help_does_not(capsys):
+def test_lint_help_lists_jev_and_check_help_does_not(capsys):
     _, lint_out, _ = run(["lint", "--help"], capsys)
-    assert "--triage" in lint_out
+    assert "--jev" in lint_out
     assert "AI_GATEWAY_API_KEY" in lint_out
+    # --triage is a hidden alias for configs written before the rename.
+    assert "--triage" not in lint_out
     _, check_out, _ = run(["check", "--help"], capsys)
-    assert "--triage" not in check_out
+    assert "--jev" not in check_out
+
+
+def test_top_level_help_shows_a_jev_example(capsys):
+    _, out, _ = run(["--help"], capsys)
+    assert "deslopper lint --jev" in out
 
 
 def test_eval_help_lists_the_plainness_flag(capsys):

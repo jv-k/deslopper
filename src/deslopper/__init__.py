@@ -1,3 +1,3 @@
-"""deslopper: a deterministic prose linter for machine-generated tells."""
+"""deslopper: a deterministic slop linter for machine-generated tells."""
 
 __version__ = "1.4.0"
