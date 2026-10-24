@@ -186,6 +186,25 @@ def test_attended_rules_draw_one_gum_view(tmp_path, capsys, gum_shim):
     assert "\t" not in out
 
 
+def test_attended_lint_falls_back_to_plain_output_when_gum_fails(tmp_path, capsys, gum_shim, monkeypatch):
+    monkeypatch.setenv("GUM_SHIM_FAIL", "1")
+    write(tmp_path, "a.md", "a — dash\n")
+    code, out, err = run(["lint", "a.md"], str(tmp_path), capsys)
+    assert code == 1
+    assert out == "a.md:1:3 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences\n"
+    assert "✖ 1 error(s), 0 warning(s)" in err
+    assert "something broke" not in out + err
+
+
+def test_attended_check_and_rules_fall_back_when_gum_fails(tmp_path, capsys, gum_shim, monkeypatch):
+    monkeypatch.setenv("GUM_SHIM_FAIL", "1")
+    write(tmp_path, "a.md", "a — dash\n")
+    code, out, _ = run(["check", "a.md"], str(tmp_path), capsys)
+    assert code == 0 and out.startswith("a.md:1:3 [error] em-dash:")
+    code, out, _ = run(["rules"], str(tmp_path), capsys)
+    assert code == 0 and "em-dash\terror\t" in out
+
+
 def test_machine_formats_never_call_gum(tmp_path, capsys, gum_shim):
     write(tmp_path, "a.md", "a — dash\n")
     run(["lint", "--format", "json", "a.md"], str(tmp_path), capsys)
