@@ -8,7 +8,7 @@ from decimal import Decimal
 
 import pytest
 
-from deslopper import jev, triage
+from deslopper import cache, jev, triage
 from deslopper.findings import Finding, LintResult
 from tests.conftest import FAKE_KEY, canned_jev, jev_envelope
 
@@ -173,3 +173,95 @@ def test_a_garbled_answer_is_reported_and_leaves_that_finding_unjudged(monkeypat
 
     assert [f.verdict for f in judged.result.findings] == ["keep", None, None, None]
     assert judged.errors == ["a.md: the reply had no usable answer for 3 of 4 findings"]
+
+
+# The cache: a finding Jev answered once is not asked about again while its tell,
+# its column and the lines around it stay the same.
+
+
+def test_a_second_run_answers_from_the_cache_and_makes_no_request(monkeypatch, tmp_path):
+    calls = canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.88)])
+    store = cache.Store(str(tmp_path))
+    result = LintResult(findings=[
+        _finding("a.md", 1, 3, "em-dash"),
+        _finding("a.md", 2, 1, "semicolon"),
+    ])
+    sources = {"a.md": "a — b\nc; d\n"}
+
+    first = triage.run(result, sources, cache=store)
+    second = triage.run(result, sources, cache=store)
+
+    assert len(calls) == 1
+    assert (first.cached, second.cached) == (0, 2)
+    assert [(f.verdict, f.probability) for f in second.result.findings] == [
+        ("keep", 0.93), ("rewrite", 0.88),
+    ]
+    # A cached answer costs nothing.
+    assert (second.tokens, second.cost) == (0, Decimal(0))
+
+
+def test_only_the_findings_missing_from_the_cache_are_asked(monkeypatch, tmp_path):
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    store = cache.Store(str(tmp_path))
+    sources = {"a.md": "a; b\n\n\nnew; line\n"}
+    triage.run(LintResult(findings=[_finding("a.md", 1, 1, "semicolon")]), sources, cache=store)
+
+    judged = triage.run(LintResult(findings=[
+        _finding("a.md", 1, 1, "semicolon"),
+        _finding("a.md", 4, 1, "semicolon"),
+    ]), sources, cache=store)
+
+    assert len(calls) == 2
+    assert "new; line" in calls[1]["state"] and "a; b" not in calls[1]["state"]
+    assert len(calls[1]["questions"]) == 1
+    assert judged.cached == 1
+    assert [f.verdict for f in judged.result.findings] == ["keep", "keep"]
+
+
+def test_a_finding_that_moved_down_the_file_still_hits_the_cache(monkeypatch, tmp_path):
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    store = cache.Store(str(tmp_path))
+    triage.run(LintResult(findings=[_finding("a.md", 2, 1, "semicolon")]),
+               {"a.md": "above\na; b\nbelow\n"}, cache=store)
+
+    judged = triage.run(LintResult(findings=[_finding("a.md", 4, 1, "semicolon")]),
+                        {"a.md": "new\nlines\nabove\na; b\nbelow\n"}, cache=store)
+
+    assert len(calls) == 1
+    assert judged.cached == 1
+
+
+def test_a_change_to_the_context_lines_asks_again(monkeypatch, tmp_path):
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    store = cache.Store(str(tmp_path))
+    triage.run(LintResult(findings=[_finding("a.md", 2, 1, "semicolon")]),
+               {"a.md": "above\na; b\nbelow\n"}, cache=store)
+
+    triage.run(LintResult(findings=[_finding("a.md", 2, 1, "semicolon")]),
+               {"a.md": "above\na; b\nchanged\n"}, cache=store)
+
+    assert len(calls) == 2
+
+
+def test_a_failed_or_garbled_answer_is_not_cached(monkeypatch, tmp_path):
+    store = cache.Store(str(tmp_path))
+    monkeypatch.setattr(jev, "post", lambda body: {"answers": {}})
+    result = LintResult(findings=[_finding("a.md", 1, 1, "semicolon")])
+    triage.run(result, {"a.md": "a; b\n"}, cache=store)
+
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    judged = triage.run(result, {"a.md": "a; b\n"}, cache=store)
+
+    assert len(calls) == 1
+    assert judged.cached == 0
+
+
+def test_a_finding_without_source_text_is_never_cached(monkeypatch, tmp_path):
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    store = cache.Store(str(tmp_path))
+    result = LintResult(findings=[_finding("gone.md", 1, 1, "semicolon")])
+
+    triage.run(result, {"gone.md": ""}, cache=store)
+    triage.run(result, {"gone.md": ""}, cache=store)
+
+    assert len(calls) == 2

@@ -69,6 +69,12 @@ Jev's answer for one finding, `keep` or `rewrite`, with the probability of that 
 finding without one renders exactly as before.
 _Avoid_: label, score.
 
+**Verdict cache**:
+The verdicts kept on disk between `--jev` runs. A finding is not sent to Jev again while
+its tell, column, and context lines are unchanged. The line number is not part of the key.
+`--no-cache` skips it.
+_Avoid_: memo, history.
+
 ## The eval
 
 **Eval**:
