@@ -78,7 +78,8 @@ transport, `triage.py` turns a lint result and its source text into the same res
 Jev's verdicts, `cache.py` keeps answers on disk between runs, `gum.py` owns the attended check and every gum call (see
 [ADR 0002](docs/adr/0002-styled-output-is-a-gum-layer-over-plain-output.md)), `ui.py`
 names the icons and the wordmark colours and writes the status lines, `help.py` renders the
-help screens, `completions.py` prints the shell completion scripts, and `cli.py` wires
+help screens, `completions.py` prints the shell completion scripts, `update.py` finds the tool that
+installed deslopper and runs its upgrade, and `cli.py` wires
 the commands. Write a failing test first, make it pass,
 and keep the suite green.
 
