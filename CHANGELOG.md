@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.7.0
+
+- `deslopper update` upgrades deslopper with the tool that installed it: Homebrew, pipx,
+  or uv. For any other install it prints the command to run and changes nothing.
+  `--dry-run` shows the command without running it. The README has a new Update section.
+- The lint and check view ends with a summary table drawn by `gum table`, as wide as the
+  rules above it: the findings, errors, warnings, and after a `--jev` run the rewrite and
+  keep verdicts. A `--jev` run adds a second table with what Jev cost: a `this run` row
+  with the verdicts asked for, their tokens and cost, and a `cache saved` row with the
+  verdicts the cache answered and what they cost when Jev first gave them. The tables
+  round costs to two significant figures.
+- Each cached verdict now keeps its share of the tokens and cost of the request that
+  answered it. The plain summary line ends with `· saved T tokens, $C`, and the `jev`
+  object in the output schema gains required `saved_tokens` and `saved_cost` fields. A
+  verdict cached by 1.6.0 has no share, so the table shows its saving as `unknown`.
+- The README contents lists the main sections only.
+
 ## 1.6.0
 
 - `lint --jev` keeps each verdict on disk, in `$XDG_CACHE_HOME/deslopper/jev` or
