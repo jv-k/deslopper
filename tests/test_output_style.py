@@ -169,8 +169,8 @@ def test_attended_jev_spins_per_file_and_rates_each_place(tmp_path, capsys, gum_
     write(tmp_path, "a.md", "a — dash\nc; d\n")
     write(tmp_path, "b.md", "e; f\n")
     _, out, err = run(["lint", "--jev", "a.md", "b.md"], str(tmp_path), capsys)
-    assert spins == ["Asking Jev about 2 findings in a.md (1/2)",
-                     "Asking Jev about 1 finding in b.md (2/2)"]
+    assert spins == ["(1/2) Asking Jev about 2 findings in a.md",
+                     "(2/2) Asking Jev about 1 finding in b.md"]
     assert '{{ " 0.93 " }}{{ Faint "keep" }}' in out
     assert '"keep" }}\t{{ "2" }}' in out
     assert '"this run" }}\t{{ "3" }}\t{{ "3,154" }}\t{{ "$0.00013" }}' in out
