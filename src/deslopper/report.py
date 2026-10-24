@@ -187,11 +187,14 @@ def lint_view(result, sources: dict, linted: int, width: int, judged=None,
 
 
 def _jev_lines(result, judged, width: int) -> list:
-    """Jev's totals: the verdicts, then the tokens and cost, on a second line when narrow."""
+    """Jev's totals: the verdicts, then the tokens, the cost and any cached verdicts,
+    on a second line when narrow."""
     verdicts = [("", "  "), ("accent", "Jev "), ("", f"{result.rewrite} rewrite"),
                 ("faint", "  ·  "), ("", f"{result.keep} keep")]
     # The gateway's cost can carry trailing zeros; normalize drops them.
     spend = f"{judged.tokens:,} tokens  ·  ${judged.cost.normalize():f}"
+    if judged.cached:
+        spend += f"  ·  {judged.cached} cached"
     if sum(len(t) for _s, t in verdicts) + 5 + len(spend) <= width - 2:
         return [verdicts + [("faint", "  ·  " + spend)]]
     return [verdicts, [("", "      "), ("faint", spend)]]
@@ -286,6 +289,7 @@ def format_json(result, judged=None) -> str:
         payload["jev"] = {
             "keep": result.keep,
             "rewrite": result.rewrite,
+            "cached": judged.cached,
             "tokens": judged.tokens,
             "cost": f"{judged.cost:f}",
             "errors": list(judged.errors),
@@ -294,12 +298,14 @@ def format_json(result, judged=None) -> str:
 
 
 def _triage_tail(result, judged) -> str:
-    """The ` · triage: N keep, M rewrite · T tokens, $C` tail when triage ran.
+    """The ` · triage: N keep, M rewrite · T tokens, $C` tail when triage ran, with
+    `, K cached` after the verdicts when the cache answered any.
 
     `judged` is the Triage the pass returned, whose result is `result`."""
     if judged is None:
         return ""
-    return (f" · triage: {result.keep} keep, {result.rewrite} rewrite"
+    cached = f", {judged.cached} cached" if judged.cached else ""
+    return (f" · triage: {result.keep} keep, {result.rewrite} rewrite{cached}"
             f" · {judged.tokens} tokens, ${judged.cost:f}")
 
 

@@ -69,6 +69,7 @@ COMMANDS = {
             ("", "--config", "<file>", "Use this config file instead of discovering one."),
             ("", "--format", "<fmt>", "Output format: text (default), github, or json."),
             ("", "--jev", "", "Ask Jev to mark each finding keep or rewrite. Needs AI_GATEWAY_API_KEY."),
+            ("", "--no-cache", "", "With --jev, ask again about findings Jev answered before."),
         ],
         # --triage is the old name of --jev.
         "hidden": ("--triage",),
