@@ -61,3 +61,25 @@ def test_every_aggressive_example_fires_its_tell(tmp_path):
         p.write_text(example + "\n", encoding="utf-8")
         found = {f.name for f in lint_files([("doc.md", str(p))], tells).findings}
         assert name in found, f"example for {name!r} does not fire it: {example!r}"
+
+
+def _anchor(heading: str) -> str:
+    """GitHub's anchor for a heading: lower case, punctuation dropped, spaces to hyphens."""
+    import re
+    text = heading.lower().replace("`", "")
+    text = re.sub(r"[^\w\- ]", "", text)
+    return text.replace(" ", "-")
+
+
+def test_readme_contents_lists_every_heading_with_a_working_link():
+    import re
+    with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as fh:
+        readme = fh.read()
+    start = readme.index("## Contents")
+    contents = readme[start:readme.index("\n## ", start + 1)]
+    body = readme[readme.index("\n## ", start + 1):]
+    # Headings inside fenced code are not headings.
+    body = re.sub(r"```.*?```", "", body, flags=re.S)
+    headings = re.findall(r"^#{2,3} (.+)$", body, flags=re.M)
+    links = re.findall(r"\[(.+?)\]\(#([^)]+)\)", contents)
+    assert [anchor for _text, anchor in links] == [_anchor(h) for h in headings]
