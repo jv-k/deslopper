@@ -30,32 +30,32 @@ rather than replacing it.
 
 ## Install and run
 
-deslopper needs no runtime dependencies beyond Python 3.9+. It is published to PyPI and to a
-Homebrew tap on each tagged release.
+deslopper needs no runtime dependencies beyond Python 3.9+. It is not on PyPI yet, so
+install it from the GitHub repo or from the Homebrew tap.
 
-Run it straight from PyPI with uv:
+Run it straight from the repo with uv:
 
-    uvx deslopper lint
+    uvx --from git+https://github.com/jv-k/deslopper deslopper lint
 
 or with pipx:
 
-    pipx run deslopper lint
+    pipx run --spec git+https://github.com/jv-k/deslopper deslopper lint
 
 Install it with pipx:
 
-    pipx install deslopper
+    pipx install git+https://github.com/jv-k/deslopper
 
 with plain pip:
 
-    pip install deslopper
+    pip install git+https://github.com/jv-k/deslopper
 
 or from the Homebrew tap:
 
     brew install jv-k/tap/deslopper
 
-Pin a version in CI for reproducible builds:
+Pin a release tag in CI for reproducible builds:
 
-    uvx deslopper@0.2.0 lint --format github
+    uvx --from git+https://github.com/jv-k/deslopper@v1.4.0 deslopper lint --format github
 
 ## Agent skill
 
@@ -274,8 +274,8 @@ a per-commit or per-PR gate.
 
 ## Use it in CI
 
-Run deslopper as a gate with GitHub Actions. Until it is on PyPI, install it from the public
-repo. Switch to the pinned PyPI form (`uvx deslopper@x.y.z ...`) once it ships.
+Run deslopper as a gate with GitHub Actions. It installs from the public repo, because it
+is not on PyPI yet. Pin a release tag in place of `main` to keep the gate stable.
 
 ```yaml
 # .github/workflows/prose.yml
