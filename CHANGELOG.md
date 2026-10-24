@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.6.0
+
+- `lint --jev` keeps each verdict on disk, in `$XDG_CACHE_HOME/deslopper/jev` or
+  `~/.cache/deslopper/jev`, and reuses it. A finding whose line and neighbours have not
+  changed is not asked again, even after it moves down the file, and a file with every
+  finding cached sends no request. `--no-cache` asks Jev about every finding again. The
+  summary, the gum view, and the `json` payload count the cached verdicts: the `jev`
+  object in the output schema gains a required `cached` integer.
+- The help screens, the eval report, and the status lines for `init` and errors are drawn
+  by gum on a terminal, like the lint view. The help keeps its rainbow wordmark, and its
+  plain text is unchanged. On a terminal, eval draws the findings left after the rewrite
+  with the lint view.
+- The hand-written colour palette and its `FORCE_COLOR` gate are gone. gum reads
+  `NO_COLOR` and `CLICOLOR_FORCE`, and there is no other source of colour.
+- The README leads with a demo GIF of the new view and a live Jev run. The screenshots
+  workflow installs gum, checks that Jev answers before it records, and sizes the help
+  screenshot to fit.
+
 ## 1.5.0
 
 - On a terminal with [gum](https://github.com/charmbracelet/gum), `lint` and `check` draw
