@@ -1,8 +1,9 @@
 """Output formatting, the summary line, and the exit-code rule."""
 
 import json
+from decimal import ROUND_HALF_UP, Decimal
 
-from . import tiers, ui
+from . import gum, tiers, ui
 from .findings import Finding
 
 
@@ -142,11 +143,12 @@ def _group_lines(group: list, lines: list, loc_w: int, width: int, rated: bool) 
 def lint_view(result, sources: dict, linted: int, width: int, judged=None,
               strict: bool = False, command: str = "lint") -> list:
     """The attended view of a lint run: a header, then a section per file with each
-    tell grouped once under it, then the totals.
+    tell grouped once under it, then the status line and the summary tables.
 
     `sources` maps a finding's path to the file's text, for the excerpts. `judged` is
-    the Triage a --jev run returned; it adds the rating to each row and Jev's totals and
-    failed requests to the footer."""
+    the Triage a --jev run returned; it adds the rating to each row, its failed requests
+    to the footer, its verdicts to the summary table, and a table of what Jev cost and
+    what the cache saved. Both tables span the rules' width."""
     findings = result.findings
     files = {}
     for f in findings:
@@ -181,23 +183,52 @@ def lint_view(result, sources: dict, linted: int, width: int, judged=None,
     if result.warnings:
         status += [("", "   "), ("warn", f"{ui.I_WARN} "), ("bold warn", _plural(result.warnings, "warning"))]
     out.append([("", "  ")] + status + tag)
+    out += [[], summary_table(result, judged, len(files), width - 4)]
     if judged is not None:
-        out += _jev_lines(result, judged, width)
+        out.append(jev_table(result, judged, width - 4))
     return out + [[]]
 
 
-def _jev_lines(result, judged, width: int) -> list:
-    """Jev's totals: the verdicts, then the tokens, the cost and any cached verdicts,
-    on a second line when narrow."""
-    verdicts = [("", "  "), ("accent", "Jev "), ("", f"{result.rewrite} rewrite"),
-                ("faint", "  ·  "), ("", f"{result.keep} keep")]
-    # The gateway's cost can carry trailing zeros; normalize drops them.
-    spend = f"{judged.tokens:,} tokens  ·  ${judged.cost.normalize():f}"
-    if judged.cached:
-        spend += f"  ·  {judged.cached} cached"
-    if sum(len(t) for _s, t in verdicts) + 5 + len(spend) <= width - 2:
-        return [verdicts + [("faint", "  ·  " + spend)]]
-    return [verdicts, [("", "      "), ("faint", spend)]]
+def _money(cost) -> str:
+    """A cost to two significant figures, which is all a glance needs; the json
+    format keeps the exact cost."""
+    if not cost:
+        return "$0"
+    rounded = cost.quantize(Decimal(1).scaleb(cost.adjusted() - 1), rounding=ROUND_HALF_UP)
+    return f"${rounded.normalize():f}"
+
+
+def summary_table(result, judged, with_slop: int, width: int) -> gum.Table:
+    """The run's totals as label and value rows, `width` across: the findings, and
+    after a --jev run, Jev's verdicts."""
+    rows = [("findings", [("bold", f"{len(result.findings)} in {_plural(with_slop, 'file')}")]),
+            ("errors", [("error" if result.errors else "faint", str(result.errors))]),
+            ("warnings", [("warn" if result.warnings else "faint", str(result.warnings))])]
+    if result.unreadable:
+        rows.append(("unreadable", [("warn", str(len(result.unreadable)))]))
+    if judged is not None:
+        rows += [("rewrite", [("bold", str(result.rewrite))]),
+                 ("keep", [("", str(result.keep))])]
+    return gum.Table(columns=["summary", ""], width=width,
+                     rows=[[[("muted", label)], value] for label, value in rows])
+
+
+def jev_table(result, judged, width: int) -> gum.Table:
+    """What Jev cost, `width` across: the verdicts asked for on this run with their
+    tokens and cost, then the verdicts the cache answered with what they cost when
+    Jev first gave them. The cache keeps no cost for a verdict stored before it
+    recorded one."""
+    asked = result.rewrite + result.keep - judged.cached
+    if judged.cached and not (judged.saved_tokens or judged.saved_cost):
+        saved = [[("faint", "unknown")], [("faint", "unknown")]]
+    else:
+        style = "ok" if judged.cached else ""
+        saved = [[(style, f"{judged.saved_tokens:,}")], [(style, _money(judged.saved_cost))]]
+    rows = [[[("muted", "this run")], [("", str(asked))], [("", f"{judged.tokens:,}")],
+             [("", _money(judged.cost))]],
+            [[("muted", "cache saved")], [("ok" if judged.cached else "", str(judged.cached))]]
+            + saved]
+    return gum.Table(columns=["Jev", "verdicts", "tokens", "cost"], rows=rows, width=width)
 
 
 def _lines(text: str) -> list:
@@ -290,6 +321,8 @@ def format_json(result, judged=None) -> str:
             "keep": result.keep,
             "rewrite": result.rewrite,
             "cached": judged.cached,
+            "saved_tokens": judged.saved_tokens,
+            "saved_cost": f"{judged.saved_cost:f}",
             "tokens": judged.tokens,
             "cost": f"{judged.cost:f}",
             "errors": list(judged.errors),
@@ -299,14 +332,17 @@ def format_json(result, judged=None) -> str:
 
 def _triage_tail(result, judged) -> str:
     """The ` · triage: N keep, M rewrite · T tokens, $C` tail when triage ran, with
-    `, K cached` after the verdicts when the cache answered any.
+    `, K cached` after the verdicts when the cache answered any, and
+    ` · saved T tokens, $C` after the spend when the cache recorded what it saved.
 
     `judged` is the Triage the pass returned, whose result is `result`."""
     if judged is None:
         return ""
     cached = f", {judged.cached} cached" if judged.cached else ""
+    saved = (f" · saved {judged.saved_tokens} tokens, ${judged.saved_cost:f}"
+             if judged.saved_tokens or judged.saved_cost else "")
     return (f" · triage: {result.keep} keep, {result.rewrite} rewrite{cached}"
-            f" · {judged.tokens} tokens, ${judged.cost:f}")
+            f" · {judged.tokens} tokens, ${judged.cost:f}{saved}")
 
 
 def summary_line(result, strict: bool, judged=None) -> str:

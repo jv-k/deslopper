@@ -265,3 +265,39 @@ def test_a_finding_without_source_text_is_never_cached(monkeypatch, tmp_path):
     triage.run(result, {"gone.md": ""}, cache=store)
 
     assert len(calls) == 2
+
+
+# What the cache saved: each stored verdict keeps its share of the request that
+# answered it, and a hit adds that share back up.
+
+
+def test_a_cached_answer_counts_its_share_of_the_request_as_saved(monkeypatch, tmp_path):
+    canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.88)],
+               tokens=(1577, 0), cost="0.000066")
+    store = cache.Store(str(tmp_path))
+    result = LintResult(findings=[
+        _finding("a.md", 1, 3, "em-dash"),
+        _finding("a.md", 2, 1, "semicolon"),
+    ])
+    sources = {"a.md": "a — b\nc; d\n"}
+
+    first = triage.run(result, sources, cache=store)
+    second = triage.run(result, sources, cache=store)
+
+    assert (first.saved_tokens, first.saved_cost) == (0, Decimal(0))
+    # The shares add up to what the first run spent.
+    assert (second.saved_tokens, second.saved_cost) == (1577, Decimal("0.000066"))
+
+
+def test_an_entry_without_a_recorded_share_saves_nothing_it_can_count(monkeypatch, tmp_path):
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    store = cache.Store(str(tmp_path))
+    finding = _finding("a.md", 1, 1, "semicolon")
+    lines = ["a; b"]
+    store.put(triage._cache_key(finding, lines), {"verdict": "keep", "probability": 0.9})
+
+    judged = triage.run(LintResult(findings=[finding]), {"a.md": "a; b\n"}, cache=store)
+
+    assert calls == []
+    assert judged.cached == 1
+    assert (judged.saved_tokens, judged.saved_cost) == (0, Decimal(0))

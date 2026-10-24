@@ -117,7 +117,10 @@ if os.environ.get("GUM_SHIM_FAIL"):
     sys.stderr.write("gum: something broke\\n")
     sys.exit(1)
 if sub == "format":
-    sys.stdout.write(stdin.rstrip("\\n"))
+    # Like gum, trim the whitespace around the drawing, blank lines and all.
+    sys.stdout.write(stdin.strip())
+elif sub == "table":
+    sys.stdout.write("<table " + " ".join(args[1:]) + ">\\n" + stdin)
 elif sub == "style":
     sys.stdout.write("<style " + " ".join(args[1:-2]) + ">" + args[-1] + "</style>\\n")
 elif sub == "log":

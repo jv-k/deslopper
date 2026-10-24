@@ -242,7 +242,8 @@ def test_json_with_jev_carries_the_totals_and_errors_in_the_payload(tmp_path, ca
     assert err == ""
     payload = json.loads(out)
     assert payload["jev"] == {
-        "keep": 1, "rewrite": 0, "cached": 0, "tokens": 105, "cost": "0.000012",
+        "keep": 1, "rewrite": 0, "cached": 0, "saved_tokens": 0, "saved_cost": "0",
+        "tokens": 105, "cost": "0.000012",
         "errors": ["b.md: gateway returned 500: boom"],
     }
     schema = _output_schema()
