@@ -75,7 +75,7 @@ compiles kinds, `config.py` resolves, `discovery.py` finds files, `report.py` fo
 `digest.py` extracts the protected content the eval compares, `evaluate.py` runs the
 rewrite eval, `jev.py` asks the Jev model typed questions through one fake-able
 transport, `triage.py` turns a lint result and its source text into the same result with
-Jev's verdicts, `gum.py` owns the attended check and every gum call (see
+Jev's verdicts, `cache.py` keeps answers on disk between runs, `gum.py` owns the attended check and every gum call (see
 [ADR 0002](docs/adr/0002-styled-output-is-a-gum-layer-over-plain-output.md)), `ui.py`
 names the icons and the wordmark colours and writes the status lines, `help.py` renders the
 help screens, `completions.py` prints the shell completion scripts, and `cli.py` wires
