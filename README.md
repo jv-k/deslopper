@@ -44,27 +44,14 @@ rewrite it or keep it. Jev only adds notes, so the gate stays deterministic.
 
 - [Getting started](#getting-started)
 - [Fix slop with an LLM](#fix-slop-with-an-llm)
-  - [With a coding agent](#with-a-coding-agent)
-  - [With a script](#with-a-script)
-  - [Check the rewrite with `deslopper eval`](#check-the-rewrite-with-deslopper-eval)
-- [Why deslopper?](#why-deslopper)
 - [Install](#install)
-- [Update](#update)
 - [Commands](#commands)
-- [Tiers and exit codes](#tiers-and-exit-codes)
 - [The tells](#the-tells)
-- [The `aggressive` preset](#the-aggressive-preset)
 - [Configure](#configure)
-  - [The fields of a tell](#the-fields-of-a-tell)
-- [Disable directives](#disable-directives)
 - [Use it in CI](#use-it-in-ci)
-- [Use it in pre-commit](#use-it-in-pre-commit)
 - [Agent skill](#agent-skill)
-- [The `json` format](#the-json-format)
 - [Triage findings with Jev](#triage-findings-with-jev)
-- [Eval a rewrite pass](#eval-a-rewrite-pass)
 - [Contributing](#contributing)
-- [Licence](#licence)
 
 ## Getting started
 

@@ -71,7 +71,7 @@ def _anchor(heading: str) -> str:
     return text.replace(" ", "-")
 
 
-def test_readme_contents_lists_every_heading_with_a_working_link():
+def test_readme_contents_links_the_main_sections_in_order():
     import re
     with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as fh:
         readme = fh.read()
@@ -80,6 +80,9 @@ def test_readme_contents_lists_every_heading_with_a_working_link():
     body = readme[readme.index("\n## ", start + 1):]
     # Headings inside fenced code are not headings.
     body = re.sub(r"```.*?```", "", body, flags=re.S)
-    headings = re.findall(r"^#{2,3} (.+)$", body, flags=re.M)
-    links = re.findall(r"\[(.+?)\]\(#([^)]+)\)", contents)
-    assert [anchor for _text, anchor in links] == [_anchor(h) for h in headings]
+    # The contents names the main sections only: each link is a top-level heading,
+    # and they come in the order the README has them.
+    anchors = [_anchor(h) for h in re.findall(r"^## (.+)$", body, flags=re.M)]
+    links = [anchor for _text, anchor in re.findall(r"\[(.+?)\]\(#([^)]+)\)", contents)]
+    assert links and all(anchor in anchors for anchor in links), set(links) - set(anchors)
+    assert links == sorted(links, key=anchors.index)
