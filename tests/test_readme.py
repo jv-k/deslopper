@@ -86,3 +86,14 @@ def test_readme_contents_links_the_main_sections_in_order():
     links = [anchor for _text, anchor in re.findall(r"\[(.+?)\]\(#([^)]+)\)", contents)]
     assert links and all(anchor in anchors for anchor in links), set(links) - set(anchors)
     assert links == sorted(links, key=anchors.index)
+
+
+def test_readme_ci_pin_matches_the_package_version():
+    # verbump rewrites these pins on each release (see .verbumprc), so they must
+    # name the current version for its text pattern to find them.
+    import re
+    from deslopper import __version__
+    with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as fh:
+        readme = fh.read()
+    pins = re.findall(r"jv-k/deslopper@v([0-9][^ ]*)", readme)
+    assert pins and set(pins) == {__version__}, pins
