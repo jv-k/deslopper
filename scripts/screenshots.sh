@@ -42,7 +42,10 @@ render_help() {
   local dsl="deslopper"
   [ -x .venv/bin/deslopper ] && dsl=".venv/bin/deslopper"
   local rows height
-  rows=$(( $(COLUMNS=108 "$dsl" --help | wc -l | tr -d ' ') + 2 ))
+  # +2 for the typed command and the trailing prompt, +3 slack: the wordmark's
+  # box-drawing rows render taller than text rows in CI's font, and without the slack
+  # the window cut off the command line and the top of the wordmark.
+  rows=$(( $(COLUMNS=108 "$dsl" --help | wc -l | tr -d ' ') + 5 ))
   height=$(( rows * 21 + 70 ))
   sed "s/^Set Height .*/Set Height ${height}/" scripts/help.tape > img/tmp/help.tape
   vhs img/tmp/help.tape
