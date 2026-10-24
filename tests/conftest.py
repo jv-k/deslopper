@@ -50,6 +50,12 @@ def no_hook_git_env(monkeypatch):
         monkeypatch.delenv(name, raising=False)
 
 
+@pytest.fixture(autouse=True)
+def jev_cache_home(monkeypatch, tmp_path_factory):
+    """Every test caches Jev answers in its own folder, never the real user cache."""
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path_factory.mktemp("cache-home")))
+
+
 def canned_jev(monkeypatch, verdicts, **envelope):
     """Swap `jev.post` for a transport answering every question from `verdicts`,
     export a fake key, and return the list the bodies are recorded on."""

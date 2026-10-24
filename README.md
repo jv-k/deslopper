@@ -242,7 +242,7 @@ a temporary environment:
 
 ## Commands
 
-    deslopper lint  [PATHS...] [--strict] [--config P] [--format text|github|json] [--jev]
+    deslopper lint  [PATHS...] [--strict] [--config P] [--format text|github|json] [--jev] [--no-cache]
     deslopper check [PATHS...] [--config P]   # report only, exits 0 on findings
     deslopper rules [--config P]              # list the active tells
     deslopper init                            # write a starter config
@@ -530,7 +530,7 @@ error, such as a missing gateway key, prints one line to stderr and exits 2.
 With `--jev`, the object also has a `jev` key with the totals of the run. Its `errors`
 list has one line for each Jev request that failed:
 
-    "jev": { "keep": 2, "rewrite": 1, "tokens": 872, "cost": "0.000032844", "errors": [] }
+    "jev": { "keep": 2, "rewrite": 1, "cached": 0, "tokens": 872, "cost": "0.000032844", "errors": [] }
 
 The package ships a JSON Schema for each side of the contract:
 [output.schema.json](src/deslopper/schema/output.schema.json) for this object, and
@@ -575,11 +575,20 @@ Piped output adds the verdict to the end of each line, such as `[rewrite 0.87]`.
 format puts the verdict in the annotation message. The plain summary line counts the
 `keep` and `rewrite` verdicts, and reports the tokens and the gateway cost of the run.
 
+deslopper keeps each verdict in a cache on disk, in `$XDG_CACHE_HOME/deslopper/jev`, or
+`~/.cache/deslopper/jev` when that variable is not set. A later run uses the cached
+verdict while the tell, its column, and the lines around the finding stay the same. A
+finding that only moved down the file is not sent again. A file whose findings are all
+cached sends no request. The summary counts the cached verdicts, which cost nothing, and
+the `json` format reports them as `cached`. Add `--no-cache` to ask Jev about every
+finding again, for example after Jev changes. To clear the cache, delete the folder.
+
 Triage only adds notes. It never changes the exit code, so a `keep` verdict cannot make a
 lint pass, and the deterministic gate holds in CI. Some other limits apply:
 
 - deslopper never sends findings on a disabled line.
-- A file with no findings sends no request. A file with findings sends one request.
+- A file with no findings sends no request. A file with findings sends one request at
+  most.
 - `--jev` is a command-line flag only, never a config key. So no repo can turn on
   network calls for everyone who lints it.
 - `check` does not accept `--jev`.

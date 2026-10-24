@@ -4,6 +4,10 @@
 flagged, and returns the same result with a verdict and probability on each
 finding Jev answered. The exit code is not this module's concern: a verdict is
 annotation, and the scan stays the gate.
+
+With a cache, a finding Jev answered before is not asked about again while its
+tell, message, column and the lines around it are unchanged. The line number is
+left out of the key, so a finding that only moved down the file still hits.
 """
 
 from contextlib import nullcontext
@@ -32,16 +36,21 @@ OPTIONS = {
     ),
 }
 
+# Bump to drop every cached verdict, for a change the key cannot see.
+CACHE_VERSION = 1
+
 
 @dataclass
 class Triage:
     """What a triage pass came back with: the judged result, one error line per
-    request that failed or came back garbled, and what the run spent."""
+    request that failed or came back garbled, what the run spent, and how many
+    verdicts came from the cache."""
 
     result: LintResult
     errors: list = field(default_factory=list)
     tokens: int = 0
     cost: Decimal = Decimal(0)
+    cached: int = 0
 
 
 def _block(key, finding, lines) -> str:
@@ -54,6 +63,32 @@ def _block(key, finding, lines) -> str:
         marker = ">" if i == index else " "
         out.append(f"{marker} {i + 1}: {lines[i]}")
     return "\n".join(out)
+
+
+def _cache_key(finding, lines):
+    """What a verdict depends on, without the line number: the prompt, the tell, and
+    the flagged line with its neighbours. None when there is no source text, since
+    a finding with no context says too little to share an answer."""
+    index = finding.line - 1
+    context = [[i == index, lines[i]] for i in range(max(index - 1, 0), min(index + 2, len(lines)))]
+    if not context:
+        return None
+    return {"version": CACHE_VERSION, "model": jev.MODEL, "framing": FRAMING,
+            "question": QUESTION, "options": OPTIONS, "tell": finding.name,
+            "message": finding.message, "col": finding.col, "context": context}
+
+
+def _recall(cache, key, finding):
+    """The finding with its cached verdict, or None on a miss or an entry Finding rejects."""
+    if cache is None or key is None:
+        return None
+    entry = cache.get(key)
+    if not isinstance(entry, dict):
+        return None
+    try:
+        return replace(finding, verdict=entry.get("verdict"), probability=entry.get("probability"))
+    except (ValueError, TypeError):
+        return None
 
 
 def _lines(text: str) -> list:
@@ -87,7 +122,7 @@ def _decimal(cost) -> Decimal:
         return Decimal(0)
 
 
-def run(result: LintResult, sources: dict, progress=None) -> Triage:
+def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
     """Ask Jev about every finding in `result`, one request per file.
 
     `sources` maps a finding's path to that file's raw text. A file with no
@@ -95,27 +130,41 @@ def run(result: LintResult, sources: dict, progress=None) -> Triage:
     answers, adds one line to `errors` and leaves those findings unjudged.
     `progress(path, count, index, total)`, when given, returns a context that
     wraps each request, which is how the CLI shows a spinner per file.
+    `cache`, when given, is a `cache.Store`: a finding it holds a verdict for is
+    judged from it, a file whose findings are all held makes no request, and each
+    usable answer Jev gives is stored.
     """
     judged = list(result.findings)
     errors = []
     tokens = 0
     cost = Decimal(0)
+    cached = 0
     by_file = {}
     for index, finding in enumerate(result.findings):
         by_file.setdefault(finding.path, []).append(index)
-    for number, (path, indexes) in enumerate(by_file.items(), 1):
+    asking = {}
+    for path, indexes in by_file.items():
         lines = _lines(sources.get(path, ""))
-        keyed = {f"f{n}": index for n, index in enumerate(indexes, 1)}
+        for index in indexes:
+            key = _cache_key(result.findings[index], lines) if cache is not None else None
+            hit = _recall(cache, key, result.findings[index])
+            if hit is None:
+                asking.setdefault(path, (lines, []))[1].append((index, key))
+            else:
+                judged[index] = hit
+                cached += 1
+    for number, (path, (lines, pending)) in enumerate(asking.items(), 1):
+        keyed = {f"f{n}": item for n, item in enumerate(pending, 1)}
         state = "\n\n".join([FRAMING] + [
-            _block(key, result.findings[index], lines) for key, index in keyed.items()
+            _block(key, result.findings[index], lines) for key, (index, _) in keyed.items()
         ])
         questions = {
             key: jev.choice(QUESTION.format(key=key, name=result.findings[index].name,
                                             line=result.findings[index].line,
                                             col=result.findings[index].col), OPTIONS)
-            for key, index in keyed.items()
+            for key, (index, _) in keyed.items()
         }
-        wrap = progress(path, len(indexes), number, len(by_file)) if progress else nullcontext()
+        wrap = progress(path, len(pending), number, len(asking)) if progress else nullcontext()
         try:
             with wrap:
                 reply = jev.evaluate(state, questions)
@@ -127,12 +176,15 @@ def run(result: LintResult, sources: dict, progress=None) -> Triage:
         tokens += (reply.input_tokens or 0) + (reply.output_tokens or 0)
         cost += _decimal(reply.market_cost)
         unusable = 0
-        for key, index in keyed.items():
+        for key, (index, cache_key) in keyed.items():
             finding = _judge(result.findings[index], reply.answers.get(key))
             if finding is None:
                 unusable += 1
-            else:
-                judged[index] = finding
+                continue
+            judged[index] = finding
+            if cache is not None and cache_key is not None:
+                cache.put(cache_key, {"verdict": finding.verdict,
+                                      "probability": finding.probability})
         if unusable:
             errors.append(
                 f"{path}: the reply had no usable answer for {unusable} of {len(keyed)} findings"
@@ -142,4 +194,5 @@ def run(result: LintResult, sources: dict, progress=None) -> Triage:
         errors=errors,
         tokens=tokens,
         cost=cost,
+        cached=cached,
     )
