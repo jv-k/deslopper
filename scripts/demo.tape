@@ -15,7 +15,7 @@ Set FontSize 15
 Set Width 1000
 # Snug around the tallest scene, the --jev view: re-render and trim or grow
 # after changing the demo content.
-Set Height 800
+Set Height 1060
 # Monokai Pro palette with a Carbon (#191816) background for the terminal itself.
 Set Theme { "background": "#191816", "foreground": "#FCFCFA", "cursor": "#FCFCFA", "black": "#2D2A2E", "red": "#FF6188", "green": "#A9DC76", "yellow": "#FFD866", "blue": "#FC9867", "magenta": "#AB9DF2", "cyan": "#78DCE8", "white": "#FCFCFA", "brightBlack": "#727072", "brightRed": "#FF6188", "brightGreen": "#A9DC76", "brightYellow": "#FFD866", "brightBlue": "#FC9867", "brightMagenta": "#AB9DF2", "brightCyan": "#78DCE8", "brightWhite": "#FCFCFA", "selection": "#5B595C" }
 Set Padding 24
@@ -56,9 +56,10 @@ Show
 Type "deslopper lint --jev notes.md"
 Sleep 600ms
 Enter
-# Wait for Jev's totals line, which closes the view, then hold it. The gateway can
-# take up to 10 seconds, so a fixed sleep could hide the scene before the ratings.
-Wait+Screen@20s /Jev \d+ rewrite/
+# Wait for the cost row of the summary table, which gum draws with the rest of the
+# view, then hold it. The gateway can take up to 10 seconds, so a fixed sleep could
+# hide the scene before the ratings.
+Wait+Screen@20s /cost +│/
 Sleep 5s
 
 # Scene 3: rewrite the file off-camera, then lint it clean.
