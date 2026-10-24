@@ -212,7 +212,7 @@ def test_render_styles_table_cells_in_the_one_format_call_and_draws_the_table(gu
                             '{{ "below" }}\n{{ "|" }}\n'
                             % (gum.PALETTE["muted"], gum.PALETTE["error"],
                                gum.PALETTE["muted"], gum.PALETTE["ok"]))
-    assert table["args"] == ["table", "--print", "--separator", "\t", "--columns", "summary, ",
+    assert table["args"] == ["table", "--print", "--separator", "\t", "--columns", "summary,      ",
                              "--border", "rounded", "--border.foreground", gum.PALETTE["rule"],
                              "--lazy-quotes"]
     assert table["clicolor_force"] == "1"
@@ -245,3 +245,17 @@ def test_render_returns_none_when_the_table_fails(gum_shim, monkeypatch):
 
 def test_render_draws_a_view_that_ends_in_blank_lines(gum_shim):
     assert gum.render([[("", "a")], [], _table(), []]) is not None
+
+
+def test_a_table_with_a_width_fills_it_with_the_columns_after_the_first():
+    table = gum.Table(columns=["Jev", "a", "b"], rows=[[[("", "now")], [("", "1")], [("", "2")]]],
+                      width=24)
+    lines = gum.plain([table]).split("\n")[:-1]
+    assert lines[0] == "  ╭─────┬───────┬────────╮"
+    assert {len(line) for line in lines} == {2 + 24}
+
+
+def test_gum_gets_the_width_as_padded_header_names(gum_shim):
+    gum.render([gum.Table(columns=["Jev", "a"], rows=[[[("", "now")], [("", "1")]]], width=16)])
+    table = [c for c in gum_shim() if c["args"][0] == "table"][0]
+    assert table["args"][table["args"].index("--columns") + 1] == "Jev,a     "

@@ -38,10 +38,12 @@ file, each tell once with its fix, then every place it fired, with the line, the
 words highlighted, a caret under them, and Jev's rating first. It repeats the least, and
 on a narrow terminal it cuts each line around the caught words instead of wrapping.
 
-The one table that remains is the run's summary at the foot of the lint view: a short
-label and value row for each total, which fits a narrow terminal. `gum table` draws it
-from cells that the view's one `gum format` call has already styled, so the view makes
-two gum calls. `gum format` trims the whitespace around what it draws, so the template
+The tables that remain are the run's totals at the foot of the lint view: a summary
+table of label and value rows, and after a `--jev` run a table of what Jev cost and what
+the cache saved. Each spans the width of the rules. `gum table` draws each from cells
+that the view's one `gum format` call has already styled, so the view makes one gum call
+more per table. With `--print`, gum ignores `--widths`, so padded header names set the
+column widths. `gum format` trims the whitespace around what it draws, so the template
 has a marker line on each side, and the rows stay in their place. Without gum, the table
 is the same box in plain text.
 
