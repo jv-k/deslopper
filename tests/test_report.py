@@ -236,6 +236,13 @@ def test_lint_view_leads_each_row_with_jev_rating():
     assert "  Jev 1 rewrite  ·  1 keep  ·  1,577 tokens  ·  $0.000066" in text
 
 
+def test_lint_view_counts_the_cached_answers_beside_the_spend():
+    result, sources = _view_sample()
+    judged = Triage(result=result, tokens=120, cost=Decimal("0.00001"), cached=3)
+    text = _text(lint_view(result, sources, linted=1, width=100, judged=judged))
+    assert any(line.endswith("120 tokens  ·  $0.00001  ·  3 cached") for line in text)
+
+
 def test_lint_view_shows_the_cost_without_trailing_zeros():
     result, sources = _view_sample()
     judged = Triage(result=result, tokens=3820, cost=Decimal("0.000140700"))
