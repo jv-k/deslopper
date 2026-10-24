@@ -60,7 +60,7 @@ phase names key on.
 ## Triage
 
 **Triage**:
-The opt-in pass, `lint --triage`, that asks Jev about each finding after the scan. It
+The opt-in pass, `lint --jev`, that asks Jev about each finding after the scan. It
 annotates and never gates: the exit code is the scan's alone.
 _Avoid_: classification, labelling.
 
