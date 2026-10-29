@@ -12,7 +12,7 @@
       "name": "cutoff-disclaimer",
       "tier": "warn",
       "flags": "i",
-      "words": ["specific details are (?:limited|scarce)", "as of my last (?:update|training)", "as of my knowledge cutoff", "I don't have access to"],
+      "words": ["specific details are (?:limited|scarce)", "as of my last (?:update|training)", "as of my knowledge cutoff", "I don't have access to", "not widely (?:documented|available|disclosed)", "based on (?:the )?available information", "in the (?:provided|available) (?:sources|search results)", "does not by itself establish"],
       "message": "cutoff disclaimer, find the fact or cut"
     },
     {
@@ -26,7 +26,7 @@
       "name": "generic-conclusion",
       "tier": "warn",
       "flags": "i",
-      "words": ["the future (?:looks|is) bright", "only time will tell", "the possibilities are endless", "exciting times ahead"],
+      "words": ["the future (?:looks|is) bright", "only time will tell", "the possibilities are endless", "exciting times ahead", "at the end of the day", "it all comes down to", "in the end(?=,)"],
       "message": "generic conclusion, state a plan or fact"
     },
     {
@@ -34,6 +34,19 @@
       "tier": "warn",
       "pattern": "(?:\\*\\*[^*]+\\*\\*[^*]*){3,}",
       "message": "three or more bold spans on one line, bold at most one thing"
+    },
+    {
+      "name": "strong-intensifier",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["genuinely", "truly", "incredibly", "absolutely", "deeply", "remarkably", "fundamentally"],
+      "message": "strong intensifier, cut it or give the evidence"
+    },
+    {
+      "name": "unicode-arrow",
+      "tier": "warn",
+      "pattern": "\\u2192",
+      "message": "arrow in prose, write the step or the cause in words"
     }
   ]
 }
