@@ -665,6 +665,71 @@ AGGRESSIVE_SURVEY_TELL_POSITIVES = {
         "the context tax",
         "The review treadmill",
     ],
+    # Issue #71 from here on. The tutorial phrases recommended's signposting
+    # leaves out, with the survey's Django hits, which are tutorial prose.
+    "tutorial-signposting": [
+        "Let's dive in.",
+        "Let's dive into the config.",
+        "Let's delve into it.",
+        "Let's break this down.",
+        "Let's break it down.",
+        "Let's unpack the config.",
+        "Let's explore the API.",
+        "In this article, we'll build a poll app.",
+        "In this guide, we'll build a poll app.",
+        "In this post I'll show the fix.",
+        "By the end of this guide",
+        "By the end of this tutorial, you will have an app.",
+        "To recap, the view returns a response.",
+    ],
+    "contrast-adverb": [
+        "It is not simply a cache.",
+        "rather than merely storing it",
+        "less like a tool and more like a colleague",
+        "is genuinely useful",
+        "It isn't solely a parser.",
+    ],
+    # Only the low-noise tokens: the reversal tail and the per-item tail.
+    "strawman-tail": [
+        "it keeps one copy, not one per caller",
+        "the join goes from chunk to blob, not the other way around",
+        "Data flows from A to B, not vice versa.",
+        "It reads the head, not the reverse.",
+        "It runs once, not once for each file.",
+    ],
+    "restatement-marker": [
+        "In other words",
+        "In other words, the cache is a dict.",
+        "Put simply",
+        "Put simply, it caches.",
+        "Simply put",
+        "Simply put, it caches.",
+        "Put differently",
+        "Said differently, it caches.",
+        "To put it another way",
+        "To put it simply, it caches.",
+        "What this means is",
+    ],
+    "numbered-lead-in": [
+        "Three key reasons:",
+        "There are three key reasons: speed, size and cost.",
+        "Here are the five",
+        "Here are the five rules we follow.",
+        "There are three main",
+        "There are three main causes of the bug.",
+        "Two core ideas: caching and retries.",
+    ],
+    # The survey's examples less the two the issue drops (seams, quietly).
+    "claude-figurative": [
+        "load-bearing",
+        "This check is load-bearing.",
+        "a load bearing assumption",
+        "the change lands",
+        "Once the change lands, the cache is warm.",
+        "earns its place",
+        "Each flag earns its keep.",
+        "the shape of the problem",
+    ],
 }
 
 AGGRESSIVE_SURVEY_TELL_NEGATIVES = {
@@ -715,6 +780,58 @@ AGGRESSIVE_SURVEY_TELL_NEGATIVES = {
         "Errors creep through.",
         "They creep in slowly.",
     ],
+    # The essay closers belong to recommended's signposting, so the aggressive
+    # tell does not flag them a second time.
+    "tutorial-signposting": [
+        "In conclusion, the cache works.",
+        "Without further ado",
+        "Dive into the code to learn more.",
+        "In this article, the cache is a dict.",
+        "By the end of this week, it ships.",
+        "Let it explore the tree.",
+    ],
+    # The survey's Django hits ("rather than simply joining", "is not simply
+    # Python") read the same as its examples, so the aggressive tell accepts that
+    # risk and recommended stays silent on them: see
+    # test_honest_aggressive_hits_stay_out_of_recommended.
+    "contrast-adverb": [
+        "It is simply a cache.",
+        "It looks less like a bug.",
+        "It is merely a stub.",
+    ],
+    # The issue keeps the bare "rather than" and "instead of" tails out: the
+    # survey rates them high risk, with 275 Django lines on "rather than".
+    "strawman-tail": [
+        "the reader walks the index, rather than walking the whole tree",
+        "It reads the cache instead of the disk.",
+        "It reads the file rather than the socket.",
+        "Use the reverse order, not the default.",
+        "Pass one, not two.",
+    ],
+    # The survey: one Django hit is the imperative "simply put a".
+    "restatement-marker": [
+        "Simply put a file in the folder.",
+        "Put the file simply in the root.",
+        "What this means for you is listed below.",
+    ],
+    # The survey: human docs count list items too.
+    "numbered-lead-in": [
+        "There are three files in the folder.",
+        "Run these three steps:",
+        "The two main files are listed below.",
+        "Here are the files.",
+    ],
+    # The issue drops seams and quietly, which have honest technical meanings.
+    # The survey's Django hit is the quietly line.
+    "claude-figurative": [
+        "browsers will quietly ignore the header",
+        "It quietly drops the packet.",
+        "Put a test at each of the seams.",
+        "The bearing takes the load.",
+        "The plane lands at noon.",
+        "It earns interest.",
+        "The shape of the array is (2, 3).",
+    ],
 }
 
 
@@ -745,6 +862,20 @@ def test_aggressive_survey_tells_are_warn_tier_and_case_insensitive():
     "This is the only way to change the cache key.",
 ])
 def test_honest_only_way_to_stays_out_of_recommended(text):
+    for raw in load_builtin("recommended")["tells"]:
+        assert not offsets(compile_tell(raw), text), f"{raw['name']} false positive: {text!r}"
+
+
+@pytest.mark.parametrize("text", [
+    # The survey's Django hits for contrast-adverb and restatement-marker, and
+    # the civil-engineering sense of load-bearing it notes for claude-figurative.
+    # The aggressive tells flag these, and only that opt-in layer may.
+    "It joins the tables rather than simply joining the rows.",
+    "The template language is not simply Python.",
+    "In other words, the view returns a response.",
+    "Do not remove a load-bearing wall.",
+])
+def test_honest_aggressive_hits_stay_out_of_recommended(text):
     for raw in load_builtin("recommended")["tells"]:
         assert not offsets(compile_tell(raw), text), f"{raw['name']} false positive: {text!r}"
 

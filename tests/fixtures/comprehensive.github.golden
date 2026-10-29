@@ -90,6 +90,7 @@
 ::warning file=comprehensive.md,line=73,col=1::negation-pivot - "it's not X, it's Y" pivot, say what it is
 ::warning file=comprehensive.md,line=75,col=1::importance-flag - says it matters instead of showing why, give the consequence
 ::warning file=comprehensive.md,line=77,col=7::not-just-x-but-y - "not just X but Y" padding, make the point once
+::warning file=comprehensive.md,line=77,col=31::contrast-adverb - contrast with a softening adverb, say what it is
 ::warning file=comprehensive.md,line=79,col=1::throat-clearing - throat-clearing or transition opener, start with the point
 ::warning file=comprehensive.md,line=81,col=4::filler-verb - filler verb, use a plain verb or cut
 ::warning file=comprehensive.md,line=81,col=14::filler-verb - filler verb, use a plain verb or cut
@@ -109,6 +110,7 @@
 ::warning file=comprehensive.md,line=89,col=18::vague-attribution - vague attribution, name the source or cut
 ::warning file=comprehensive.md,line=89,col=41::vague-attribution - vague attribution, name the source or cut
 ::warning file=comprehensive.md,line=91,col=1::signposting - essay signpost, cut the announcement and keep the point
+::warning file=comprehensive.md,line=91,col=33::tutorial-signposting - tutorial signpost, start with the first step
 ::warning file=comprehensive.md,line=93,col=11::urgency-inflation - inflated stakes, give the reason it is urgent
 ::warning file=comprehensive.md,line=95,col=4::stacked-hedge - stacked hedge, keep one hedge or none
 ::warning file=comprehensive.md,line=97,col=6::tradeoff-dodge - claims the gain costs nothing, state the tradeoff or show there is none
@@ -121,21 +123,27 @@
 ::warning file=comprehensive.md,line=111,col=1::overreach - absolute claim with no support, back it with evidence or soften it
 ::warning file=comprehensive.md,line=113,col=1::invented-concept-label - coined label used as an established term, describe the effect instead
 ::warning file=comprehensive.md,line=113,col=19::invented-concept-label - coined label used as an established term, describe the effect instead
-::warning file=comprehensive.md,line=115,col=1::chatbot-phrase - chatbot phrase, delete it
-::warning file=comprehensive.md,line=115,col=37::chatbot-phrase - chatbot phrase, delete it
-::warning file=comprehensive.md,line=115,col=55::chatbot-phrase - chatbot phrase, delete it
-::warning file=comprehensive.md,line=117,col=1::sycophancy - sycophantic tone, respond directly
-::warning file=comprehensive.md,line=117,col=13::sycophancy - sycophantic tone, respond directly
-::warning file=comprehensive.md,line=117,col=38::sycophancy - sycophantic tone, respond directly
-::warning file=comprehensive.md,line=119,col=9::fancy-is - fancy way to say 'is', say 'is' or 'has'
-::warning file=comprehensive.md,line=119,col=32::fancy-is - fancy way to say 'is', say 'is' or 'has'
-::warning file=comprehensive.md,line=121,col=4::puffery - puffery, state what happened
-::warning file=comprehensive.md,line=121,col=12::inflated-word - inflated word, use a plain one
-::warning file=comprehensive.md,line=121,col=26::puffery - puffery, state what happened
-::warning file=comprehensive.md,line=121,col=34::puffery - puffery, state what happened
-::warning file=comprehensive.md,line=121,col=67::puffery - puffery, state what happened
-::warning file=comprehensive.md,line=123,col=12::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=123,col=31::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=123,col=44::emoji - emoji or decorative checkmark in body text
-::error file=comprehensive.md,line=139,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::warning file=comprehensive.md,line=139,col=17::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=115,col=1::tutorial-signposting - tutorial signpost, start with the first step
+::warning file=comprehensive.md,line=117,col=4::contrast-adverb - contrast with a softening adverb, say what it is
+::warning file=comprehensive.md,line=119,col=18::strawman-tail - negated tail nobody claimed, cut it and keep the claim
+::warning file=comprehensive.md,line=121,col=1::restatement-marker - restatement marker, say it once and plainly
+::warning file=comprehensive.md,line=123,col=1::numbered-lead-in - count announced before a list, start the list
+::warning file=comprehensive.md,line=125,col=14::claude-figurative - figurative word, use the literal one
+::warning file=comprehensive.md,line=127,col=1::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=127,col=37::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=127,col=55::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=129,col=1::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=129,col=13::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=129,col=38::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=131,col=9::fancy-is - fancy way to say 'is', say 'is' or 'has'
+::warning file=comprehensive.md,line=131,col=32::fancy-is - fancy way to say 'is', say 'is' or 'has'
+::warning file=comprehensive.md,line=133,col=4::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=133,col=12::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=133,col=26::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=133,col=34::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=133,col=67::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=135,col=12::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=135,col=31::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=135,col=44::emoji - emoji or decorative checkmark in body text
+::error file=comprehensive.md,line=151,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::warning file=comprehensive.md,line=151,col=17::filler-verb - filler verb, use a plain verb or cut
