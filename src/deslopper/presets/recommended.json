@@ -266,14 +266,14 @@
     {
       "name": "pithy-fragment",
       "tier": "warn",
-      "pattern": "(?:^|(?<=[.!?]\\s))(?!(?:Yes|No)\\b)[A-Z][a-z]+, (?:not|never|yet|but) [a-z]+\\.",
+      "pattern": "(?:^|(?<=[-*+.!?] )|(?<=[.!?]  ))(?!(?:Yes|No|Okay|Sure|Thanks|Optional)\\b)[A-Z][a-z]+, (?:not|never|yet|but) [a-z]+\\.",
       "message": "verbless slogan fragment, write a full sentence that says what it does"
     },
     {
       "name": "narrative-pivot",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\b(?:something|everything) (?:shifted|changed|clicked)(?=[.!]|$)|\\b(?:this|that) changes? everything\\b|\\band then it (?:clicked|hit me)\\b|\\bthe penny dropped\\b",
+      "pattern": "(?<!\\bif )(?<!\\bwhen )(?<!\\bwhether )(?<!\\bunless )\\b(?:something|everything) (?:shifted|changed|clicked)(?=[.!]|$)|\\b(?:this|that) changes? everything\\b|\\band then it (?:clicked|hit me)\\b|\\bthe penny dropped\\b",
       "message": "staged story turn, name what changed and why"
     },
     {
@@ -287,7 +287,7 @@
       "name": "business-jargon",
       "tier": "warn",
       "flags": "i",
-      "words": ["game[- ]?changers?", "paradigm shifts?", "mov(?:e|es|ed|ing) the needle", "secret sauce", "low-hanging fruit", "doubl(?:e|es|ed|ing) down", "lean(?:s|ed|ing)? into", "circl(?:e|es|ed|ing) back", "deep[- ]dives?", "best-in-class", "thought leaders?(?:hip)?", "win-win"],
+      "words": ["game[- ]?changers?", "paradigm shifts?", "mov(?:e|es|ed|ing) the needle", "secret sauce", "low-hanging fruit", "doubl(?:e|es|ed|ing) down", "lean(?:s|ed|ing)? into", "circl(?:e|es|ed|ing) back", "deep[- ]dives?", "best-in-class", "thought leader(?:ship)?", "win-win"],
       "message": "business jargon, say the plain thing it stands for"
     }
   ]
