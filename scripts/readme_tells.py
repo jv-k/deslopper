@@ -75,6 +75,10 @@ AGGRESSIVE_EXAMPLES = {
     "boldface-overuse": "**Fast**, **safe**, **simple**.",
     "strong-intensifier": "It is genuinely fast.",
     "unicode-arrow": "Build → test → ship.",
+    "missing-piece": "This is the missing piece.",
+    "contrarian-hook": "Most teams get this backwards.",
+    "overreach": "There's no denying it scales.",
+    "invented-concept-label": "Call it the context tax.",
 }
 
 

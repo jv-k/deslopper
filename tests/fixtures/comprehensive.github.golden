@@ -56,11 +56,13 @@
 ::warning file=comprehensive.md,line=45,col=1::sycophancy - sycophantic tone, respond directly
 ::warning file=comprehensive.md,line=45,col=20::sycophancy - sycophantic tone, respond directly
 ::warning file=comprehensive.md,line=45,col=37::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=45,col=44::strong-intensifier - strong intensifier, cut it or give the evidence
 ::warning file=comprehensive.md,line=47,col=10::fancy-is - fancy way to say 'is', say 'is' or 'has'
 ::warning file=comprehensive.md,line=47,col=27::fancy-is - fancy way to say 'is', say 'is' or 'has'
 ::warning file=comprehensive.md,line=47,col=53::fancy-is - fancy way to say 'is', say 'is' or 'has'
 ::warning file=comprehensive.md,line=49,col=3::puffery - puffery, state what happened
 ::warning file=comprehensive.md,line=49,col=20::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=49,col=29::abstract-metaphor - abstract metaphor, pick the concrete word
 ::warning file=comprehensive.md,line=49,col=40::puffery - puffery, state what happened
 ::warning file=comprehensive.md,line=51,col=1::vague-attribution - vague attribution, name the source or cut
 ::warning file=comprehensive.md,line=51,col=21::vague-attribution - vague attribution, name the source or cut
@@ -114,21 +116,26 @@
 ::warning file=comprehensive.md,line=101,col=6::narrative-pivot - staged story turn, name what changed and why
 ::warning file=comprehensive.md,line=103,col=1::negative-listing - countdown of negations before the point, say what it is
 ::warning file=comprehensive.md,line=105,col=9::business-jargon - business jargon, say the plain thing it stands for
-::warning file=comprehensive.md,line=107,col=1::chatbot-phrase - chatbot phrase, delete it
-::warning file=comprehensive.md,line=107,col=37::chatbot-phrase - chatbot phrase, delete it
-::warning file=comprehensive.md,line=107,col=55::chatbot-phrase - chatbot phrase, delete it
-::warning file=comprehensive.md,line=109,col=1::sycophancy - sycophantic tone, respond directly
-::warning file=comprehensive.md,line=109,col=13::sycophancy - sycophantic tone, respond directly
-::warning file=comprehensive.md,line=109,col=38::sycophancy - sycophantic tone, respond directly
-::warning file=comprehensive.md,line=111,col=9::fancy-is - fancy way to say 'is', say 'is' or 'has'
-::warning file=comprehensive.md,line=111,col=32::fancy-is - fancy way to say 'is', say 'is' or 'has'
-::warning file=comprehensive.md,line=113,col=4::puffery - puffery, state what happened
-::warning file=comprehensive.md,line=113,col=12::inflated-word - inflated word, use a plain one
-::warning file=comprehensive.md,line=113,col=26::puffery - puffery, state what happened
-::warning file=comprehensive.md,line=113,col=34::puffery - puffery, state what happened
-::warning file=comprehensive.md,line=113,col=67::puffery - puffery, state what happened
-::warning file=comprehensive.md,line=115,col=12::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=115,col=31::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=115,col=44::emoji - emoji or decorative checkmark in body text
-::error file=comprehensive.md,line=131,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::warning file=comprehensive.md,line=131,col=17::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=107,col=9::missing-piece - claim of a gap others missed, show the gap and what fills it
+::warning file=comprehensive.md,line=109,col=1::contrarian-hook - contrarian hook against an unnamed crowd, state your claim and its evidence
+::warning file=comprehensive.md,line=111,col=1::overreach - absolute claim with no support, back it with evidence or soften it
+::warning file=comprehensive.md,line=113,col=1::invented-concept-label - coined label used as an established term, describe the effect instead
+::warning file=comprehensive.md,line=113,col=19::invented-concept-label - coined label used as an established term, describe the effect instead
+::warning file=comprehensive.md,line=115,col=1::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=115,col=37::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=115,col=55::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=117,col=1::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=117,col=13::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=117,col=38::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=119,col=9::fancy-is - fancy way to say 'is', say 'is' or 'has'
+::warning file=comprehensive.md,line=119,col=32::fancy-is - fancy way to say 'is', say 'is' or 'has'
+::warning file=comprehensive.md,line=121,col=4::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=121,col=12::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=121,col=26::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=121,col=34::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=121,col=67::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=123,col=12::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=123,col=31::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=123,col=44::emoji - emoji or decorative checkmark in body text
+::error file=comprehensive.md,line=139,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::warning file=comprehensive.md,line=139,col=17::filler-verb - filler verb, use a plain verb or cut

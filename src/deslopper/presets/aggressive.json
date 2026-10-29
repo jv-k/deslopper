@@ -47,6 +47,34 @@
       "tier": "warn",
       "pattern": "\\u2192",
       "message": "arrow in prose, write the step or the cause in words"
+    },
+    {
+      "name": "missing-piece",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["(?:the|a) missing (?:piece(?! (?:of (?:data|information|metadata)|from)\\b)|link(?! (?:to|in|on|from)\\b)|ingredient|layer)", "the (?:gap|blind spot) (?:nobody|no one|everyone|most people|we all) (?:noticed|saw|missed|ignored|overlooked)"],
+      "message": "claim of a gap others missed, show the gap and what fills it"
+    },
+    {
+      "name": "contrarian-hook",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:most (?:people|teams|developers|engineers)|everyone)\\s+(?:thinks?|assumes?|believes?)\\b[^.!?]{0,80}[.!?]\\s+(?:they'?re|they are|that'?s|that is) wrong\\b|\\b(?:most (?:people|teams|developers|engineers)|everyone|we all)\\s+(?:gets?|got) (?:this|it) backwards?\\b",
+      "message": "contrarian hook against an unnamed crowd, state your claim and its evidence"
+    },
+    {
+      "name": "overreach",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["the only (?:way to|real solution|way forward)", "the single most", "arguably the most", "above all else", "there(?:'s| is) no denying"],
+      "message": "absolute claim with no support, back it with evidence or soften it"
+    },
+    {
+      "name": "invented-concept-label",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:the (?!(?:birthday|scope|feature|mission)\\b)(?-i:[a-zA-Z][a-z-]*) (?:paradox|trap|tax|creep|cliff|treadmill|divide)|(?!(?:the|a|an|scope|feature|mission)\\b)(?-i:[a-zA-Z][a-z-]*) creep(?! (?:up|upwards?|back|in|into)\\b))\\b",
+      "message": "coined label used as an established term, describe the effect instead"
     }
   ]
 }
