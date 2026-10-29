@@ -160,3 +160,116 @@ def test_middle_dot_message_names_the_separator_to_use():
     assert len(tells) == 2
     for tell in tells:
         assert "◦" in tell["message"], tell["message"]
+
+
+# The tells added from the slop-detector survey (issue #60). Each positive is an
+# example phrase from the issue, and each negative is honest prose the issue names
+# as staying out.
+NEW_TELL_POSITIVES = {
+    "false-exclusivity": [
+        "Nobody talks about the cost.",
+        "Here's what nobody tells you about caching.",
+        "What no one tells you is",
+        "The part everyone misses",
+        "What most people get wrong",
+        "No one is talking about this.",
+    ],
+    "hidden-truth": [
+        "The quiet truth is that tests rot.",
+        "the hidden cost of retries",
+        "The uncomfortable truth:",
+        "the dirty little secret",
+        "the inconvenient truth",
+    ],
+    "real-problem-reframe": [
+        "The real problem isn't speed, it's trust.",
+        "Latency isn't the bottleneck.",
+        "It was never about the code.",
+        "The question isn't X. It's Y.",
+    ],
+    "false-suspense": [
+        "Here's the thing:",
+        "Here's the kicker.",
+        "Here's where it gets interesting.",
+        "Here's why this matters.",
+        "Here's what I learned.",
+        "The kicker",
+    ],
+    "rhetorical-self-answer": [
+        "The result? Devastating.",
+        "The catch? It only runs on Linux.",
+        "The worst part? Nobody saw it coming.",
+    ],
+    "emphasis-crutch": [
+        "Let that sink in.",
+        "Read that again.",
+        "Full stop.",
+        "Make no mistake",
+        "I'll say it again:",
+        "Yes, really.",
+    ],
+    "staged-candor": [
+        "And honestly?",
+        "Honestly? It depends.",
+        "Honest take:",
+        "Let's be honest,",
+        "To be frank",
+        "If I'm being honest",
+        "The honest answer",
+    ],
+    "mic-drop": [
+        "That's the whole point.",
+        "And that's okay.",
+        "That's the beauty of it.",
+        "This is what good tooling looks like.",
+        "It matters.",
+    ],
+    "negation-pivot": [
+        "It's not a bug. It's a feature.",
+        "This isn't about speed, it's about trust.",
+        "Not because it is slow. Because it is wrong.",
+        "You don't need more tests. You need better ones.",
+    ],
+    "importance-flag": [
+        "This matters because",
+        "Why this matters",
+        "That distinction matters.",
+        "matters more than ever",
+    ],
+}
+
+NEW_TELL_NEGATIVES = {
+    "false-exclusivity": ["No one can write to the file."],
+    "real-problem-reframe": [
+        "The real problem is a race in the cache.",
+        "The problem isn't reproducible on Linux.",
+    ],
+    "false-suspense": ["Here's how to run it.", "Here's the output of the command."],
+    "rhetorical-self-answer": ["What is the result? See below."],
+    "emphasis-crutch": ["Use a full stop at the end."],
+    "staged-candor": ["He answered honestly."],
+    "mic-drop": ["It matters which order you pass them in."],
+    "negation-pivot": ["It is not set by default. It is read from the env."],
+    "importance-flag": ["The order matters for hashing."],
+}
+
+
+@pytest.mark.parametrize("name,text", [
+    (name, text) for name, texts in NEW_TELL_POSITIVES.items() for text in texts
+])
+def test_survey_tell_flags_its_example(name, text):
+    assert offsets(_preset_tell(name), text), f"{name} should flag: {text!r}"
+
+
+@pytest.mark.parametrize("name,text", [
+    (name, text) for name, texts in NEW_TELL_NEGATIVES.items() for text in texts
+])
+def test_survey_tell_leaves_honest_prose_alone(name, text):
+    assert not offsets(_preset_tell(name), text), f"{name} false positive: {text!r}"
+
+
+def test_survey_tells_are_warn_tier_and_case_insensitive():
+    raw = {t["name"]: t for t in load_builtin("recommended")["tells"]}
+    for name in NEW_TELL_POSITIVES:
+        assert raw[name]["tier"] == "warn", name
+        assert raw[name]["flags"] == "i", name

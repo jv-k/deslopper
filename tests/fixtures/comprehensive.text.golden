@@ -75,8 +75,20 @@ comprehensive.md:53:63 [warn] inflated-word: inflated word, use a plain one
 comprehensive.md:55:10 [warn] trailing-participle: trailing participle clause, say it straight or cut
 comprehensive.md:55:27 [warn] trailing-participle: trailing participle clause, say it straight or cut
 comprehensive.md:55:46 [warn] trailing-participle: trailing participle clause, say it straight or cut
-comprehensive.md:57:12 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:57:31 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:57:44 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:73:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
-comprehensive.md:73:17 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:57:1 [warn] false-exclusivity: claim that others miss the point, make the point and cite who missed it
+comprehensive.md:59:1 [warn] hidden-truth: promised hidden truth, state the fact plainly
+comprehensive.md:59:40 [warn] hidden-truth: promised hidden truth, state the fact plainly
+comprehensive.md:61:1 [warn] real-problem-reframe: reframe to a "real" problem, name the problem and show why
+comprehensive.md:63:1 [warn] false-suspense: false suspense before a reveal, start with the point
+comprehensive.md:65:1 [warn] rhetorical-self-answer: question answered at once, state the answer as a sentence
+comprehensive.md:67:1 [warn] emphasis-crutch: emphasis crutch, cut it and let the point stand
+comprehensive.md:67:19 [warn] emphasis-crutch: emphasis crutch, cut it and let the point stand
+comprehensive.md:69:1 [warn] staged-candor: staged candor, drop the honesty marker and make the claim
+comprehensive.md:71:1 [warn] mic-drop: mic-drop line that grades the point, cut it or add a fact
+comprehensive.md:73:1 [warn] negation-pivot: "it's not X, it's Y" pivot, say what it is
+comprehensive.md:75:1 [warn] importance-flag: says it matters instead of showing why, give the consequence
+comprehensive.md:77:12 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:77:31 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:77:44 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:93:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:93:17 [warn] filler-verb: filler verb, use a plain verb or cut

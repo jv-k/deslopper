@@ -75,8 +75,20 @@
 ::warning file=comprehensive.md,line=55,col=10::trailing-participle - trailing participle clause, say it straight or cut
 ::warning file=comprehensive.md,line=55,col=27::trailing-participle - trailing participle clause, say it straight or cut
 ::warning file=comprehensive.md,line=55,col=46::trailing-participle - trailing participle clause, say it straight or cut
-::warning file=comprehensive.md,line=57,col=12::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=57,col=31::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=57,col=44::emoji - emoji or decorative checkmark in body text
-::error file=comprehensive.md,line=73,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::warning file=comprehensive.md,line=73,col=17::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=57,col=1::false-exclusivity - claim that others miss the point, make the point and cite who missed it
+::warning file=comprehensive.md,line=59,col=1::hidden-truth - promised hidden truth, state the fact plainly
+::warning file=comprehensive.md,line=59,col=40::hidden-truth - promised hidden truth, state the fact plainly
+::warning file=comprehensive.md,line=61,col=1::real-problem-reframe - reframe to a "real" problem, name the problem and show why
+::warning file=comprehensive.md,line=63,col=1::false-suspense - false suspense before a reveal, start with the point
+::warning file=comprehensive.md,line=65,col=1::rhetorical-self-answer - question answered at once, state the answer as a sentence
+::warning file=comprehensive.md,line=67,col=1::emphasis-crutch - emphasis crutch, cut it and let the point stand
+::warning file=comprehensive.md,line=67,col=19::emphasis-crutch - emphasis crutch, cut it and let the point stand
+::warning file=comprehensive.md,line=69,col=1::staged-candor - staged candor, drop the honesty marker and make the claim
+::warning file=comprehensive.md,line=71,col=1::mic-drop - mic-drop line that grades the point, cut it or add a fact
+::warning file=comprehensive.md,line=73,col=1::negation-pivot - "it's not X, it's Y" pivot, say what it is
+::warning file=comprehensive.md,line=75,col=1::importance-flag - says it matters instead of showing why, give the consequence
+::warning file=comprehensive.md,line=77,col=12::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=77,col=31::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=77,col=44::emoji - emoji or decorative checkmark in body text
+::error file=comprehensive.md,line=93,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::warning file=comprehensive.md,line=93,col=17::filler-verb - filler verb, use a plain verb or cut

@@ -46,6 +46,16 @@ EXAMPLES = {
     "vague-attribution": "Experts believe it scales.",
     "inflated-word": "A crucial, intricate detail.",
     "trailing-participle": "It retries, ensuring delivery.",
+    "false-exclusivity": "Nobody talks about the cost.",
+    "hidden-truth": "The uncomfortable truth: tests rot.",
+    "real-problem-reframe": "The real problem isn't speed.",
+    "false-suspense": "Here's the thing: it caches.",
+    "rhetorical-self-answer": "The catch? It only runs on Linux.",
+    "emphasis-crutch": "It never drops a job. Let that sink in.",
+    "staged-candor": "Honestly? It depends.",
+    "mic-drop": "That's the whole point.",
+    "negation-pivot": "It's not a bug. It's a feature.",
+    "importance-flag": "This matters because retries add up.",
 }
 
 # The opt-in aggressive layer, pinned by test_every_aggressive_example_fires_its_tell.

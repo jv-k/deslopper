@@ -27,7 +27,7 @@ notes. It never changes the result of the lint.
 
 ## Highlights
 
-- A deterministic lint for 20 tells, with an opt-in `aggressive` preset for 5 more.
+- A deterministic lint for 30 tells, with an opt-in `aggressive` preset for 5 more.
 - Jev triage: `deslopper lint --jev` gives each finding a `keep` or `rewrite` verdict and
   a probability. A file with findings costs one request, at a fraction of a cent, and a
   disk cache skips the findings that did not change.
@@ -145,6 +145,16 @@ each sample fires its tell. To see the tells for your own config, run `deslopper
 | `vague-attribution` | ⚠️ | `Experts believe it scales.` | vague attribution, name the source or cut |
 | `inflated-word` | ⚠️ | `A crucial, intricate detail.` | inflated word, use a plain one |
 | `trailing-participle` | ⚠️ | `It retries, ensuring delivery.` | trailing participle clause, say it straight or cut |
+| `false-exclusivity` | ⚠️ | `Nobody talks about the cost.` | claim that others miss the point, make the point and cite who missed it |
+| `hidden-truth` | ⚠️ | `The uncomfortable truth: tests rot.` | promised hidden truth, state the fact plainly |
+| `real-problem-reframe` | ⚠️ | `The real problem isn't speed.` | reframe to a "real" problem, name the problem and show why |
+| `false-suspense` | ⚠️ | `Here's the thing: it caches.` | false suspense before a reveal, start with the point |
+| `rhetorical-self-answer` | ⚠️ | `The catch? It only runs on Linux.` | question answered at once, state the answer as a sentence |
+| `emphasis-crutch` | ⚠️ | `It never drops a job. Let that sink in.` | emphasis crutch, cut it and let the point stand |
+| `staged-candor` | ⚠️ | `Honestly? It depends.` | staged candor, drop the honesty marker and make the claim |
+| `mic-drop` | ⚠️ | `That's the whole point.` | mic-drop line that grades the point, cut it or add a fact |
+| `negation-pivot` | ⚠️ | `It's not a bug. It's a feature.` | "it's not X, it's Y" pivot, say what it is |
+| `importance-flag` | ⚠️ | `This matters because retries add up.` | says it matters instead of showing why, give the consequence |
 
 <!-- deslop-lint-enable -->
 <!-- tell-table:end -->
