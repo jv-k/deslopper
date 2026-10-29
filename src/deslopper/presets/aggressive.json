@@ -52,7 +52,7 @@
       "name": "missing-piece",
       "tier": "warn",
       "flags": "i",
-      "words": ["(?:the|a) missing (?:piece(?! (?:of (?:data|information|metadata)|from)\\b)|link(?! (?:to|in|on|from)\\b)|ingredient|layer)", "the (?:gap|blind spot) (?:nobody|no one|everyone|most people|we all) (?:noticed|saw|missed|ignored|overlooked)"],
+      "words": ["(?:the|a) missing (?:piece(?! (?:of (?:data|information|metadata|code|config(?:uration)?)|from)\\b)|link(?! (?:to|from)\\b)|ingredient|layer)", "the (?:gap|blind spot) (?:nobody|no one) (?:noticed|saw)", "the (?:gap|blind spot) (?:everyone|most people|we all) (?:missed|ignored|overlooked)"],
       "message": "claim of a gap others missed, show the gap and what fills it"
     },
     {
@@ -73,7 +73,7 @@
       "name": "invented-concept-label",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\b(?:the (?!(?:birthday|scope|feature|mission)\\b)(?-i:[a-zA-Z][a-z-]*) (?:paradox|trap|tax|creep|cliff|treadmill|divide)|(?!(?:the|a|an|scope|feature|mission)\\b)(?-i:[a-zA-Z][a-z-]*) creep(?! (?:up|upwards?|back|in|into)\\b))\\b",
+      "pattern": "\\b(?:the (?!(?:birthday|fermi|income|sales|poverty|digital|fiscal|hedonic|scope|feature|mission|exit|err|debug|return)\\b)(?-i:[a-zA-Z][a-z-]*) (?:paradox|trap|tax|creep|cliff|treadmill|divide)|(?!(?:the|a|an|i|we|you|they|to|can|could|may|might|will|would|should|must|do|does|did|scope|feature|mission)\\b)(?-i:[a-zA-Z][a-z-]*(?:[^\\Ws]|ss)) creep(?! (?:up|upwards?|back|in|into)\\b))\\b",
       "message": "coined label used as an established term, describe the effect instead"
     }
   ]

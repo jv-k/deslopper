@@ -6,7 +6,8 @@ from deslopper import report
 
 
 def _result(fixtures_dir):
-    # Both presets, so the goldens show every shipped tell, the opt-in layer too.
+    # Both presets layered, so the goldens can show smells from the opt-in layer
+    # too. The repo config extends only recommended, so it cannot.
     cfg = resolve({"extends": ["deslopper:recommended", "deslopper:aggressive"]})
     path = os.path.join(fixtures_dir, "comprehensive.md")
     return lint_files([("comprehensive.md", path)], cfg.tells)
