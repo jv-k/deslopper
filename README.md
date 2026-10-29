@@ -5,7 +5,7 @@
   <p>
     <a href="https://github.com/jv-k/deslopper/actions/workflows/ci.yml"><img src="https://github.com/jv-k/deslopper/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
     <a href="https://github.com/jv-k/deslopper/releases/latest"><img src="https://img.shields.io/github/v/release/jv-k/deslopper" alt="Latest release"></a>
-    <img src="https://img.shields.io/badge/python-3.9%2B-blue.svg" alt="Python 3.9 or later">
+    <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10 or later">
     <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-blue.svg" alt="MIT licence"></a>
   </p>
   <p><strong>A slop linter for Markdown.</strong></p>
@@ -34,7 +34,7 @@ notes. It never changes the result of the lint.
 - An eval for your rewrite pass: `deslopper eval` checks that a model rewrite removes the
   tells and keeps your code, headings, tables, and links.
 - A skill for coding agents, so the agent writes within the tells and lints its own work.
-- No dependencies beyond Python 3.9. It runs in GitHub Actions, pre-commit, and the
+- No dependencies beyond Python 3.10. It runs in GitHub Actions, pre-commit, and the
   terminal.
 
 ## Contents
@@ -210,7 +210,7 @@ regex cannot tell the metaphor from the term.
 
 ## Install
 
-deslopper needs Python 3.9 or later and has no other dependencies. It is not on PyPI yet.
+deslopper needs Python 3.10 or later and has no other dependencies. It is not on PyPI yet.
 Install it from the Homebrew tap, or from the GitHub repo with a Python tool.
 
 | Tool | Command |
