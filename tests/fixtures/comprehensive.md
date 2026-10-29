@@ -112,6 +112,18 @@ There's no denying it, though the flag is optional.
 
 Workload creep is the context tax, unlike scope creep or the EXIT trap.
 
+Let's dive in, though dive into the code to learn more.
+
+It is not simply a cache, though it is simply a cache.
+
+It reads one copy, not one per caller, rather than the whole tree.
+
+In other words, simply put a file in the folder.
+
+Three key reasons: there are three files in the folder.
+
+The check is load-bearing, and browsers quietly ignore the header.
+
 Would you like me to add tests? I'm happy to help, so don't hesitate to ask.
 
 Good catch, that's a fair point, and I hear you.

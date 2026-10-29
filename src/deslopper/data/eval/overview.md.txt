@@ -50,6 +50,8 @@ While specific details are limited, the flywheel is our north star of the endgam
 It is genuinely fast: write a job → run it → read the report.
 Orchestrate is the missing piece. Most teams get this backwards. There's no denying it
 cures workload creep, the context tax every team pays.
+Let's dive in. Three key reasons: it is load-bearing, it earns its place, and it reads
+one copy, not one per caller. In other words, it just works.
 
 In conclusion, Orchestrate is the seamless, robust, game-changing way to run jobs, as we
 said above.

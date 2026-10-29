@@ -75,6 +75,48 @@
       "flags": "i",
       "pattern": "\\b(?:the (?!(?:birthday|fermi|income|sales|poverty|digital|fiscal|hedonic|scope|feature|mission|exit|err|debug|return)\\b)(?-i:[a-zA-Z][a-z-]*) (?:paradox|trap|tax|creep|cliff|treadmill|divide)|(?!(?:the|a|an|i|we|you|they|to|can|could|may|might|will|would|should|must|do|does|did|scope|feature|mission)\\b)(?-i:[a-zA-Z][a-z-]*(?:[^\\Ws]|ss)) creep(?! (?:up|upwards?|back|in|into)\\b))\\b",
       "message": "coined label used as an established term, describe the effect instead"
+    },
+    {
+      "name": "tutorial-signposting",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\blet'?s (?:(?:dive|delve) in(?:to)?|break (?:this|it) down|unpack|explore)\\b|\\bin this (?:article|post|guide|section|tutorial),? (?:we'?ll|we will|I'?ll|I will)\\b|\\bby the end of this (?:article|post|guide|tutorial)\\b|\\bto recap\\b",
+      "message": "tutorial signpost, start with the first step"
+    },
+    {
+      "name": "contrast-adverb",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:rather than|not|isn'?t|is not) (?:merely|simply|solely)\\b|\\bless like an? [^.,;]{1,40} and more like\\b|\\bis genuinely\\b",
+      "message": "contrast with a softening adverb, say what it is"
+    },
+    {
+      "name": "strawman-tail",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": ", not (?:the other way(?: around| round)?|the reverse|the inverse|the opposite|vice versa)\\b|, not (?:one|once) (?:per|for each|for every)\\b",
+      "message": "negated tail nobody claimed, cut it and keep the claim"
+    },
+    {
+      "name": "restatement-marker",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["in other words", "to put it (?:simply|another way|differently)", "what (?:this|that) means is", "(?:put simply|simply put|put differently|said differently)(?=\\s*(?:[,:;.]|$))"],
+      "message": "restatement marker, say it once and plainly"
+    },
+    {
+      "name": "numbered-lead-in",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:two|three|four|five|six|seven|eight|nine|ten) (?:key|main|core|critical|essential|fundamental|major|primary) [a-z]+:|\\bhere are (?:the )?(?:two|three|four|five|six|seven|eight|nine|ten)\\b|\\bthere are (?:two|three|four|five|six|seven|eight|nine|ten) (?:key|main|core|critical|essential|fundamental|major|primary)\\b",
+      "message": "count announced before a list, start the list"
+    },
+    {
+      "name": "claude-figurative",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["load[- ]bearing", "earns? (?:its|their) (?:place|keep)", "the change lands", "the shape of the problem"],
+      "message": "figurative word, use the literal one"
     }
   ]
 }
