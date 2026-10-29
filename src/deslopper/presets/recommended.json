@@ -78,21 +78,21 @@
       "tier": "warn",
       "scope": "first",
       "flags": "i",
-      "pattern": "\\bnot just\\b[^.?!]{0,60}?\\bbut\\b",
+      "pattern": "\\bnot (?:just|only|merely)\\b[^.?!]{0,60}?\\b(?:but|it'?s)\\b",
       "message": "\"not just X but Y\" padding, make the point once"
     },
     {
       "name": "filler-verb",
       "tier": "warn",
       "flags": "i",
-      "words": ["surfaces", "leverages?", "enables?", "powers", "facilitates?", "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?", "streamlines?", "empowers?", "showcases?", "(?-i:delve)s?", "(?-i:Delve)s?(?=\\s+(?:into|deeper))"],
+      "words": ["surfaces", "leverages?", "enables?", "powers", "facilitates?", "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?", "streamlines?", "empowers?", "showcases?", "(?-i:delve)s?", "(?-i:Delve)s?(?=\\s+(?:into|deeper))", "elevates?", "embark(?:s|ed|ing)?", "unleash(?:es|ed)?", "bolster(?:s|ed)?", "orchestrates?", "transcends?", "enhances?", "navigate the complexities"],
       "message": "filler verb, use a plain verb or cut"
     },
     {
       "name": "marketing-adjective",
       "tier": "warn",
       "flags": "i",
-      "words": ["seamless", "robust", "powerful", "cutting-edge", "comprehensive", "vibrant", "elegant", "intuitive", "game-changing"],
+      "words": ["seamless", "robust", "powerful", "cutting-edge", "comprehensive", "vibrant", "elegant", "intuitive", "game-changing", "groundbreaking", "holistic", "multifaceted", "meticulous", "unparalleled", "invaluable", "paramount", "transformative", "impactful", "breathtaking", "stunning", "revolutionary", "state-of-the-art"],
       "message": "marketing adjective, say what is true"
     },
     {
@@ -100,7 +100,7 @@
       "tier": "warn",
       "scope": "first",
       "flags": "i",
-      "pattern": "^\\s*(?:[-*+]\\s+|>\\s*|#{1,6}\\s+)?(In today's|It's worth noting that|When it comes to|At its core|Furthermore|Moreover|Additionally|That being said)\\b",
+      "pattern": "^\\s*(?:[-*+]\\s+|>\\s*|#{1,6}\\s+)?(In today's|It's worth noting that|When it comes to|At its core|Furthermore|Moreover|Additionally|That being said|It's important to (?:note|remember|understand)|It bears mentioning|Importantly|Interestingly|Notably|Ultimately|In the realm of|In an era where|In a world where|Imagine a world where|Picture this|Have you ever wondered|Since the dawn of|As we navigate)\\b",
       "message": "throat-clearing or transition opener, start with the point"
     },
     {
@@ -120,49 +120,49 @@
       "name": "chatbot-phrase",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\b(?:I hope this helps|hope th(?:is|at) helps|let me know if|feel free to)\\b|^\\s*(?:Of course|Certainly)[.!]",
+      "pattern": "\\b(?:I hope this helps|hope th(?:is|at) helps|let me know if|feel free to|would you like me to|if you(?:'d)? (?:want|like), I can|want me to|is there anything else|don't hesitate to|happy to help|shall I)\\b|^\\s*(?:Of course|Certainly)[.!]",
       "message": "chatbot phrase, delete it"
     },
     {
       "name": "sycophancy",
       "tier": "warn",
       "flags": "i",
-      "words": ["great question", "excellent point", "you're absolutely right", "you're right to"],
+      "words": ["great question", "excellent point", "you're absolutely right", "you're right to", "that's a fair (?:concern|point)", "good catch", "I hear you"],
       "message": "sycophantic tone, respond directly"
     },
     {
       "name": "fancy-is",
       "tier": "warn",
       "flags": "i",
-      "words": ["serves as", "stands as", "boasts"],
+      "words": ["serves as", "stands as", "boasts", "functions as", "operates as", "holds the distinction"],
       "message": "fancy way to say 'is', say 'is' or 'has'"
     },
     {
       "name": "puffery",
       "tier": "warn",
       "flags": "i",
-      "words": ["testament to", "evolving landscape", "setting the stage for", "deeply rooted", "indelible mark"],
+      "words": ["testament to", "evolving landscape", "setting the stage for", "deeply rooted", "indelible mark", "plays? an? (?:crucial|pivotal|vital|key|significant) role", "key turning point", "focal point", "enduring legacy", "rich (?:cultural )?heritage", "nestled", "in the heart of", "valuable insights"],
       "message": "puffery, state what happened"
     },
     {
       "name": "vague-attribution",
       "tier": "warn",
       "flags": "i",
-      "words": ["experts (?:believe|say|suggest|agree)", "industry reports? suggests?", "some (?:critics|observers|analysts) argue", "many believe"],
+      "words": ["experts (?:believe|say|suggest|agree)", "industry reports? suggests?", "some (?:critics|observers|analysts) argue", "many believe", "studies show", "research suggests", "it is widely believed", "observers have (?:cited|noted)", "some argue", "several (?:sources|publications)"],
       "message": "vague attribution, name the source or cut"
     },
     {
       "name": "inflated-word",
       "tier": "warn",
       "flags": "i",
-      "words": ["tapestry", "interplay", "garners?", "intricate", "crucial", "pivotal", "enduring"],
+      "words": ["tapestry", "interplay", "garners?", "intricate", "crucial", "pivotal", "enduring", "realm", "myriad", "plethora", "interconnectedness", "nuanced", "commendable", "noteworthy", "ever-evolving", "ever-changing"],
       "message": "inflated word, use a plain one"
     },
     {
       "name": "trailing-participle",
       "tier": "warn",
       "flags": "i",
-      "pattern": ",\\s*(?:ensuring|highlighting|reflecting|showcasing|fostering|underscoring|demonstrating|allowing|enabling)\\b",
+      "pattern": ",\\s*(?:ensuring|highlighting|reflecting|showcasing|fostering|underscoring|demonstrating|allowing|enabling|emphasizing|symbolizing|contributing to|cultivating|encompassing|enhancing|solidifying|cementing|paving the way)\\b",
       "message": "trailing participle clause, say it straight or cut"
     },
     {

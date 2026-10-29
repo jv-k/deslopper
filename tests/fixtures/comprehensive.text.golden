@@ -87,8 +87,40 @@ comprehensive.md:69:1 [warn] staged-candor: staged candor, drop the honesty mark
 comprehensive.md:71:1 [warn] mic-drop: mic-drop line that grades the point, cut it or add a fact
 comprehensive.md:73:1 [warn] negation-pivot: "it's not X, it's Y" pivot, say what it is
 comprehensive.md:75:1 [warn] importance-flag: says it matters instead of showing why, give the consequence
-comprehensive.md:77:12 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:77:31 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:77:44 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:93:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
-comprehensive.md:93:17 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:77:7 [warn] not-just-x-but-y: "not just X but Y" padding, make the point once
+comprehensive.md:79:1 [warn] throat-clearing: throat-clearing or transition opener, start with the point
+comprehensive.md:81:4 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:81:14 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:81:28 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:81:43 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:83:3 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:83:19 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:83:29 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:83:50 [warn] marketing-adjective: marketing adjective, say what is true
+comprehensive.md:85:5 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:85:16 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:85:24 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:85:36 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:87:9 [warn] trailing-participle: trailing participle clause, say it straight or cut
+comprehensive.md:87:26 [warn] trailing-participle: trailing participle clause, say it straight or cut
+comprehensive.md:89:1 [warn] vague-attribution: vague attribution, name the source or cut
+comprehensive.md:89:18 [warn] vague-attribution: vague attribution, name the source or cut
+comprehensive.md:89:41 [warn] vague-attribution: vague attribution, name the source or cut
+comprehensive.md:91:1 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:91:37 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:91:55 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:93:1 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:93:13 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:93:38 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:95:9 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:95:32 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:97:4 [warn] puffery: puffery, state what happened
+comprehensive.md:97:12 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:97:26 [warn] puffery: puffery, state what happened
+comprehensive.md:97:34 [warn] puffery: puffery, state what happened
+comprehensive.md:97:67 [warn] puffery: puffery, state what happened
+comprehensive.md:99:12 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:99:31 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:99:44 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:115:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:115:17 [warn] filler-verb: filler verb, use a plain verb or cut

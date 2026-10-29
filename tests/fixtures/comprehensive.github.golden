@@ -87,8 +87,40 @@
 ::warning file=comprehensive.md,line=71,col=1::mic-drop - mic-drop line that grades the point, cut it or add a fact
 ::warning file=comprehensive.md,line=73,col=1::negation-pivot - "it's not X, it's Y" pivot, say what it is
 ::warning file=comprehensive.md,line=75,col=1::importance-flag - says it matters instead of showing why, give the consequence
-::warning file=comprehensive.md,line=77,col=12::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=77,col=31::emoji - emoji or decorative checkmark in body text
-::warning file=comprehensive.md,line=77,col=44::emoji - emoji or decorative checkmark in body text
-::error file=comprehensive.md,line=93,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
-::warning file=comprehensive.md,line=93,col=17::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=77,col=7::not-just-x-but-y - "not just X but Y" padding, make the point once
+::warning file=comprehensive.md,line=79,col=1::throat-clearing - throat-clearing or transition opener, start with the point
+::warning file=comprehensive.md,line=81,col=4::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=81,col=14::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=81,col=28::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=81,col=43::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=83,col=3::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=83,col=19::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=83,col=29::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=83,col=50::marketing-adjective - marketing adjective, say what is true
+::warning file=comprehensive.md,line=85,col=5::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=85,col=16::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=85,col=24::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=85,col=36::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=87,col=9::trailing-participle - trailing participle clause, say it straight or cut
+::warning file=comprehensive.md,line=87,col=26::trailing-participle - trailing participle clause, say it straight or cut
+::warning file=comprehensive.md,line=89,col=1::vague-attribution - vague attribution, name the source or cut
+::warning file=comprehensive.md,line=89,col=18::vague-attribution - vague attribution, name the source or cut
+::warning file=comprehensive.md,line=89,col=41::vague-attribution - vague attribution, name the source or cut
+::warning file=comprehensive.md,line=91,col=1::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=91,col=37::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=91,col=55::chatbot-phrase - chatbot phrase, delete it
+::warning file=comprehensive.md,line=93,col=1::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=93,col=13::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=93,col=38::sycophancy - sycophantic tone, respond directly
+::warning file=comprehensive.md,line=95,col=9::fancy-is - fancy way to say 'is', say 'is' or 'has'
+::warning file=comprehensive.md,line=95,col=32::fancy-is - fancy way to say 'is', say 'is' or 'has'
+::warning file=comprehensive.md,line=97,col=4::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=97,col=12::inflated-word - inflated word, use a plain one
+::warning file=comprehensive.md,line=97,col=26::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=97,col=34::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=97,col=67::puffery - puffery, state what happened
+::warning file=comprehensive.md,line=99,col=12::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=99,col=31::emoji - emoji or decorative checkmark in body text
+::warning file=comprehensive.md,line=99,col=44::emoji - emoji or decorative checkmark in body text
+::error file=comprehensive.md,line=115,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
+::warning file=comprehensive.md,line=115,col=17::filler-verb - filler verb, use a plain verb or cut
