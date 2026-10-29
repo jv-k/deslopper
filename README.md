@@ -27,7 +27,7 @@ notes. It never changes the result of the lint.
 
 ## Highlights
 
-- A deterministic lint for 30 tells, with an opt-in `aggressive` preset for 7 more.
+- A deterministic lint for 30 tells, with an opt-in `aggressive` preset for 11 more.
 - Jev triage: `deslopper lint --jev` gives each finding a `keep` or `rewrite` verdict and
   a probability. A file with findings costs one request, at a fraction of a cent, and a
   disk cache skips the findings that did not change.
@@ -208,6 +208,10 @@ regex cannot tell the metaphor from the term.
 | `boldface-overuse` | ⚠️ | `**Fast**, **safe**, **simple**.` | three or more bold spans on one line, bold at most one thing |
 | `strong-intensifier` | ⚠️ | `It is genuinely fast.` | strong intensifier, cut it or give the evidence |
 | `unicode-arrow` | ⚠️ | `Build → test → ship.` | arrow in prose, write the step or the cause in words |
+| `missing-piece` | ⚠️ | `This is the missing piece.` | claim of a gap others missed, show the gap and what fills it |
+| `contrarian-hook` | ⚠️ | `Most teams get this backwards.` | contrarian hook against an unnamed crowd, state your claim and its evidence |
+| `overreach` | ⚠️ | `There's no denying it scales.` | absolute claim with no support, back it with evidence or soften it |
+| `invented-concept-label` | ⚠️ | `Call it the context tax.` | coined label used as an established term, describe the effect instead |
 
 <!-- deslop-lint-enable -->
 <!-- aggressive-table:end -->
