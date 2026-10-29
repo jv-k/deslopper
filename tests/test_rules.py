@@ -280,6 +280,9 @@ SURVEY_TELL_POSITIVES = {
         "Simple, yet effective.",
         "Useful, but incremental.",
         "The grid is new. Dense, not cramped.",
+        "The grid is new.  Dense, not cramped.",
+        "- Dense, not cramped.",
+        "* Fast, never flaky.",
     ],
     "narrative-pivot": [
         "Then something shifted.",
@@ -357,20 +360,37 @@ SURVEY_TELL_NEGATIVES = {
         "It runs without requiring a restart.",
     ],
     # No i flag: the capital marks the start of a sentence, so a clause inside a
-    # sentence stays silent. A one-word answer is a reply, not a slogan.
+    # sentence stays silent. A one-word reply such as "No," and the docs label
+    # "Optional, but recommended." are not slogans.
     "pithy-fragment": [
         "It is dense, not cramped.",
         "dense, not cramped.",
         "No, not yet.",
         "Yes, but only on Linux.",
+        "Okay, not now.",
+        "Sure, but later.",
+        "Thanks, but no.",
+        "Optional, but recommended.",
     ],
-    # The survey's lookahead keeps out a clause that goes on past the verb.
-    "narrative-pivot": ["Everything changed in v2 is listed below."],
+    # The survey's lookahead keeps out a clause that goes on past the verb. A
+    # condition such as "if something changed" is a test, not a story turn.
+    "narrative-pivot": [
+        "Everything changed in v2 is listed below.",
+        "Re-run the build if something changed.",
+        "The hook exits 1 when something changed.",
+        "It reports whether anything changed.",
+        "Check whether something changed.",
+        "It skips the step unless something changed.",
+    ],
     "negative-listing": [
         "It takes no flags, no config file, and no env vars.",
         "No, not by default. The cache is opt-in.",
     ],
-    "business-jargon": ["Double the buffer, then move on.", "Lean on the cache."],
+    "business-jargon": [
+        "Double the buffer, then move on.",
+        "Lean on the cache.",
+        "I thought leaders would object.",
+    ],
 }
 
 
@@ -393,7 +413,7 @@ def test_survey_tell_leaves_honest_prose_alone(name, text):
 CASE_SENSITIVE_SURVEY_TELLS = {"pithy-fragment"}
 
 
-def test_survey_tells_are_warn_tier_and_case_insensitive():
+def test_survey_tells_are_warn_tier_and_case_insensitive_unless_they_need_case():
     raw = {t["name"]: t for t in load_builtin("recommended")["tells"]}
     for name in SURVEY_TELL_POSITIVES:
         assert raw[name]["tier"] == "warn", name
@@ -403,8 +423,12 @@ def test_survey_tells_are_warn_tier_and_case_insensitive():
             assert raw[name]["flags"] == "i", name
 
 
-def test_pithy_fragment_points_at_the_fragment_not_the_sentence_before():
-    text = "The grid is new. Dense, not cramped."
+@pytest.mark.parametrize("text", [
+    "The grid is new. Dense, not cramped.",
+    "The grid is new.  Dense, not cramped.",
+    "- Dense, not cramped.",
+])
+def test_pithy_fragment_points_at_the_fragment_not_what_comes_before(text):
     assert offsets(_preset_tell("pithy-fragment"), text) == [text.index("Dense")]
 
 
