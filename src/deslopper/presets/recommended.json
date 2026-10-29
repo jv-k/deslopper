@@ -78,14 +78,14 @@
       "tier": "warn",
       "scope": "first",
       "flags": "i",
-      "pattern": "\\bnot (?:just|only|merely)\\b[^.?!]{0,60}?\\b(?:but|it'?s)\\b",
+      "pattern": "\\bnot (?:just|only|merely)\\b[^.?!]{0,60}?\\b(?:but|it's)\\b",
       "message": "\"not just X but Y\" padding, make the point once"
     },
     {
       "name": "filler-verb",
       "tier": "warn",
       "flags": "i",
-      "words": ["surfaces", "leverages?", "enables?", "powers", "facilitates?", "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?", "streamlines?", "empowers?", "showcases?", "(?-i:delve)s?", "(?-i:Delve)s?(?=\\s+(?:into|deeper))", "elevates?", "embark(?:s|ed|ing)?", "unleash(?:es|ed)?", "bolster(?:s|ed)?", "orchestrates?", "transcends?", "enhances?", "navigate the complexities"],
+      "words": ["surfaces", "leverages?", "enables?", "powers", "facilitates?", "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?", "streamlines?", "empowers?", "showcases?", "(?-i:delve)s?", "(?-i:Delve)s?(?=\\s+(?:into|deeper))", "elevates?", "embark(?:s|ed|ing)?", "unleash(?:es|ed|ing)?", "bolster(?:s|ed|ing)?", "orchestrates?", "transcends?", "enhances?", "navigate the complexities"],
       "message": "filler verb, use a plain verb or cut"
     },
     {
@@ -141,7 +141,7 @@
       "name": "puffery",
       "tier": "warn",
       "flags": "i",
-      "words": ["testament to", "evolving landscape", "setting the stage for", "deeply rooted", "indelible mark", "plays? an? (?:crucial|pivotal|vital|key|significant) role", "key turning point", "focal point", "enduring legacy", "rich (?:cultural )?heritage", "nestled", "in the heart of", "valuable insights"],
+      "words": ["testament to", "evolving landscape", "setting the stage for", "deeply rooted", "indelible mark", "plays? (?:an? )?(?:crucial|pivotal|vital|key|significant) role", "key turning point", "focal point", "enduring legacy", "rich (?:cultural )?heritage", "nestled", "in the heart of", "valuable insights"],
       "message": "puffery, state what happened"
     },
     {
