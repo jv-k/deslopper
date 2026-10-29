@@ -24,7 +24,7 @@ def test_aggressive_is_an_additive_layer_over_recommended():
     aggressive = load_builtin("aggressive")["tells"]
     rec_keys = {(t["name"], t.get("phase", "post-entity")) for t in recommended}
     agg_keys = {(t["name"], t.get("phase", "post-entity")) for t in aggressive}
-    assert len(aggressive) == 11
+    assert len(aggressive) == 17
     assert not rec_keys & agg_keys
     layered = resolve({"extends": ["deslopper:recommended", "deslopper:aggressive"]})
     assert len(layered.tells) == len(recommended) + len(aggressive)

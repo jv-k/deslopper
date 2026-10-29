@@ -90,6 +90,7 @@ comprehensive.md:71:1 [warn] mic-drop: mic-drop line that grades the point, cut 
 comprehensive.md:73:1 [warn] negation-pivot: "it's not X, it's Y" pivot, say what it is
 comprehensive.md:75:1 [warn] importance-flag: says it matters instead of showing why, give the consequence
 comprehensive.md:77:7 [warn] not-just-x-but-y: "not just X but Y" padding, make the point once
+comprehensive.md:77:31 [warn] contrast-adverb: contrast with a softening adverb, say what it is
 comprehensive.md:79:1 [warn] throat-clearing: throat-clearing or transition opener, start with the point
 comprehensive.md:81:4 [warn] filler-verb: filler verb, use a plain verb or cut
 comprehensive.md:81:14 [warn] filler-verb: filler verb, use a plain verb or cut
@@ -109,6 +110,7 @@ comprehensive.md:89:1 [warn] vague-attribution: vague attribution, name the sour
 comprehensive.md:89:18 [warn] vague-attribution: vague attribution, name the source or cut
 comprehensive.md:89:41 [warn] vague-attribution: vague attribution, name the source or cut
 comprehensive.md:91:1 [warn] signposting: essay signpost, cut the announcement and keep the point
+comprehensive.md:91:33 [warn] tutorial-signposting: tutorial signpost, start with the first step
 comprehensive.md:93:11 [warn] urgency-inflation: inflated stakes, give the reason it is urgent
 comprehensive.md:95:4 [warn] stacked-hedge: stacked hedge, keep one hedge or none
 comprehensive.md:97:6 [warn] tradeoff-dodge: claims the gain costs nothing, state the tradeoff or show there is none
@@ -121,21 +123,27 @@ comprehensive.md:109:1 [warn] contrarian-hook: contrarian hook against an unname
 comprehensive.md:111:1 [warn] overreach: absolute claim with no support, back it with evidence or soften it
 comprehensive.md:113:1 [warn] invented-concept-label: coined label used as an established term, describe the effect instead
 comprehensive.md:113:19 [warn] invented-concept-label: coined label used as an established term, describe the effect instead
-comprehensive.md:115:1 [warn] chatbot-phrase: chatbot phrase, delete it
-comprehensive.md:115:37 [warn] chatbot-phrase: chatbot phrase, delete it
-comprehensive.md:115:55 [warn] chatbot-phrase: chatbot phrase, delete it
-comprehensive.md:117:1 [warn] sycophancy: sycophantic tone, respond directly
-comprehensive.md:117:13 [warn] sycophancy: sycophantic tone, respond directly
-comprehensive.md:117:38 [warn] sycophancy: sycophantic tone, respond directly
-comprehensive.md:119:9 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
-comprehensive.md:119:32 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
-comprehensive.md:121:4 [warn] puffery: puffery, state what happened
-comprehensive.md:121:12 [warn] inflated-word: inflated word, use a plain one
-comprehensive.md:121:26 [warn] puffery: puffery, state what happened
-comprehensive.md:121:34 [warn] puffery: puffery, state what happened
-comprehensive.md:121:67 [warn] puffery: puffery, state what happened
-comprehensive.md:123:12 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:123:31 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:123:44 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:139:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
-comprehensive.md:139:17 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:115:1 [warn] tutorial-signposting: tutorial signpost, start with the first step
+comprehensive.md:117:4 [warn] contrast-adverb: contrast with a softening adverb, say what it is
+comprehensive.md:119:18 [warn] strawman-tail: negated tail nobody claimed, cut it and keep the claim
+comprehensive.md:121:1 [warn] restatement-marker: restatement marker, say it once and plainly
+comprehensive.md:123:1 [warn] numbered-lead-in: count announced before a list, start the list
+comprehensive.md:125:14 [warn] claude-figurative: figurative word, use the literal one
+comprehensive.md:127:1 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:127:37 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:127:55 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:129:1 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:129:13 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:129:38 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:131:9 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:131:32 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:133:4 [warn] puffery: puffery, state what happened
+comprehensive.md:133:12 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:133:26 [warn] puffery: puffery, state what happened
+comprehensive.md:133:34 [warn] puffery: puffery, state what happened
+comprehensive.md:133:67 [warn] puffery: puffery, state what happened
+comprehensive.md:135:12 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:135:31 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:135:44 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:151:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:151:17 [warn] filler-verb: filler verb, use a plain verb or cut

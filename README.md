@@ -212,6 +212,12 @@ regex cannot tell the metaphor from the term.
 | `contrarian-hook` | ⚠️ | `Most teams get this backwards.` | contrarian hook against an unnamed crowd, state your claim and its evidence |
 | `overreach` | ⚠️ | `There's no denying it scales.` | absolute claim with no support, back it with evidence or soften it |
 | `invented-concept-label` | ⚠️ | `Call it the context tax.` | coined label used as an established term, describe the effect instead |
+| `tutorial-signposting` | ⚠️ | `Let's dive in.` | tutorial signpost, start with the first step |
+| `contrast-adverb` | ⚠️ | `It is not simply a cache.` | contrast with a softening adverb, say what it is |
+| `strawman-tail` | ⚠️ | `It keeps one copy, not one per caller.` | negated tail nobody claimed, cut it and keep the claim |
+| `restatement-marker` | ⚠️ | `In other words, it caches.` | restatement marker, say it once and plainly |
+| `numbered-lead-in` | ⚠️ | `Three key reasons:` | count announced before a list, start the list |
+| `claude-figurative` | ⚠️ | `This check is load-bearing.` | figurative word, use the literal one |
 
 <!-- deslop-lint-enable -->
 <!-- aggressive-table:end -->

@@ -79,6 +79,12 @@ AGGRESSIVE_EXAMPLES = {
     "contrarian-hook": "Most teams get this backwards.",
     "overreach": "There's no denying it scales.",
     "invented-concept-label": "Call it the context tax.",
+    "tutorial-signposting": "Let's dive in.",
+    "contrast-adverb": "It is not simply a cache.",
+    "strawman-tail": "It keeps one copy, not one per caller.",
+    "restatement-marker": "In other words, it caches.",
+    "numbered-lead-in": "Three key reasons:",
+    "claude-figurative": "This check is load-bearing.",
 }
 
 
