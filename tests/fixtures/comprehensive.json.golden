@@ -738,6 +738,14 @@
     },
     {
       "path": "comprehensive.md",
+      "line": 77,
+      "col": 31,
+      "tier": "warn",
+      "name": "contrast-adverb",
+      "message": "contrast with a softening adverb, say what it is"
+    },
+    {
+      "path": "comprehensive.md",
       "line": 79,
       "col": 1,
       "tier": "warn",
@@ -890,6 +898,14 @@
     },
     {
       "path": "comprehensive.md",
+      "line": 91,
+      "col": 33,
+      "tier": "warn",
+      "name": "tutorial-signposting",
+      "message": "tutorial signpost, start with the first step"
+    },
+    {
+      "path": "comprehensive.md",
       "line": 93,
       "col": 11,
       "tier": "warn",
@@ -989,12 +1005,60 @@
       "line": 115,
       "col": 1,
       "tier": "warn",
+      "name": "tutorial-signposting",
+      "message": "tutorial signpost, start with the first step"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 117,
+      "col": 4,
+      "tier": "warn",
+      "name": "contrast-adverb",
+      "message": "contrast with a softening adverb, say what it is"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 119,
+      "col": 18,
+      "tier": "warn",
+      "name": "strawman-tail",
+      "message": "negated tail nobody claimed, cut it and keep the claim"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 121,
+      "col": 1,
+      "tier": "warn",
+      "name": "restatement-marker",
+      "message": "restatement marker, say it once and plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 123,
+      "col": 1,
+      "tier": "warn",
+      "name": "numbered-lead-in",
+      "message": "count announced before a list, start the list"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 125,
+      "col": 14,
+      "tier": "warn",
+      "name": "claude-figurative",
+      "message": "figurative word, use the literal one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 127,
+      "col": 1,
+      "tier": "warn",
       "name": "chatbot-phrase",
       "message": "chatbot phrase, delete it"
     },
     {
       "path": "comprehensive.md",
-      "line": 115,
+      "line": 127,
       "col": 37,
       "tier": "warn",
       "name": "chatbot-phrase",
@@ -1002,7 +1066,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 115,
+      "line": 127,
       "col": 55,
       "tier": "warn",
       "name": "chatbot-phrase",
@@ -1010,7 +1074,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 117,
+      "line": 129,
       "col": 1,
       "tier": "warn",
       "name": "sycophancy",
@@ -1018,7 +1082,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 117,
+      "line": 129,
       "col": 13,
       "tier": "warn",
       "name": "sycophancy",
@@ -1026,7 +1090,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 117,
+      "line": 129,
       "col": 38,
       "tier": "warn",
       "name": "sycophancy",
@@ -1034,7 +1098,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 119,
+      "line": 131,
       "col": 9,
       "tier": "warn",
       "name": "fancy-is",
@@ -1042,7 +1106,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 119,
+      "line": 131,
       "col": 32,
       "tier": "warn",
       "name": "fancy-is",
@@ -1050,7 +1114,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 121,
+      "line": 133,
       "col": 4,
       "tier": "warn",
       "name": "puffery",
@@ -1058,7 +1122,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 121,
+      "line": 133,
       "col": 12,
       "tier": "warn",
       "name": "inflated-word",
@@ -1066,7 +1130,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 121,
+      "line": 133,
       "col": 26,
       "tier": "warn",
       "name": "puffery",
@@ -1074,7 +1138,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 121,
+      "line": 133,
       "col": 34,
       "tier": "warn",
       "name": "puffery",
@@ -1082,7 +1146,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 121,
+      "line": 133,
       "col": 67,
       "tier": "warn",
       "name": "puffery",
@@ -1090,7 +1154,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 123,
+      "line": 135,
       "col": 12,
       "tier": "warn",
       "name": "emoji",
@@ -1098,7 +1162,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 123,
+      "line": 135,
       "col": 31,
       "tier": "warn",
       "name": "emoji",
@@ -1106,7 +1170,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 123,
+      "line": 135,
       "col": 44,
       "tier": "warn",
       "name": "emoji",
@@ -1114,7 +1178,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 139,
+      "line": 151,
       "col": 9,
       "tier": "error",
       "name": "em-dash",
@@ -1122,7 +1186,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 139,
+      "line": 151,
       "col": 17,
       "tier": "warn",
       "name": "filler-verb",
@@ -1132,7 +1196,7 @@
   "unreadable": [],
   "summary": {
     "errors": 33,
-    "warnings": 108,
+    "warnings": 116,
     "unreadable": 0
   }
 }
