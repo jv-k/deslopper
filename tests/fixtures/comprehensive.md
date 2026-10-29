@@ -96,6 +96,14 @@ It could potentially fail, though the call could fail anyway.
 
 Fast without sacrificing safety, and it restarts without losing data.
 
+The grid is new. Dense, not cramped. No, not yet.
+
+Then something shifted. Everything changed in v2 is listed below.
+
+Not a bug. Not a feature. A design flaw.
+
+It will move the needle, so double the buffer.
+
 Would you like me to add tests? I'm happy to help, so don't hesitate to ask.
 
 Good catch, that's a fair point, and I hear you.

@@ -159,6 +159,10 @@ each sample fires its tell. To see the tells for your own config, run `deslopper
 | `urgency-inflation` | ⚠️ | `Fast builds have never been more critical.` | inflated stakes, give the reason it is urgent |
 | `stacked-hedge` | ⚠️ | `The job could potentially fail.` | stacked hedge, keep one hedge or none |
 | `tradeoff-dodge` | ⚠️ | `Fast without sacrificing safety.` | claims the gain costs nothing, state the tradeoff or show there is none |
+| `pithy-fragment` | ⚠️ | `Dense, not cramped.` | verbless slogan fragment, write a full sentence that says what it does |
+| `narrative-pivot` | ⚠️ | `Then something shifted.` | staged story turn, name what changed and why |
+| `negative-listing` | ⚠️ | `No config, no flags, just one binary.` | countdown of negations before the point, say what it is |
+| `business-jargon` | ⚠️ | `This will move the needle.` | business jargon, say the plain thing it stands for |
 
 <!-- deslop-lint-enable -->
 <!-- tell-table:end -->
