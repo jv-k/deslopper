@@ -675,6 +675,7 @@ AGGRESSIVE_SURVEY_TELL_POSITIVES = {
         "Let's break it down.",
         "Let's unpack the config.",
         "Let's explore the API.",
+        "Let’s dive in.",
         "In this article, we'll build a poll app.",
         "In this guide, we'll build a poll app.",
         "In this post I'll show the fix.",
@@ -709,15 +710,19 @@ AGGRESSIVE_SURVEY_TELL_POSITIVES = {
         "To put it another way",
         "To put it simply, it caches.",
         "What this means is",
+        "What this means is that the cache is cold.",
+        "Put simply it caches.",
     ],
     "numbered-lead-in": [
         "Three key reasons:",
         "There are three key reasons: speed, size and cost.",
         "Here are the five",
-        "Here are the five rules we follow.",
+        "Here are the five rules:",
         "There are three main",
-        "There are three main causes of the bug.",
+        "There are two main branches: main and dev.",
         "Two core ideas: caching and retries.",
+        "Three key design reasons:",
+        "Here are two examples:",
     ],
     # The survey's examples less the two the issue drops (seams, quietly).
     "claude-figurative": [
@@ -728,6 +733,7 @@ AGGRESSIVE_SURVEY_TELL_POSITIVES = {
         "Once the change lands, the cache is warm.",
         "earns its place",
         "Each flag earns its keep.",
+        "It earned its place.",
         "the shape of the problem",
     ],
 }
@@ -798,6 +804,9 @@ AGGRESSIVE_SURVEY_TELL_NEGATIVES = {
         "It is simply a cache.",
         "It looks less like a bug.",
         "It is merely a stub.",
+        # Instructions, not a definition by contrast.
+        "Do not simply copy the file.",
+        "You should not simply delete the row.",
     ],
     # The issue keeps the bare "rather than" and "instead of" tails out: the
     # survey rates them high risk, with 275 Django lines on "rather than".
@@ -807,12 +816,15 @@ AGGRESSIVE_SURVEY_TELL_NEGATIVES = {
         "It reads the file rather than the socket.",
         "Use the reverse order, not the default.",
         "Pass one, not two.",
+        "Sort it, not the reverse order.",
+        "Use A, not the inverse matrix.",
     ],
     # The survey: one Django hit is the imperative "simply put a".
     "restatement-marker": [
         "Simply put a file in the folder.",
         "Put the file simply in the root.",
         "What this means for you is listed below.",
+        "What that means is unclear.",
     ],
     # The survey: human docs count list items too.
     "numbered-lead-in": [
@@ -820,6 +832,9 @@ AGGRESSIVE_SURVEY_TELL_NEGATIVES = {
         "Run these three steps:",
         "The two main files are listed below.",
         "Here are the files.",
+        "Here are the two files.",
+        "Here are two files you need.",
+        "There are three main causes of the bug.",
     ],
     # The issue drops seams and quietly, which have honest technical meanings.
     # The survey's Django hit is the quietly line.
