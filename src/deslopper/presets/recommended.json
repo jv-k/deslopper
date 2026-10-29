@@ -169,7 +169,7 @@
       "name": "false-exclusivity",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\b(?:what |the (?:part|thing|bit) )?(?:nobody|no one|no-one|few people|most people|everyone)(?: is)? (?:talks? about|talking about|tells? you|mentions?|warns? you(?: about)?|discusses|notices|realizes|gets? (?:this |it )?wrong|misses|overlooks|forgets|skips)\\b",
+      "pattern": "\\b(?:what |the (?:part|thing|bit) )?(?:nobody|no one|no-one|few people|most people|everyone)(?: is)? (?:talks? about|talking about|tells? you|mentions?|warns? you(?: about)?|discuss(?:es)?|notices?|reali[sz]es?|gets? (?:this |it )?wrong|miss(?:es)?|overlooks?|forgets?|skips?)\\b",
       "message": "claim that others miss the point, make the point and cite who missed it"
     },
     {
@@ -183,7 +183,7 @@
       "name": "real-problem-reframe",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\bthe (?:(?:real|actual|true|bigger|deeper) (?:problem|issue|question|bottleneck|story|work|risk|lesson)|question)(?: here)? (?:isn'?t|is not|wasn'?t|was not)\\b|\\b[\\w-]+ (?:isn'?t|is not|wasn'?t) the (?:real |actual )?(?:problem|bottleneck|issue|point)[.,:]|\\b(?:it|this) (?:was|is) never (?:really )?about\\b",
+      "pattern": "\\bthe (?:real|actual|true|bigger|deeper) (?:problem|issue|question|bottleneck|story|work|risk|lesson)(?: here)? (?:isn'?t|is not|wasn'?t|was not)\\b|\\bthe question (?:isn'?t|is not)\\b[^.!?]{1,60}[.,;]\\s*it(?:'s| is)\\b|\\b[\\w-]+ (?:isn'?t|is not|wasn'?t) the (?:real |actual )?(?:problem|bottleneck|issue|point)[.,:]|\\b(?:it|this) (?:was|is) never (?:really )?about\\b",
       "message": "reframe to a \"real\" problem, name the problem and show why"
     },
     {

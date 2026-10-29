@@ -165,7 +165,7 @@ def test_middle_dot_message_names_the_separator_to_use():
 # The tells added from the slop-detector survey (issue #60). Each positive is an
 # example phrase from the issue, and each negative is honest prose the issue names
 # as staying out.
-NEW_TELL_POSITIVES = {
+SURVEY_TELL_POSITIVES = {
     "false-exclusivity": [
         "Nobody talks about the cost.",
         "Here's what nobody tells you about caching.",
@@ -173,6 +173,8 @@ NEW_TELL_POSITIVES = {
         "The part everyone misses",
         "What most people get wrong",
         "No one is talking about this.",
+        "Most people miss the point.",
+        "Few people skip the warm-up.",
     ],
     "hidden-truth": [
         "The quiet truth is that tests rot.",
@@ -238,11 +240,12 @@ NEW_TELL_POSITIVES = {
     ],
 }
 
-NEW_TELL_NEGATIVES = {
+SURVEY_TELL_NEGATIVES = {
     "false-exclusivity": ["No one can write to the file."],
     "real-problem-reframe": [
         "The real problem is a race in the cache.",
         "The problem isn't reproducible on Linux.",
+        "The question is not answered in the docs.",
     ],
     "false-suspense": ["Here's how to run it.", "Here's the output of the command."],
     "rhetorical-self-answer": ["What is the result? See below."],
@@ -255,14 +258,14 @@ NEW_TELL_NEGATIVES = {
 
 
 @pytest.mark.parametrize("name,text", [
-    (name, text) for name, texts in NEW_TELL_POSITIVES.items() for text in texts
+    (name, text) for name, texts in SURVEY_TELL_POSITIVES.items() for text in texts
 ])
 def test_survey_tell_flags_its_example(name, text):
     assert offsets(_preset_tell(name), text), f"{name} should flag: {text!r}"
 
 
 @pytest.mark.parametrize("name,text", [
-    (name, text) for name, texts in NEW_TELL_NEGATIVES.items() for text in texts
+    (name, text) for name, texts in SURVEY_TELL_NEGATIVES.items() for text in texts
 ])
 def test_survey_tell_leaves_honest_prose_alone(name, text):
     assert not offsets(_preset_tell(name), text), f"{name} false positive: {text!r}"
@@ -270,6 +273,6 @@ def test_survey_tell_leaves_honest_prose_alone(name, text):
 
 def test_survey_tells_are_warn_tier_and_case_insensitive():
     raw = {t["name"]: t for t in load_builtin("recommended")["tells"]}
-    for name in NEW_TELL_POSITIVES:
+    for name in SURVEY_TELL_POSITIVES:
         assert raw[name]["tier"] == "warn", name
         assert raw[name]["flags"] == "i", name
