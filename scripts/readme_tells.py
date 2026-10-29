@@ -65,6 +65,8 @@ AGGRESSIVE_EXAMPLES = {
     "formulaic-challenge": "Despite challenges, it continues to thrive.",
     "generic-conclusion": "The future looks bright.",
     "boldface-overuse": "**Fast**, **safe**, **simple**.",
+    "strong-intensifier": "It is genuinely fast.",
+    "unicode-arrow": "Build → test → ship.",
 }
 
 
