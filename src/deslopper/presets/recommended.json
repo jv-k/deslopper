@@ -164,6 +164,76 @@
       "flags": "i",
       "pattern": ",\\s*(?:ensuring|highlighting|reflecting|showcasing|fostering|underscoring|demonstrating|allowing|enabling)\\b",
       "message": "trailing participle clause, say it straight or cut"
+    },
+    {
+      "name": "false-exclusivity",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:what |the (?:part|thing|bit) )?(?:nobody|no one|no-one|few people|most people|everyone)(?: is)? (?:talks? about|talking about|tells? you|mentions?|warns? you(?: about)?|discuss(?:es)?|notices?|reali[sz]es?|gets? (?:this |it )?wrong|miss(?:es)?|overlooks?|forgets?|skips?)\\b",
+      "message": "claim that others miss the point, make the point and cite who missed it"
+    },
+    {
+      "name": "hidden-truth",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\bthe (?:uncomfortable|inconvenient|unspoken|hidden|quiet|ugly|dirty(?: little)?|open|simple|hard|brutal) (?:truth|secret|reality|cost|costs)\\b",
+      "message": "promised hidden truth, state the fact plainly"
+    },
+    {
+      "name": "real-problem-reframe",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\bthe (?:real|actual|true|bigger|deeper) (?:problem|issue|question|bottleneck|story|work|risk|lesson)(?: here)? (?:isn'?t|is not|wasn'?t|was not)\\b|\\bthe question (?:isn'?t|is not)\\b[^.!?]{1,60}[.,;]\\s*it(?:'s| is)\\b|\\b[\\w-]+ (?:isn'?t|is not|wasn'?t) the (?:real |actual )?(?:problem|bottleneck|issue|point)[.,:]|\\b(?:it|this) (?:was|is) never (?:really )?about\\b",
+      "message": "reframe to a \"real\" problem, name the problem and show why"
+    },
+    {
+      "name": "false-suspense",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\bhere'?s (?:the (?:thing|kicker|catch|deal|twist|truth|reality|secret|rub|part)|where (?:it|things) gets? (?:interesting|tricky|weird|good)|what (?:most|nobody|no one|everyone|few|I (?:learned|found|mean|noticed)|you need to know|matters)|why (?:this|that|it) matters)\\b|\\bthe kicker\\b",
+      "message": "false suspense before a reveal, start with the point"
+    },
+    {
+      "name": "rhetorical-self-answer",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "(?:^|[.!?:]\\s+)(?:and |but )?the (?:result|outcome|catch|kicker|twist|problem|answer|fix|reason|truth|reality|best part|worst part|scary part|hard part|irony|takeaway|upshot|difference|cost|payoff|secret|trick|lesson|verdict|bottom line)\\?\\s+[A-Z\\d]",
+      "message": "question answered at once, state the answer as a sentence"
+    },
+    {
+      "name": "emphasis-crutch",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\blet that sink in\\b|\\bread that again\\b|\\bfull stop\\.|\\bmake no mistake\\b|\\bI'?ll say it again\\b|\\bthink about that for a (?:second|moment)\\b|\\byes, really\\b",
+      "message": "emphasis crutch, cut it and let the point stand"
+    },
+    {
+      "name": "staged-candor",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "(?:^|[.!?]\\s+)(?:and |but )?(?:honestly|frankly|look|real talk|truthfully)\\?|\\b(?:let'?s be honest|to be (?:honest|frank)|if I'?m (?:being )?honest|I'?ll be honest|in all honesty|(?:(?:the|my|an) )?honest (?:take|assessment)|(?:the|my) honest (?:answer|truth))\\b",
+      "message": "staged candor, drop the honesty marker and make the claim"
+    },
+    {
+      "name": "mic-drop",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:that'?s|this is|which is) (?:exactly )?the (?:whole |entire |real )?point\\b|\\b(?:that'?s|this is) the (?:beauty|power|magic) of\\b|\\b(?:this|that) is what [^.!?]{1,40} (?:actually |really )?looks like\\b|\\band that'?s (?:okay|fine|the point|the whole point)\\.|^\\s*(?:it|this|that) (?:matters|works|scales|compounds|shows)\\.\\s*$",
+      "message": "mic-drop line that grades the point, cut it or add a fact"
+    },
+    {
+      "name": "negation-pivot",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:it|this|that|they|these)(?:'s|'re| is| are| was| were)? ?(?:not|n't)\\b[^.!?]{1,60}[.,;:]\\s*(?:it|this|that|they)(?:'s|'re| is| are| was) (?:a|an|the|about|just|simply|really|actually|more|less|what|how|why)\\b|\\bnot because\\b[^.!?]{1,80}[.,]\\s+because\\b|\\byou don'?t need (?:more |another |a |an )?[^.!?]{1,40}[.,]\\s+you need\\b",
+      "message": "\"it's not X, it's Y\" pivot, say what it is"
+    },
+    {
+      "name": "importance-flag",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:this|that|which|it) (?:\\w+ )?matters because\\b|\\bwhy (?:this|that|it) matters\\b|\\b(?:this|that|the) (?:distinction|difference|nuance|detail|choice|framing) matters\\b|\\bmatters more than (?:ever|you think)\\b",
+      "message": "says it matters instead of showing why, give the consequence"
     }
   ]
 }
