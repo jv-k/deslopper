@@ -162,7 +162,7 @@ def test_middle_dot_message_names_the_separator_to_use():
         assert "◦" in tell["message"], tell["message"]
 
 
-# The tells added from the slop-detector survey (issues #60 and #68). Each positive
+# The tells added from the slop-detector survey (issues #60, #68 and #69). Each positive
 # is an example phrase from the issue or from docs/research/slop-tells-survey.md, and
 # each negative is honest prose the issue or the survey names as staying out.
 SURVEY_TELL_POSITIVES = {
@@ -274,6 +274,52 @@ SURVEY_TELL_POSITIVES = {
         "fast without sacrificing safety",
         "without compromising quality",
     ],
+    # Issue #69 from here on.
+    "pithy-fragment": [
+        "Dense, not cramped.",
+        "Simple, yet effective.",
+        "Useful, but incremental.",
+        "The grid is new. Dense, not cramped.",
+        "The grid is new.  Dense, not cramped.",
+        "- Dense, not cramped.",
+        "* Fast, never flaky.",
+    ],
+    "narrative-pivot": [
+        "Then something shifted.",
+        "Everything changed.",
+        "That changes everything.",
+        "And then it clicked.",
+        "The penny dropped.",
+    ],
+    "negative-listing": [
+        "Not a bug. Not a feature. A design flaw.",
+        "No config, no flags, just one binary.",
+    ],
+    "business-jargon": [
+        "deep dive",
+        "game changer",
+        "paradigm shift",
+        "move the needle",
+        "secret sauce",
+        "low-hanging fruit",
+        "double down",
+        "lean into",
+        "circle back",
+        "best-in-class",
+        "thought leader",
+        "win-win",
+        # The inflections a writer reaches for as often as the base form.
+        "a real game-changer",
+        "Game changers",
+        "paradigm shifts",
+        "It moves the needle.",
+        "We are doubling down on caching.",
+        "The team leaned into the rewrite.",
+        "Circling back on the cache.",
+        "a deep-dive into the cache",
+        "two deep dives",
+        "thought leadership",
+    ],
 }
 
 SURVEY_TELL_NEGATIVES = {
@@ -313,6 +359,38 @@ SURVEY_TELL_NEGATIVES = {
         "It restarts without losing data.",
         "It runs without requiring a restart.",
     ],
+    # No i flag: the capital marks the start of a sentence, so a clause inside a
+    # sentence stays silent. A one-word reply such as "No," and the docs label
+    # "Optional, but recommended." are not slogans.
+    "pithy-fragment": [
+        "It is dense, not cramped.",
+        "dense, not cramped.",
+        "No, not yet.",
+        "Yes, but only on Linux.",
+        "Okay, not now.",
+        "Sure, but later.",
+        "Thanks, but no.",
+        "Optional, but recommended.",
+    ],
+    # The survey's lookahead keeps out a clause that goes on past the verb. A
+    # condition such as "if something changed" is a test, not a story turn.
+    "narrative-pivot": [
+        "Everything changed in v2 is listed below.",
+        "Re-run the build if something changed.",
+        "The hook exits 1 when something changed.",
+        "It reports whether anything changed.",
+        "Check whether something changed.",
+        "It skips the step unless something changed.",
+    ],
+    "negative-listing": [
+        "It takes no flags, no config file, and no env vars.",
+        "No, not by default. The cache is opt-in.",
+    ],
+    "business-jargon": [
+        "Double the buffer, then move on.",
+        "Lean on the cache.",
+        "I thought leaders would object.",
+    ],
 }
 
 
@@ -330,11 +408,28 @@ def test_survey_tell_leaves_honest_prose_alone(name, text):
     assert not offsets(_preset_tell(name), text), f"{name} false positive: {text!r}"
 
 
-def test_survey_tells_are_warn_tier_and_case_insensitive():
+# pithy-fragment leans on a capital letter to find the start of a sentence, so an
+# i flag would make it fire inside any sentence.
+CASE_SENSITIVE_SURVEY_TELLS = {"pithy-fragment"}
+
+
+def test_survey_tells_are_warn_tier_and_case_insensitive_unless_they_need_case():
     raw = {t["name"]: t for t in load_builtin("recommended")["tells"]}
     for name in SURVEY_TELL_POSITIVES:
         assert raw[name]["tier"] == "warn", name
-        assert raw[name]["flags"] == "i", name
+        if name in CASE_SENSITIVE_SURVEY_TELLS:
+            assert "i" not in raw[name].get("flags", ""), name
+        else:
+            assert raw[name]["flags"] == "i", name
+
+
+@pytest.mark.parametrize("text", [
+    "The grid is new. Dense, not cramped.",
+    "The grid is new.  Dense, not cramped.",
+    "- Dense, not cramped.",
+])
+def test_pithy_fragment_points_at_the_fragment_not_what_comes_before(text):
+    assert offsets(_preset_tell("pithy-fragment"), text) == [text.index("Dense")]
 
 
 # The words and patterns that widen existing tells, from the same survey (issue

@@ -22,6 +22,9 @@ Reliable scheduling has never been more critical, and its value cannot be overst
 A missed job could potentially cost a day. Orchestrate is fast without sacrificing
 safety. In summary, it runs your jobs.
 
+Then something shifted. No cron, no glue scripts, just one binary. Simple, yet effective.
+Orchestrate is the secret sauce that moves the needle for your team.
+
 ## Quick start
 
 Install the CLI, then point it at a config:

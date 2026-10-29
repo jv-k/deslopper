@@ -110,21 +110,25 @@ comprehensive.md:91:1 [warn] signposting: essay signpost, cut the announcement a
 comprehensive.md:93:11 [warn] urgency-inflation: inflated stakes, give the reason it is urgent
 comprehensive.md:95:4 [warn] stacked-hedge: stacked hedge, keep one hedge or none
 comprehensive.md:97:6 [warn] tradeoff-dodge: claims the gain costs nothing, state the tradeoff or show there is none
-comprehensive.md:99:1 [warn] chatbot-phrase: chatbot phrase, delete it
-comprehensive.md:99:37 [warn] chatbot-phrase: chatbot phrase, delete it
-comprehensive.md:99:55 [warn] chatbot-phrase: chatbot phrase, delete it
-comprehensive.md:101:1 [warn] sycophancy: sycophantic tone, respond directly
-comprehensive.md:101:13 [warn] sycophancy: sycophantic tone, respond directly
-comprehensive.md:101:38 [warn] sycophancy: sycophantic tone, respond directly
-comprehensive.md:103:9 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
-comprehensive.md:103:32 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
-comprehensive.md:105:4 [warn] puffery: puffery, state what happened
-comprehensive.md:105:12 [warn] inflated-word: inflated word, use a plain one
-comprehensive.md:105:26 [warn] puffery: puffery, state what happened
-comprehensive.md:105:34 [warn] puffery: puffery, state what happened
-comprehensive.md:105:67 [warn] puffery: puffery, state what happened
-comprehensive.md:107:12 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:107:31 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:107:44 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:123:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
-comprehensive.md:123:17 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:99:18 [warn] pithy-fragment: verbless slogan fragment, write a full sentence that says what it does
+comprehensive.md:101:6 [warn] narrative-pivot: staged story turn, name what changed and why
+comprehensive.md:103:1 [warn] negative-listing: countdown of negations before the point, say what it is
+comprehensive.md:105:9 [warn] business-jargon: business jargon, say the plain thing it stands for
+comprehensive.md:107:1 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:107:37 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:107:55 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:109:1 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:109:13 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:109:38 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:111:9 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:111:32 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:113:4 [warn] puffery: puffery, state what happened
+comprehensive.md:113:12 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:113:26 [warn] puffery: puffery, state what happened
+comprehensive.md:113:34 [warn] puffery: puffery, state what happened
+comprehensive.md:113:67 [warn] puffery: puffery, state what happened
+comprehensive.md:115:12 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:115:31 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:115:44 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:131:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:131:17 [warn] filler-verb: filler verb, use a plain verb or cut
