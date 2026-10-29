@@ -104,6 +104,14 @@ Not a bug. Not a feature. A design flaw.
 
 It will move the needle, so double the buffer.
 
+This is the missing piece, though each row flags a missing piece of data.
+
+Most people think caching is easy. They're wrong. Most people think of it as a dict.
+
+There's no denying it, though the flag is optional.
+
+Workload creep is the context tax, unlike scope creep or the EXIT trap.
+
 Would you like me to add tests? I'm happy to help, so don't hesitate to ask.
 
 Good catch, that's a fair point, and I hear you.

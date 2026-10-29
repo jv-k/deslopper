@@ -56,11 +56,13 @@ comprehensive.md:43:34 [warn] chatbot-phrase: chatbot phrase, delete it
 comprehensive.md:45:1 [warn] sycophancy: sycophantic tone, respond directly
 comprehensive.md:45:20 [warn] sycophancy: sycophantic tone, respond directly
 comprehensive.md:45:37 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:45:44 [warn] strong-intensifier: strong intensifier, cut it or give the evidence
 comprehensive.md:47:10 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
 comprehensive.md:47:27 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
 comprehensive.md:47:53 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
 comprehensive.md:49:3 [warn] puffery: puffery, state what happened
 comprehensive.md:49:20 [warn] puffery: puffery, state what happened
+comprehensive.md:49:29 [warn] abstract-metaphor: abstract metaphor, pick the concrete word
 comprehensive.md:49:40 [warn] puffery: puffery, state what happened
 comprehensive.md:51:1 [warn] vague-attribution: vague attribution, name the source or cut
 comprehensive.md:51:21 [warn] vague-attribution: vague attribution, name the source or cut
@@ -114,21 +116,26 @@ comprehensive.md:99:18 [warn] pithy-fragment: verbless slogan fragment, write a 
 comprehensive.md:101:6 [warn] narrative-pivot: staged story turn, name what changed and why
 comprehensive.md:103:1 [warn] negative-listing: countdown of negations before the point, say what it is
 comprehensive.md:105:9 [warn] business-jargon: business jargon, say the plain thing it stands for
-comprehensive.md:107:1 [warn] chatbot-phrase: chatbot phrase, delete it
-comprehensive.md:107:37 [warn] chatbot-phrase: chatbot phrase, delete it
-comprehensive.md:107:55 [warn] chatbot-phrase: chatbot phrase, delete it
-comprehensive.md:109:1 [warn] sycophancy: sycophantic tone, respond directly
-comprehensive.md:109:13 [warn] sycophancy: sycophantic tone, respond directly
-comprehensive.md:109:38 [warn] sycophancy: sycophantic tone, respond directly
-comprehensive.md:111:9 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
-comprehensive.md:111:32 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
-comprehensive.md:113:4 [warn] puffery: puffery, state what happened
-comprehensive.md:113:12 [warn] inflated-word: inflated word, use a plain one
-comprehensive.md:113:26 [warn] puffery: puffery, state what happened
-comprehensive.md:113:34 [warn] puffery: puffery, state what happened
-comprehensive.md:113:67 [warn] puffery: puffery, state what happened
-comprehensive.md:115:12 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:115:31 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:115:44 [warn] emoji: emoji or decorative checkmark in body text
-comprehensive.md:131:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
-comprehensive.md:131:17 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:107:9 [warn] missing-piece: claim of a gap others missed, show the gap and what fills it
+comprehensive.md:109:1 [warn] contrarian-hook: contrarian hook against an unnamed crowd, state your claim and its evidence
+comprehensive.md:111:1 [warn] overreach: absolute claim with no support, back it with evidence or soften it
+comprehensive.md:113:1 [warn] invented-concept-label: coined label used as an established term, describe the effect instead
+comprehensive.md:113:19 [warn] invented-concept-label: coined label used as an established term, describe the effect instead
+comprehensive.md:115:1 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:115:37 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:115:55 [warn] chatbot-phrase: chatbot phrase, delete it
+comprehensive.md:117:1 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:117:13 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:117:38 [warn] sycophancy: sycophantic tone, respond directly
+comprehensive.md:119:9 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:119:32 [warn] fancy-is: fancy way to say 'is', say 'is' or 'has'
+comprehensive.md:121:4 [warn] puffery: puffery, state what happened
+comprehensive.md:121:12 [warn] inflated-word: inflated word, use a plain one
+comprehensive.md:121:26 [warn] puffery: puffery, state what happened
+comprehensive.md:121:34 [warn] puffery: puffery, state what happened
+comprehensive.md:121:67 [warn] puffery: puffery, state what happened
+comprehensive.md:123:12 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:123:31 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:123:44 [warn] emoji: emoji or decorative checkmark in body text
+comprehensive.md:139:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
+comprehensive.md:139:17 [warn] filler-verb: filler verb, use a plain verb or cut

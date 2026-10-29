@@ -1,12 +1,14 @@
 import os
 
-from deslopper.config import load_config
+from deslopper.config import resolve
 from deslopper.engine import lint_files
 from deslopper import report
 
 
 def _result(fixtures_dir):
-    cfg, _ = load_config(None, fixtures_dir)
+    # Both presets layered, so the goldens can show smells from the opt-in layer
+    # too. The repo config extends only recommended, so it cannot.
+    cfg = resolve({"extends": ["deslopper:recommended", "deslopper:aggressive"]})
     path = os.path.join(fixtures_dir, "comprehensive.md")
     return lint_files([("comprehensive.md", path)], cfg.tells)
 

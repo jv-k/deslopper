@@ -629,6 +629,126 @@ def test_new_aggressive_tells_are_warn_tier():
         assert raw[name]["tier"] == "warn", name
 
 
+# The survey tells that go into the aggressive layer (issue #70). As in the
+# recommended tables, each positive is an example phrase from the survey and each
+# negative is a false-positive note from it.
+AGGRESSIVE_SURVEY_TELL_POSITIVES = {
+    "missing-piece": [
+        "This is the missing piece.",
+        "the missing link",
+        "the gap nobody noticed",
+        "the blind spot everyone missed",
+        "A missing ingredient in most teams.",
+        "the missing layer between tools",
+        "This is the missing link in our stack.",
+        "the gap no one saw",
+        "the blind spot most people ignored",
+    ],
+    "contrarian-hook": [
+        "Most people think caching is easy. They're wrong.",
+        "Most teams get this backwards.",
+        "Everyone assumes the cache is warm. That's wrong.",
+    ],
+    "overreach": [
+        "the only way to",
+        "the single most important",
+        "above all else",
+        "there's no denying",
+        "There is no denying it.",
+        "It is arguably the most useful flag.",
+        "the only real solution",
+    ],
+    "invented-concept-label": [
+        "the supervision paradox",
+        "the acceleration trap",
+        "workload creep",
+        "the context tax",
+        "The review treadmill",
+    ],
+}
+
+AGGRESSIVE_SURVEY_TELL_NEGATIVES = {
+    # The survey: missing piece appears in puzzle and data-gap prose.
+    "missing-piece": [
+        "Each row flags a missing piece of data.",
+        "The box shipped with a missing piece from the jigsaw.",
+        "Fix the missing link to the changelog.",
+        "It reports a missing piece of code.",
+        # The opposite claim: a gap that people did see.
+        "the gap everyone noticed",
+        "the gap everyone saw",
+    ],
+    # The survey's three Django hits are "the only way to" in honest reference
+    # prose, and the survey lists the same phrase as an example to flag. A line
+    # regex cannot tell them apart, so the aggressive tell accepts that risk (the
+    # survey rates it medium) and recommended stays silent on it: see
+    # test_honest_only_way_to_stays_out_of_recommended. What stays silent here
+    # is prose near the phrases that makes no absolute claim.
+    "overreach": [
+        "It is the only flag.",
+        "There is no denial of service.",
+        "Above all, run the tests.",
+    ],
+    # The first half alone is medium risk, so it stays silent.
+    "contrarian-hook": [
+        "Most people think of a cache as a dict.",
+        "Most people think caching is easy. It can be.",
+    ],
+    # The survey: real terms exist. Shell docs name the EXIT trap.
+    "invented-concept-label": [
+        "the birthday paradox",
+        "scope creep",
+        "Feature creep slows the release.",
+        "Set the EXIT trap to clean up.",
+        "Set the exit trap to clean up.",
+        "the income tax",
+        "the sales tax",
+        "the poverty trap",
+        "the digital divide",
+        "the fiscal cliff",
+        "the Fermi paradox",
+        "the hedonic treadmill",
+        # creep the verb, not the noun.
+        "Costs creep higher every year.",
+        "Values can creep.",
+        "Memory use tends to creep over time.",
+        "Errors creep through.",
+        "They creep in slowly.",
+    ],
+}
+
+
+@pytest.mark.parametrize("name,text", [
+    (name, text) for name, texts in AGGRESSIVE_SURVEY_TELL_POSITIVES.items() for text in texts
+])
+def test_aggressive_survey_tell_flags_its_example(name, text):
+    assert offsets(_preset_tell(name, "aggressive"), text), f"{name} should flag: {text!r}"
+
+
+@pytest.mark.parametrize("name,text", [
+    (name, text) for name, texts in AGGRESSIVE_SURVEY_TELL_NEGATIVES.items() for text in texts
+])
+def test_aggressive_survey_tell_leaves_honest_prose_alone(name, text):
+    assert not offsets(_preset_tell(name, "aggressive"), text), f"{name} false positive: {text!r}"
+
+
+def test_aggressive_survey_tells_are_warn_tier_and_case_insensitive():
+    raw = {t["name"]: t for t in load_builtin("aggressive")["tells"]}
+    for name in AGGRESSIVE_SURVEY_TELL_POSITIVES:
+        assert raw[name]["tier"] == "warn", name
+        assert raw[name]["flags"] == "i", name
+
+
+@pytest.mark.parametrize("text", [
+    # The survey's three Django hits for overreach are this honest reference use.
+    "The only way to set the timeout is the env var.",
+    "This is the only way to change the cache key.",
+])
+def test_honest_only_way_to_stays_out_of_recommended(text):
+    for raw in load_builtin("recommended")["tells"]:
+        assert not offsets(compile_tell(raw), text), f"{raw['name']} false positive: {text!r}"
+
+
 def test_arrow_stays_out_of_the_recommended_emoji_tell():
     # UI paths such as "Settings → General" use the arrow honestly, so only the
     # opt-in aggressive layer flags it.
