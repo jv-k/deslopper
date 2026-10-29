@@ -56,6 +56,10 @@ EXAMPLES = {
     "mic-drop": "That's the whole point.",
     "negation-pivot": "It's not a bug. It's a feature.",
     "importance-flag": "This matters because retries add up.",
+    "signposting": "In conclusion, the cache works.",
+    "urgency-inflation": "Fast builds have never been more critical.",
+    "stacked-hedge": "The job could potentially fail.",
+    "tradeoff-dodge": "Fast without sacrificing safety.",
 }
 
 # The opt-in aggressive layer, pinned by test_every_aggressive_example_fires_its_tell.
