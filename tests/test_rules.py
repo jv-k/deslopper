@@ -44,13 +44,13 @@ def test_bold_bullet_flags_label_then_prose_only():
     assert offsets(t, "1. **N** then prose") == [3]        # numbered lead len 3
 
 
-def _preset_tell(name):
-    """A real tell out of the shipped preset.
+def _preset_tell(name, preset="recommended"):
+    """A real tell out of a shipped preset.
 
     Loaded through the same loader the app uses, rather than hand-copied, so these
     regress if the preset does and survive a layout change.
     """
-    raw = load_builtin("recommended")
+    raw = load_builtin(preset)
     return compile_tell(next(t for t in raw["tells"] if t["name"] == name))
 
 
@@ -278,11 +278,6 @@ def test_survey_tells_are_warn_tier_and_case_insensitive():
         assert raw[name]["flags"] == "i", name
 
 
-def _aggressive_tell(name):
-    raw = load_builtin("aggressive")
-    return compile_tell(next(t for t in raw["tells"] if t["name"] == name))
-
-
 # The words and patterns that widen existing tells, from the same survey (issue
 # #61). Each positive is one addition the issue lists, so a dropped alternative
 # fails here by name.
@@ -315,7 +310,9 @@ WIDENED_POSITIVES = {
         "We embark on a rewrite.",
         "She embarked on a rewrite.",
         "Unleash the cache.",
+        "It is unleashing the cache.",
         "This bolsters the case.",
+        "It is bolstering the case.",
         "It orchestrates the jobs.",
         "It transcends the old design.",
         "This enhances the output.",
@@ -396,6 +393,7 @@ WIDENED_POSITIVES = {
         "Tests play a vital role.",
         "It plays a key role.",
         "It plays a significant role.",
+        "It plays crucial role in essays.",
         "a key turning point",
         "the focal point of the release",
         "an enduring legacy",
@@ -409,6 +407,10 @@ WIDENED_POSITIVES = {
 
 WIDENED_NEGATIVES = {
     "filler-verb": ["Navigate to the settings page."],
+    "not-just-x-but-y": [
+        "The cache is not only keyed by its hash.",
+        "It is not just its size.",
+    ],
 }
 
 AGGRESSIVE_WIDENED_POSITIVES = {
@@ -444,32 +446,27 @@ AGGRESSIVE_WIDENED_NEGATIVES = {
 }
 
 
-@pytest.mark.parametrize("name,text", [
-    (name, text) for name, texts in WIDENED_POSITIVES.items() for text in texts
-])
-def test_widened_tell_flags_each_addition(name, text):
-    assert offsets(_preset_tell(name), text), f"{name} should flag: {text!r}"
+def _cases(*tables):
+    return [
+        (preset, name, text)
+        for preset, table in tables
+        for name, texts in table.items()
+        for text in texts
+    ]
 
 
-@pytest.mark.parametrize("name,text", [
-    (name, text) for name, texts in WIDENED_NEGATIVES.items() for text in texts
-])
-def test_widened_tell_leaves_honest_prose_alone(name, text):
-    assert not offsets(_preset_tell(name), text), f"{name} false positive: {text!r}"
+@pytest.mark.parametrize("preset,name,text", _cases(
+    ("recommended", WIDENED_POSITIVES), ("aggressive", AGGRESSIVE_WIDENED_POSITIVES),
+))
+def test_widened_tell_flags_each_addition(preset, name, text):
+    assert offsets(_preset_tell(name, preset), text), f"{name} should flag: {text!r}"
 
 
-@pytest.mark.parametrize("name,text", [
-    (name, text) for name, texts in AGGRESSIVE_WIDENED_POSITIVES.items() for text in texts
-])
-def test_widened_aggressive_tell_flags_each_addition(name, text):
-    assert offsets(_aggressive_tell(name), text), f"{name} should flag: {text!r}"
-
-
-@pytest.mark.parametrize("name,text", [
-    (name, text) for name, texts in AGGRESSIVE_WIDENED_NEGATIVES.items() for text in texts
-])
-def test_widened_aggressive_tell_leaves_honest_prose_alone(name, text):
-    assert not offsets(_aggressive_tell(name), text), f"{name} false positive: {text!r}"
+@pytest.mark.parametrize("preset,name,text", _cases(
+    ("recommended", WIDENED_NEGATIVES), ("aggressive", AGGRESSIVE_WIDENED_NEGATIVES),
+))
+def test_widened_tell_leaves_honest_prose_alone(preset, name, text):
+    assert not offsets(_preset_tell(name, preset), text), f"{name} false positive: {text!r}"
 
 
 def test_new_aggressive_tells_are_warn_tier():
@@ -481,5 +478,7 @@ def test_new_aggressive_tells_are_warn_tier():
 def test_arrow_stays_out_of_the_recommended_emoji_tell():
     # UI paths such as "Settings → General" use the arrow honestly, so only the
     # opt-in aggressive layer flags it.
-    for raw in (t for t in load_builtin("recommended")["tells"] if t["name"] == "emoji"):
+    tells = [t for t in load_builtin("recommended")["tells"] if t["name"] == "emoji"]
+    assert tells
+    for raw in tells:
         assert not offsets(compile_tell(raw), "Settings → General")
