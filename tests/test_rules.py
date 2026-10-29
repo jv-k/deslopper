@@ -640,6 +640,9 @@ AGGRESSIVE_SURVEY_TELL_POSITIVES = {
         "the blind spot everyone missed",
         "A missing ingredient in most teams.",
         "the missing layer between tools",
+        "This is the missing link in our stack.",
+        "the gap no one saw",
+        "the blind spot most people ignored",
     ],
     "contrarian-hook": [
         "Most people think caching is easy. They're wrong.",
@@ -670,6 +673,21 @@ AGGRESSIVE_SURVEY_TELL_NEGATIVES = {
         "Each row flags a missing piece of data.",
         "The box shipped with a missing piece from the jigsaw.",
         "Fix the missing link to the changelog.",
+        "It reports a missing piece of code.",
+        # The opposite claim: a gap that people did see.
+        "the gap everyone noticed",
+        "the gap everyone saw",
+    ],
+    # The survey's three Django hits are "the only way to" in honest reference
+    # prose, and the survey lists the same phrase as an example to flag. A line
+    # regex cannot tell them apart, so the aggressive tell accepts that risk (the
+    # survey rates it medium) and recommended stays silent on it: see
+    # test_honest_only_way_to_stays_out_of_recommended. What stays silent here
+    # is prose near the phrases that makes no absolute claim.
+    "overreach": [
+        "It is the only flag.",
+        "There is no denial of service.",
+        "Above all, run the tests.",
     ],
     # The first half alone is medium risk, so it stays silent.
     "contrarian-hook": [
@@ -682,6 +700,20 @@ AGGRESSIVE_SURVEY_TELL_NEGATIVES = {
         "scope creep",
         "Feature creep slows the release.",
         "Set the EXIT trap to clean up.",
+        "Set the exit trap to clean up.",
+        "the income tax",
+        "the sales tax",
+        "the poverty trap",
+        "the digital divide",
+        "the fiscal cliff",
+        "the Fermi paradox",
+        "the hedonic treadmill",
+        # creep the verb, not the noun.
+        "Costs creep higher every year.",
+        "Values can creep.",
+        "Memory use tends to creep over time.",
+        "Errors creep through.",
+        "They creep in slowly.",
     ],
 }
 
