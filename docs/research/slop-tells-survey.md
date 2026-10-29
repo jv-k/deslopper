@@ -268,7 +268,7 @@ corrective framing at about 12 times the human rate in GPT-6 Astra.
   `\b(?:no|not) [^.,;!?]{1,30}[.,] (?:no|not) [^.,;!?]{1,30}[.,] (?:just|only|but|a|an|the)\b`
 - False-positive risk: low. Django hits: 0.
 - Tier: warn.
-- Sources: tropes.fyi "Not X. Not Y. Just Z.", Wikipedia ("no ..., no ..., just ..."),
+- Sources: tropes.fyi "Not X. Not Y. Just Z.", Wikipedia ("no ..., no ..., just ..."), <!-- deslop-lint-disable-line -->
   stop-slop "Negative Listing", tbhb/vale-ai-tells `ContrastiveNegation.yml`.
 
 ### contrast-adverb

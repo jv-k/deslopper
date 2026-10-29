@@ -60,6 +60,10 @@ EXAMPLES = {
     "urgency-inflation": "Fast builds have never been more critical.",
     "stacked-hedge": "The job could potentially fail.",
     "tradeoff-dodge": "Fast without sacrificing safety.",
+    "pithy-fragment": "Dense, not cramped.",
+    "narrative-pivot": "Then something shifted.",
+    "negative-listing": "No config, no flags, just one binary.",
+    "business-jargon": "This will move the needle.",
 }
 
 # The opt-in aggressive layer, pinned by test_every_aggressive_example_fires_its_tell.
