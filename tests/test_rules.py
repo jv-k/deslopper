@@ -276,3 +276,210 @@ def test_survey_tells_are_warn_tier_and_case_insensitive():
     for name in SURVEY_TELL_POSITIVES:
         assert raw[name]["tier"] == "warn", name
         assert raw[name]["flags"] == "i", name
+
+
+def _aggressive_tell(name):
+    raw = load_builtin("aggressive")
+    return compile_tell(next(t for t in raw["tells"] if t["name"] == name))
+
+
+# The words and patterns that widen existing tells, from the same survey (issue
+# #61). Each positive is one addition the issue lists, so a dropped alternative
+# fails here by name.
+WIDENED_POSITIVES = {
+    "not-just-x-but-y": [
+        "not only per type of object, but also per instance",
+        "It is not merely a cache but a store.",
+        "Not only does it build, it's fast.",
+    ],
+    "throat-clearing": [
+        "It's important to note that tests pass.",
+        "It's important to remember the cache.",
+        "It's important to understand the flow.",
+        "It bears mentioning that it caches.",
+        "Importantly, the cache is warm.",
+        "Interestingly, it works.",
+        "Notably, the run is fast.",
+        "Ultimately, this is a choice.",
+        "In the realm of build tools, speed wins.",
+        "In an era where builds are slow, speed wins.",
+        "In a world where builds are slow, speed wins.",
+        "Imagine a world where builds are fast.",
+        "Picture this: a fast build.",
+        "Have you ever wondered why builds are slow?",
+        "Since the dawn of computing, builds were slow.",
+        "As we navigate the release, keep notes.",
+    ],
+    "filler-verb": [
+        "It elevates the docs.",
+        "We embark on a rewrite.",
+        "She embarked on a rewrite.",
+        "Unleash the cache.",
+        "This bolsters the case.",
+        "It orchestrates the jobs.",
+        "It transcends the old design.",
+        "This enhances the output.",
+        "It helps you navigate the complexities of config.",
+    ],
+    "marketing-adjective": [
+        "a groundbreaking tool",
+        "a holistic view",
+        "a multifaceted problem",
+        "meticulous care",
+        "unparalleled speed",
+        "an invaluable aid",
+        "a topic of paramount importance",
+        "a transformative change",
+        "an impactful change",
+        "a breathtaking view",
+        "a stunning result",
+        "a revolutionary tool",
+        "a state-of-the-art build",
+    ],
+    "inflated-word": [
+        "the realm of tests",
+        "a myriad of options",
+        "a plethora of flags",
+        "the interconnectedness of parts",
+        "a nuanced take",
+        "a commendable effort",
+        "a noteworthy change",
+        "an ever-evolving field",
+        "an ever-changing API",
+    ],
+    "trailing-participle": [
+        "It retries, emphasizing delivery.",
+        "It shines, symbolizing hope.",
+        "It runs, contributing to uptime.",
+        "It teaches, cultivating skill.",
+        "It spans, encompassing all jobs.",
+        "It caches, enhancing speed.",
+        "It wins, solidifying its lead.",
+        "It ships, cementing trust.",
+        "It lands, paving the way for more.",
+    ],
+    "vague-attribution": [
+        "Studies show it scales.",
+        "Research suggests it scales.",
+        "It is widely believed that it scales.",
+        "Observers have cited the cost.",
+        "Observers have noted the cost.",
+        "Some argue it scales.",
+        "Several sources say it scales.",
+        "Several publications say it scales.",
+    ],
+    "chatbot-phrase": [
+        "Would you like me to add tests?",
+        "If you want, I can add tests.",
+        "If you'd like, I can add tests.",
+        "Do you want me to add tests?",
+        "Is there anything else to add?",
+        "Don't hesitate to ask.",
+        "I'm happy to help.",
+        "Shall I add tests?",
+    ],
+    "sycophancy": [
+        "You're right to push back on that.",
+        "That's a fair concern.",
+        "That's a fair point.",
+        "Good catch!",
+        "I hear you.",
+    ],
+    "fancy-is": [
+        "The CLI functions as a hub.",
+        "The CLI operates as a hub.",
+        "It holds the distinction of being first.",
+    ],
+    "puffery": [
+        "It plays a crucial role in builds.",
+        "It plays a pivotal role in builds.",
+        "Tests play a vital role.",
+        "It plays a key role.",
+        "It plays a significant role.",
+        "a key turning point",
+        "the focal point of the release",
+        "an enduring legacy",
+        "a rich heritage",
+        "a rich cultural heritage",
+        "nestled in the config",
+        "in the heart of the engine",
+        "valuable insights",
+    ],
+}
+
+WIDENED_NEGATIVES = {
+    "filler-verb": ["Navigate to the settings page."],
+}
+
+AGGRESSIVE_WIDENED_POSITIVES = {
+    "strong-intensifier": [
+        "It is genuinely fast.",
+        "It is truly fast.",
+        "It is incredibly fast.",
+        "It is absolutely fast.",
+        "It is deeply useful.",
+        "It is remarkably fast.",
+        "It is fundamentally sound.",
+    ],
+    "generic-conclusion": [
+        "At the end of the day, it ships.",
+        "It all comes down to tests.",
+        "In the end, it ships.",
+    ],
+    "cutoff-disclaimer": [
+        "The figure is not widely documented.",
+        "The figure is not widely available.",
+        "The figure is not widely disclosed.",
+        "Based on the available information, it ships.",
+        "Based on available information, it ships.",
+        "Nothing in the provided sources says so.",
+        "Nothing in the available search results says so.",
+        "That does not by itself establish a trend.",
+    ],
+    "unicode-arrow": ["Open the menu → it saves.", "Settings → General"],
+}
+
+AGGRESSIVE_WIDENED_NEGATIVES = {
+    "generic-conclusion": ["The ring buffer wraps in the end state."],
+}
+
+
+@pytest.mark.parametrize("name,text", [
+    (name, text) for name, texts in WIDENED_POSITIVES.items() for text in texts
+])
+def test_widened_tell_flags_each_addition(name, text):
+    assert offsets(_preset_tell(name), text), f"{name} should flag: {text!r}"
+
+
+@pytest.mark.parametrize("name,text", [
+    (name, text) for name, texts in WIDENED_NEGATIVES.items() for text in texts
+])
+def test_widened_tell_leaves_honest_prose_alone(name, text):
+    assert not offsets(_preset_tell(name), text), f"{name} false positive: {text!r}"
+
+
+@pytest.mark.parametrize("name,text", [
+    (name, text) for name, texts in AGGRESSIVE_WIDENED_POSITIVES.items() for text in texts
+])
+def test_widened_aggressive_tell_flags_each_addition(name, text):
+    assert offsets(_aggressive_tell(name), text), f"{name} should flag: {text!r}"
+
+
+@pytest.mark.parametrize("name,text", [
+    (name, text) for name, texts in AGGRESSIVE_WIDENED_NEGATIVES.items() for text in texts
+])
+def test_widened_aggressive_tell_leaves_honest_prose_alone(name, text):
+    assert not offsets(_aggressive_tell(name), text), f"{name} false positive: {text!r}"
+
+
+def test_new_aggressive_tells_are_warn_tier():
+    raw = {t["name"]: t for t in load_builtin("aggressive")["tells"]}
+    for name in ("strong-intensifier", "unicode-arrow"):
+        assert raw[name]["tier"] == "warn", name
+
+
+def test_arrow_stays_out_of_the_recommended_emoji_tell():
+    # UI paths such as "Settings → General" use the arrow honestly, so only the
+    # opt-in aggressive layer flags it.
+    for raw in (t for t in load_builtin("recommended")["tells"] if t["name"] == "emoji"):
+        assert not offsets(compile_tell(raw), "Settings → General")

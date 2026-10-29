@@ -715,6 +715,262 @@
     {
       "path": "comprehensive.md",
       "line": 77,
+      "col": 7,
+      "tier": "warn",
+      "name": "not-just-x-but-y",
+      "message": "\"not just X but Y\" padding, make the point once"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 79,
+      "col": 1,
+      "tier": "warn",
+      "name": "throat-clearing",
+      "message": "throat-clearing or transition opener, start with the point"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 81,
+      "col": 4,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 81,
+      "col": 14,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 81,
+      "col": 28,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 81,
+      "col": 43,
+      "tier": "warn",
+      "name": "filler-verb",
+      "message": "filler verb, use a plain verb or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 83,
+      "col": 3,
+      "tier": "warn",
+      "name": "marketing-adjective",
+      "message": "marketing adjective, say what is true"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 83,
+      "col": 19,
+      "tier": "warn",
+      "name": "marketing-adjective",
+      "message": "marketing adjective, say what is true"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 83,
+      "col": 29,
+      "tier": "warn",
+      "name": "marketing-adjective",
+      "message": "marketing adjective, say what is true"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 83,
+      "col": 50,
+      "tier": "warn",
+      "name": "marketing-adjective",
+      "message": "marketing adjective, say what is true"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 85,
+      "col": 5,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 85,
+      "col": 16,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 85,
+      "col": 24,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 85,
+      "col": 36,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 87,
+      "col": 9,
+      "tier": "warn",
+      "name": "trailing-participle",
+      "message": "trailing participle clause, say it straight or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 87,
+      "col": 26,
+      "tier": "warn",
+      "name": "trailing-participle",
+      "message": "trailing participle clause, say it straight or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 89,
+      "col": 1,
+      "tier": "warn",
+      "name": "vague-attribution",
+      "message": "vague attribution, name the source or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 89,
+      "col": 18,
+      "tier": "warn",
+      "name": "vague-attribution",
+      "message": "vague attribution, name the source or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 89,
+      "col": 41,
+      "tier": "warn",
+      "name": "vague-attribution",
+      "message": "vague attribution, name the source or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 91,
+      "col": 1,
+      "tier": "warn",
+      "name": "chatbot-phrase",
+      "message": "chatbot phrase, delete it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 91,
+      "col": 37,
+      "tier": "warn",
+      "name": "chatbot-phrase",
+      "message": "chatbot phrase, delete it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 91,
+      "col": 55,
+      "tier": "warn",
+      "name": "chatbot-phrase",
+      "message": "chatbot phrase, delete it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 93,
+      "col": 1,
+      "tier": "warn",
+      "name": "sycophancy",
+      "message": "sycophantic tone, respond directly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 93,
+      "col": 13,
+      "tier": "warn",
+      "name": "sycophancy",
+      "message": "sycophantic tone, respond directly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 93,
+      "col": 38,
+      "tier": "warn",
+      "name": "sycophancy",
+      "message": "sycophantic tone, respond directly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 95,
+      "col": 9,
+      "tier": "warn",
+      "name": "fancy-is",
+      "message": "fancy way to say 'is', say 'is' or 'has'"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 95,
+      "col": 32,
+      "tier": "warn",
+      "name": "fancy-is",
+      "message": "fancy way to say 'is', say 'is' or 'has'"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 97,
+      "col": 4,
+      "tier": "warn",
+      "name": "puffery",
+      "message": "puffery, state what happened"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 97,
+      "col": 12,
+      "tier": "warn",
+      "name": "inflated-word",
+      "message": "inflated word, use a plain one"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 97,
+      "col": 26,
+      "tier": "warn",
+      "name": "puffery",
+      "message": "puffery, state what happened"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 97,
+      "col": 34,
+      "tier": "warn",
+      "name": "puffery",
+      "message": "puffery, state what happened"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 97,
+      "col": 67,
+      "tier": "warn",
+      "name": "puffery",
+      "message": "puffery, state what happened"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 99,
       "col": 12,
       "tier": "warn",
       "name": "emoji",
@@ -722,7 +978,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 77,
+      "line": 99,
       "col": 31,
       "tier": "warn",
       "name": "emoji",
@@ -730,7 +986,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 77,
+      "line": 99,
       "col": 44,
       "tier": "warn",
       "name": "emoji",
@@ -738,7 +994,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 93,
+      "line": 115,
       "col": 9,
       "tier": "error",
       "name": "em-dash",
@@ -746,7 +1002,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 93,
+      "line": 115,
       "col": 17,
       "tier": "warn",
       "name": "filler-verb",
@@ -756,7 +1012,7 @@
   "unreadable": [],
   "summary": {
     "errors": 33,
-    "warnings": 61,
+    "warnings": 93,
     "unreadable": 0
   }
 }
