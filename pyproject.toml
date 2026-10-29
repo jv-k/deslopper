@@ -8,7 +8,7 @@ version = "1.7.2"
 description = "A deterministic slop linter for Markdown: it finds the mechanical tells of machine-generated writing."
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [{ name = "John Valai" }]
 keywords = ["lint", "writing", "markdown", "ai", "slop"]
 classifiers = [
