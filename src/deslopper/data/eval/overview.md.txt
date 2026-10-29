@@ -18,6 +18,10 @@ is that cron fails quietly. The real problem isn't speed, it's trust. The result
 data. Let that sink in. And honestly? It's not a scheduler. It's a safety net for
 your jobs. This matters because every run counts. That's the whole point.
 
+Reliable scheduling has never been more critical, and its value cannot be overstated.
+A missed job could potentially cost a day. Orchestrate is fast without sacrificing
+safety. In summary, it runs your jobs.
+
 ## Quick start
 
 Install the CLI, then point it at a config:
