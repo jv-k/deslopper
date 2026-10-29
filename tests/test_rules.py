@@ -162,9 +162,9 @@ def test_middle_dot_message_names_the_separator_to_use():
         assert "◦" in tell["message"], tell["message"]
 
 
-# The tells added from the slop-detector survey (issue #60). Each positive is an
-# example phrase from the issue, and each negative is honest prose the issue names
-# as staying out.
+# The tells added from the slop-detector survey (issues #60 and #68). Each positive
+# is an example phrase from the issue or from docs/research/slop-tells-survey.md, and
+# each negative is honest prose the issue or the survey names as staying out.
 SURVEY_TELL_POSITIVES = {
     "false-exclusivity": [
         "Nobody talks about the cost.",
@@ -239,7 +239,7 @@ SURVEY_TELL_POSITIVES = {
         "matters more than ever",
     ],
     # Issue #68 from here on. signposting takes only the essay closers and
-    # openers; the tutorial phrases belong to a separate aggressive tell.
+    # openers. The tutorial phrases are left for an aggressive tell that #71 adds.
     "signposting": [
         "In conclusion, the cache works.",
         "In summary, it builds.",
@@ -256,6 +256,13 @@ SURVEY_TELL_POSITIVES = {
         "at an inflection point",
         "at a critical juncture",
         "the stakes have never been higher",
+        "cannot be understated",
+        "cannot be emphasised enough",
+        "cannot be emphasized enough",
+        "at a crossroads",
+        "at a pivotal moment",
+        "at a turning point",
+        "The stakes couldn't be higher.",
     ],
     "stacked-hedge": [
         "could potentially fail",
@@ -283,13 +290,15 @@ SURVEY_TELL_NEGATIVES = {
     "mic-drop": ["It matters which order you pass them in."],
     "negation-pivot": ["It is not set by default. It is read from the env."],
     "importance-flag": ["The order matters for hashing."],
-    # The Django hits the survey lists for signposting are tutorial prose, which
-    # recommended leaves to the opt-in layer.
+    # The Django hits and the tutorial examples the survey lists for signposting.
+    # recommended leaves them out, and #71 adds them to the aggressive preset.
     "signposting": [
         "By the end of this tutorial, you will have an app.",
         "To recap, the view returns a response.",
         "Let's dive in.",
         "Let's break this down.",
+        "Let's unpack the config.",
+        "In this article, we'll build a poll app.",
         "In this guide, we'll build a poll app.",
         "Conclusions are drawn in the summary.",
     ],
