@@ -869,12 +869,44 @@
       "line": 91,
       "col": 1,
       "tier": "warn",
+      "name": "signposting",
+      "message": "essay signpost, cut the announcement and keep the point"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 93,
+      "col": 11,
+      "tier": "warn",
+      "name": "urgency-inflation",
+      "message": "inflated stakes, give the reason it is urgent"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 95,
+      "col": 4,
+      "tier": "warn",
+      "name": "stacked-hedge",
+      "message": "stacked hedge, keep one hedge or none"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 97,
+      "col": 6,
+      "tier": "warn",
+      "name": "tradeoff-dodge",
+      "message": "claims the gain costs nothing, state the tradeoff or show there is none"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 99,
+      "col": 1,
+      "tier": "warn",
       "name": "chatbot-phrase",
       "message": "chatbot phrase, delete it"
     },
     {
       "path": "comprehensive.md",
-      "line": 91,
+      "line": 99,
       "col": 37,
       "tier": "warn",
       "name": "chatbot-phrase",
@@ -882,7 +914,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 91,
+      "line": 99,
       "col": 55,
       "tier": "warn",
       "name": "chatbot-phrase",
@@ -890,7 +922,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 93,
+      "line": 101,
       "col": 1,
       "tier": "warn",
       "name": "sycophancy",
@@ -898,7 +930,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 93,
+      "line": 101,
       "col": 13,
       "tier": "warn",
       "name": "sycophancy",
@@ -906,7 +938,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 93,
+      "line": 101,
       "col": 38,
       "tier": "warn",
       "name": "sycophancy",
@@ -914,7 +946,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 95,
+      "line": 103,
       "col": 9,
       "tier": "warn",
       "name": "fancy-is",
@@ -922,7 +954,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 95,
+      "line": 103,
       "col": 32,
       "tier": "warn",
       "name": "fancy-is",
@@ -930,7 +962,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 97,
+      "line": 105,
       "col": 4,
       "tier": "warn",
       "name": "puffery",
@@ -938,7 +970,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 97,
+      "line": 105,
       "col": 12,
       "tier": "warn",
       "name": "inflated-word",
@@ -946,7 +978,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 97,
+      "line": 105,
       "col": 26,
       "tier": "warn",
       "name": "puffery",
@@ -954,7 +986,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 97,
+      "line": 105,
       "col": 34,
       "tier": "warn",
       "name": "puffery",
@@ -962,7 +994,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 97,
+      "line": 105,
       "col": 67,
       "tier": "warn",
       "name": "puffery",
@@ -970,7 +1002,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 99,
+      "line": 107,
       "col": 12,
       "tier": "warn",
       "name": "emoji",
@@ -978,7 +1010,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 99,
+      "line": 107,
       "col": 31,
       "tier": "warn",
       "name": "emoji",
@@ -986,7 +1018,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 99,
+      "line": 107,
       "col": 44,
       "tier": "warn",
       "name": "emoji",
@@ -994,7 +1026,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 115,
+      "line": 123,
       "col": 9,
       "tier": "error",
       "name": "em-dash",
@@ -1002,7 +1034,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 115,
+      "line": 123,
       "col": 17,
       "tier": "warn",
       "name": "filler-verb",
@@ -1012,7 +1044,7 @@
   "unreadable": [],
   "summary": {
     "errors": 33,
-    "warnings": 93,
+    "warnings": 97,
     "unreadable": 0
   }
 }

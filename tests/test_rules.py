@@ -238,6 +238,35 @@ SURVEY_TELL_POSITIVES = {
         "That distinction matters.",
         "matters more than ever",
     ],
+    # Issue #68 from here on. signposting takes only the essay closers and
+    # openers; the tutorial phrases belong to a separate aggressive tell.
+    "signposting": [
+        "In conclusion, the cache works.",
+        "In summary, it builds.",
+        "To sum up",
+        "Key takeaways",
+        "Key takeaway: retries add up.",
+        "Without further ado",
+    ],
+    "urgency-inflation": [
+        "cannot be overstated",
+        "can't be overstated",
+        "more important than ever",
+        "has never been more critical",
+        "at an inflection point",
+        "at a critical juncture",
+        "the stakes have never been higher",
+    ],
+    "stacked-hedge": [
+        "could potentially fail",
+        "might possibly",
+        "may arguably",
+        "There could potentially be multiple values.",
+    ],
+    "tradeoff-dodge": [
+        "fast without sacrificing safety",
+        "without compromising quality",
+    ],
 }
 
 SURVEY_TELL_NEGATIVES = {
@@ -254,6 +283,27 @@ SURVEY_TELL_NEGATIVES = {
     "mic-drop": ["It matters which order you pass them in."],
     "negation-pivot": ["It is not set by default. It is read from the env."],
     "importance-flag": ["The order matters for hashing."],
+    # The Django hits the survey lists for signposting are tutorial prose, which
+    # recommended leaves to the opt-in layer.
+    "signposting": [
+        "By the end of this tutorial, you will have an app.",
+        "To recap, the view returns a response.",
+        "Let's dive in.",
+        "Let's break this down.",
+        "In this guide, we'll build a poll app.",
+        "Conclusions are drawn in the summary.",
+    ],
+    "urgency-inflation": [
+        "This path has never been tested.",
+        "The value cannot be empty.",
+        "The stakes are low.",
+    ],
+    "stacked-hedge": ["The call could fail.", "It may be cached."],
+    # The survey keeps these out: common in plain technical prose.
+    "tradeoff-dodge": [
+        "It restarts without losing data.",
+        "It runs without requiring a restart.",
+    ],
 }
 
 

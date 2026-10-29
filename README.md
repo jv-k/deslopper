@@ -155,6 +155,10 @@ each sample fires its tell. To see the tells for your own config, run `deslopper
 | `mic-drop` | ⚠️ | `That's the whole point.` | mic-drop line that grades the point, cut it or add a fact |
 | `negation-pivot` | ⚠️ | `It's not a bug. It's a feature.` | "it's not X, it's Y" pivot, say what it is |
 | `importance-flag` | ⚠️ | `This matters because retries add up.` | says it matters instead of showing why, give the consequence |
+| `signposting` | ⚠️ | `In conclusion, the cache works.` | essay signpost, cut the announcement and keep the point |
+| `urgency-inflation` | ⚠️ | `Fast builds have never been more critical.` | inflated stakes, give the reason it is urgent |
+| `stacked-hedge` | ⚠️ | `The job could potentially fail.` | stacked hedge, keep one hedge or none |
+| `tradeoff-dodge` | ⚠️ | `Fast without sacrificing safety.` | claims the gain costs nothing, state the tradeoff or show there is none |
 
 <!-- deslop-lint-enable -->
 <!-- tell-table:end -->

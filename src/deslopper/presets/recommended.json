@@ -234,6 +234,40 @@
       "flags": "i",
       "pattern": "\\b(?:this|that|which|it) (?:\\w+ )?matters because\\b|\\bwhy (?:this|that|it) matters\\b|\\b(?:this|that|the) (?:distinction|difference|nuance|detail|choice|framing) matters\\b|\\bmatters more than (?:ever|you think)\\b",
       "message": "says it matters instead of showing why, give the consequence"
+    },
+    {
+      "name": "signposting",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["in conclusion", "in summary", "to sum up", "key takeaways?", "without further ado"],
+      "message": "essay signpost, cut the announcement and keep the point"
+    },
+    {
+      "name": "urgency-inflation",
+      "tier": "warn",
+      "flags": "i",
+      "words": [
+        "can(?:not|'?t) be (?:overstated|understated|emphasi[sz]ed enough)",
+        "more (?:important|critical|relevant|urgent|essential|vital) than ever",
+        "ha(?:s|ve) never been more",
+        "at (?:a|an) (?:crossroads|inflection point|critical juncture|pivotal moment|turning point)",
+        "the stakes (?:have never been|are|couldn'?t be) (?:higher|enormous|immense)"
+      ],
+      "message": "inflated stakes, give the reason it is urgent"
+    },
+    {
+      "name": "stacked-hedge",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["(?:could|may|might|can) (?:potentially|possibly|arguably|perhaps|conceivably)"],
+      "message": "stacked hedge, keep one hedge or none"
+    },
+    {
+      "name": "tradeoff-dodge",
+      "tier": "warn",
+      "flags": "i",
+      "words": ["without (?:sacrificing|compromising)"],
+      "message": "claims the gain costs nothing, state the tradeoff or show there is none"
     }
   ]
 }

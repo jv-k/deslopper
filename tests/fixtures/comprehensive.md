@@ -88,6 +88,14 @@ It ships, cementing trust, paving the way for more.
 
 Studies show and research suggests what some argue.
 
+In conclusion, the cache works. To recap, the view returns a response.
+
+Its value cannot be overstated, but the stakes are low.
+
+It could potentially fail, though the call could fail anyway.
+
+Fast without sacrificing safety, and it restarts without losing data.
+
 Would you like me to add tests? I'm happy to help, so don't hesitate to ask.
 
 Good catch, that's a fair point, and I hear you.
