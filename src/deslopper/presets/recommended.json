@@ -246,13 +246,7 @@
       "name": "urgency-inflation",
       "tier": "warn",
       "flags": "i",
-      "words": [
-        "can(?:not|'?t) be (?:overstated|understated|emphasi[sz]ed enough)",
-        "more (?:important|critical|relevant|urgent|essential|vital) than ever",
-        "ha(?:s|ve) never been more",
-        "at (?:a|an) (?:crossroads|inflection point|critical juncture|pivotal moment|turning point)",
-        "the stakes (?:have never been|are|couldn'?t be) (?:higher|enormous|immense)"
-      ],
+      "words": ["can(?:not|'?t) be (?:overstated|understated|emphasi[sz]ed enough)", "more (?:important|critical|relevant|urgent|essential|vital) than ever", "ha(?:s|ve) never been more", "at (?:a|an) (?:crossroads|inflection point|critical juncture|pivotal moment|turning point)", "the stakes (?:have never been|are|couldn'?t be) (?:higher|enormous|immense)"],
       "message": "inflated stakes, give the reason it is urgent"
     },
     {
