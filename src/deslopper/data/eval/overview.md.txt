@@ -13,6 +13,11 @@ delivery paradigm, ensuring every run lands. Experts believe it is a testament t
 evolving landscape of automation. It’s “config-free” by default. Let me know if that
 sounds familiar, and I hope this helps.
 
+Here's the thing: nobody talks about the cost of a missed run. The uncomfortable truth
+is that cron fails quietly. The real problem isn't speed, it's trust. The result? Lost
+data. Let that sink in. And honestly? It's not a scheduler. It's a safety net for
+your jobs. This matters because every run counts. That's the whole point.
+
 ## Quick start
 
 Install the CLI, then point it at a config:
