@@ -619,6 +619,102 @@
     {
       "path": "comprehensive.md",
       "line": 57,
+      "col": 1,
+      "tier": "warn",
+      "name": "false-exclusivity",
+      "message": "claim that others miss the point, make the point and cite who missed it"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 59,
+      "col": 1,
+      "tier": "warn",
+      "name": "hidden-truth",
+      "message": "promised hidden truth, state the fact plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 59,
+      "col": 40,
+      "tier": "warn",
+      "name": "hidden-truth",
+      "message": "promised hidden truth, state the fact plainly"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 61,
+      "col": 1,
+      "tier": "warn",
+      "name": "real-problem-reframe",
+      "message": "reframe to a \"real\" problem, name the problem and show why"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 63,
+      "col": 1,
+      "tier": "warn",
+      "name": "false-suspense",
+      "message": "false suspense before a reveal, start with the point"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 65,
+      "col": 1,
+      "tier": "warn",
+      "name": "rhetorical-self-answer",
+      "message": "question answered at once, state the answer as a sentence"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 67,
+      "col": 1,
+      "tier": "warn",
+      "name": "emphasis-crutch",
+      "message": "emphasis crutch, cut it and let the point stand"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 67,
+      "col": 19,
+      "tier": "warn",
+      "name": "emphasis-crutch",
+      "message": "emphasis crutch, cut it and let the point stand"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 69,
+      "col": 1,
+      "tier": "warn",
+      "name": "staged-candor",
+      "message": "staged candor, drop the honesty marker and make the claim"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 71,
+      "col": 1,
+      "tier": "warn",
+      "name": "mic-drop",
+      "message": "mic-drop line that grades the point, cut it or add a fact"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 73,
+      "col": 1,
+      "tier": "warn",
+      "name": "negation-pivot",
+      "message": "\"it's not X, it's Y\" pivot, say what it is"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 75,
+      "col": 1,
+      "tier": "warn",
+      "name": "importance-flag",
+      "message": "says it matters instead of showing why, give the consequence"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 77,
       "col": 12,
       "tier": "warn",
       "name": "emoji",
@@ -626,7 +722,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 57,
+      "line": 77,
       "col": 31,
       "tier": "warn",
       "name": "emoji",
@@ -634,7 +730,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 57,
+      "line": 77,
       "col": 44,
       "tier": "warn",
       "name": "emoji",
@@ -642,7 +738,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 73,
+      "line": 93,
       "col": 9,
       "tier": "error",
       "name": "em-dash",
@@ -650,7 +746,7 @@
     },
     {
       "path": "comprehensive.md",
-      "line": 73,
+      "line": 93,
       "col": 17,
       "tier": "warn",
       "name": "filler-verb",
@@ -660,7 +756,7 @@
   "unreadable": [],
   "summary": {
     "errors": 33,
-    "warnings": 49,
+    "warnings": 61,
     "unreadable": 0
   }
 }
