@@ -12,6 +12,7 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
+from decimal import Decimal
 
 import pytest
 
@@ -179,6 +180,54 @@ def test_evaluate_parses_the_captured_answers_usage_and_cost(monkeypatch):
 
     assert (result.input_tokens, result.output_tokens) == (1577, 0)
     assert result.market_cost == "0.000066"
+
+
+def _envelope(usage=None, cost=None):
+    reply = {"answers": {}}
+    if usage is not None:
+        reply["usage"] = usage
+    if cost is not None:
+        reply["providerMetadata"] = {"gateway": {"marketCost": cost}}
+    return reply
+
+
+@pytest.mark.parametrize(
+    "usage, expected",
+    [
+        ({"inputTokens": 1577, "outputTokens": 3}, 1580),
+        ({"inputTokens": 1577}, 1577),
+        ({"outputTokens": 3}, 3),
+        ({}, None),
+        (None, None),
+    ],
+    ids=["both", "input-only", "output-only", "empty-usage", "no-usage"],
+)
+def test_total_tokens_adds_input_and_output_and_is_none_when_both_are_missing(
+    usage, expected, monkeypatch
+):
+    monkeypatch.setattr(jev, "post", _canned(_envelope(usage=usage)))
+
+    assert jev.evaluate("some state", QUESTIONS).total_tokens == expected
+
+
+@pytest.mark.parametrize(
+    "raw, expected",
+    [
+        ("0.000066", Decimal("0.000066")),
+        ("6.6E-5", Decimal("0.000066")),
+        (None, None),
+        ("not a number", None),
+    ],
+    ids=["plain", "exponent-form", "missing", "garbage"],
+)
+def test_cost_is_the_market_cost_parsed_once_as_a_decimal(raw, expected, monkeypatch):
+    monkeypatch.setattr(jev, "post", _canned(_envelope(cost=raw)))
+
+    result = jev.evaluate("some state", QUESTIONS)
+
+    assert result.cost == expected
+    assert result.cost is None or isinstance(result.cost, Decimal)
+    assert result.market_cost == raw
 
 
 def test_an_answer_of_unknown_type_raises_jev_error(monkeypatch):
