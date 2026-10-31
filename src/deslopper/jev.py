@@ -10,7 +10,7 @@ import json
 import os
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from typing import Optional, Union
 
@@ -57,14 +57,19 @@ class Result:
     envelope omits them.
 
     `market_cost` is the gateway's raw string. `cost` is that string parsed
-    once into a Decimal, or None when it is missing or not a number.
+    once, on construction, into a Decimal, or None when it is missing or not a
+    number. It is derived, never passed, so the two cannot disagree.
     """
 
     answers: dict
     input_tokens: Optional[int]
     output_tokens: Optional[int]
     market_cost: Optional[str]
-    cost: Optional[Decimal] = None
+    cost: Optional[Decimal] = field(init=False)
+
+    def __post_init__(self):
+        # Frozen, so the derived field is set past the dataclass's own guard.
+        object.__setattr__(self, "cost", _parse_cost(self.market_cost))
 
     @property
     def total_tokens(self) -> Optional[int]:
@@ -91,11 +96,10 @@ class Result:
             input_tokens=usage.get("inputTokens"),
             output_tokens=usage.get("outputTokens"),
             market_cost=gateway.get("marketCost"),
-            cost=_cost(gateway.get("marketCost")),
         )
 
 
-def _cost(raw) -> Optional[Decimal]:
+def _parse_cost(raw) -> Optional[Decimal]:
     """The gateway's cost string as a Decimal, or None when it is missing or garbage.
 
     Through `str` so an exponent form such as `6.6E-5` parses the same as the
