@@ -328,14 +328,19 @@ def test_plainness_skips_a_pass_over_the_state_budget(tmp_path, capsys, monkeypa
     captured = capsys.readouterr()
     assert code == 0
     assert calls == []
-    # One line per pass, and nothing else from the judge on stderr.
+    # Every judge error line starts `plainness (<pass>):`, so this filter sees
+    # all of them: one skip line per pass and no other.
     skipped = [l for l in captured.err.splitlines() if "plainness" in l]
     assert skipped == [
         "✖ plainness (baseline): fixtures exceed the Jev state budget, skipped",
         "✖ plainness (after): fixtures exceed the Jev state budget, skipped",
     ]
-    assert "ℹ plainness overview.md: unscored" in captured.out
-    assert "ℹ plainness mean: unscored" in captured.out
+    assert captured.out.splitlines()[-4:] == [
+        "ℹ plainness overview.md: unscored",
+        "ℹ plainness reference.md: unscored",
+        "ℹ plainness template.md: unscored",
+        "ℹ plainness mean: unscored",
+    ]
 
 
 def _deleting_command(tmp_path, name):
