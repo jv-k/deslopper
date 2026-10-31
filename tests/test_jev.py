@@ -215,10 +215,11 @@ def test_total_tokens_adds_input_and_output_and_is_none_when_both_are_missing(
     [
         ("0.000066", Decimal("0.000066")),
         ("6.6E-5", Decimal("0.000066")),
+        (6.6e-05, Decimal("0.000066")),
         (None, None),
         ("not a number", None),
     ],
-    ids=["plain", "exponent-form", "missing", "garbage"],
+    ids=["plain", "exponent-form", "unquoted-number", "missing", "garbage"],
 )
 def test_cost_is_the_market_cost_parsed_once_as_a_decimal(raw, expected, monkeypatch):
     monkeypatch.setattr(jev, "post", _canned(_envelope(cost=raw)))
@@ -228,6 +229,13 @@ def test_cost_is_the_market_cost_parsed_once_as_a_decimal(raw, expected, monkeyp
     assert result.cost == expected
     assert result.cost is None or isinstance(result.cost, Decimal)
     assert result.market_cost == raw
+
+
+def test_cost_always_follows_market_cost_on_a_result_built_directly():
+    result = jev.Result(answers={}, input_tokens=1, output_tokens=2, market_cost="6.6E-5")
+
+    assert result.cost == Decimal("0.000066")
+    assert result.total_tokens == 3
 
 
 def test_an_answer_of_unknown_type_raises_jev_error(monkeypatch):
