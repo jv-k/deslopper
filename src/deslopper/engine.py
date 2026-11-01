@@ -140,14 +140,14 @@ class FenceLexer:
 
     def __init__(self):
         # True while a block comment is open at the end of the last line fed.
-        self.in_block_comment = False
+        self._in_block_comment = False
         # Open template literals, interpolations and braces inside them, innermost last.
         self._nesting = []
 
     @property
     def at_top_level(self) -> bool:
         """Whether the next line starts in plain code, not in a comment or a template."""
-        return not self.in_block_comment and not self._nesting
+        return not self._in_block_comment and not self._nesting
 
     def feed(self, line: str) -> tuple[str, list[str]]:
         """Return the masked line and the text of each comment on it, in order."""
@@ -155,7 +155,7 @@ class FenceLexer:
         comments = []
         quote = None
         i = 0
-        if self.in_block_comment:
+        if self._in_block_comment:
             i = self._consume_block_comment(line, 0, comments)
             out.append(" " * i)
         while i < len(line):
@@ -172,7 +172,7 @@ class FenceLexer:
                     out.append(line[i:i + 2] if shown else "  ")
                     i += 2
                     continue
-                if in_template and line.startswith("${", i):
+                if in_template and line.startswith(self.INTERPOLATION, i):
                     self._nesting.append(self.INTERPOLATION)
                     out.append("  ")
                     i += 2
@@ -199,7 +199,7 @@ class FenceLexer:
                 quote = ch
             elif ch == self.TEMPLATE:
                 self._nesting.append(self.TEMPLATE)
-            elif ch == "{" and self._nesting:
+            elif ch == self.BRACE and self._nesting:
                 self._nesting.append(self.BRACE)
             elif ch == "}" and self._nesting:
                 self._nesting.pop()
@@ -214,7 +214,7 @@ class FenceLexer:
         `*/` is not on the line.
         """
         close = line.find("*/", start)
-        self.in_block_comment = close < 0
+        self._in_block_comment = close < 0
         end = len(line) if close < 0 else close
         comments.append(line[start:end])
         return end if close < 0 else close + 2
