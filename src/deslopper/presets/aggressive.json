@@ -59,14 +59,14 @@
       "name": "contrarian-hook",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\b(?:most (?:people|teams|developers|engineers)|everyone)\\s+(?:thinks?|assumes?|believes?)\\b[^.!?]{0,80}[.!?]\\s+(?:they'?re|they are|that'?s|that is) wrong\\b|\\b(?:most (?:people|teams|developers|engineers)|everyone|we all)\\s+(?:gets?|got) (?:this|it) backwards?\\b",
+      "pattern": "\\b(?:most (?:people|teams|developers|engineers)|everyone)\\s+(?:thinks?|assumes?|believes?)\\b[^.!?]{0,80}[.!?]\\s+(?:they['\u2019]?re|they are|that['\u2019]?s|that is) wrong\\b|\\b(?:most (?:people|teams|developers|engineers)|everyone|we all)\\s+(?:gets?|got) (?:this|it) backwards?\\b",
       "message": "contrarian hook against an unnamed crowd, state your claim and its evidence"
     },
     {
       "name": "overreach",
       "tier": "warn",
       "flags": "i",
-      "words": ["the only (?:way to|real solution|way forward)", "the single most", "arguably the most", "above all else", "there(?:'s| is) no denying"],
+      "words": ["the only (?:way to|real solution|way forward)", "the single most", "arguably the most", "above all else", "there(?:['\u2019]s| is) no denying"],
       "message": "absolute claim with no support, back it with evidence or soften it"
     },
     {
@@ -80,14 +80,14 @@
       "name": "tutorial-signposting",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\blet['\u2019]?s (?:(?:dive|delve) in(?:to)?|break (?:this|it) down|unpack|explore)\\b|\\bin this (?:article|post|guide|section|tutorial),? (?:we'?ll|we will|I'?ll|I will)\\b|\\bby the end of this (?:article|post|guide|tutorial)\\b|\\bto recap\\b",
+      "pattern": "\\blet['\u2019]?s (?:(?:dive|delve) in(?:to)?|break (?:this|it) down|unpack|explore)\\b|\\bin this (?:article|post|guide|section|tutorial),? (?:we['\u2019]?ll|we will|I['\u2019]?ll|I will)\\b|\\bby the end of this (?:article|post|guide|tutorial)\\b|\\bto recap\\b",
       "message": "tutorial signpost, start with the first step"
     },
     {
       "name": "contrast-adverb",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\b(?:rather than|(?<!\\bdo )(?<!\\bdoes )(?<!\\bdid )(?<!\\bcan )(?<!\\bshould )(?<!\\bmust )(?<!\\bwill )(?<!\\bwould )(?<!\\bcould )not|isn'?t|is not) (?:merely|simply|solely)\\b|\\bless like an? [^.,;]{1,40} and more like\\b|\\bis genuinely\\b",
+      "pattern": "\\b(?:rather than|(?<!\\bdo )(?<!\\bdoes )(?<!\\bdid )(?<!\\bcan )(?<!\\bshould )(?<!\\bmust )(?<!\\bwill )(?<!\\bwould )(?<!\\bcould )not|isn['\u2019]?t|is not) (?:merely|simply|solely)\\b|\\bless like an? [^.,;]{1,40} and more like\\b|\\bis genuinely\\b",
       "message": "contrast with a softening adverb, say what it is"
     },
     {
