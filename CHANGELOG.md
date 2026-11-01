@@ -18,8 +18,8 @@ script or model that reads it.
   request. A run of many short smells used to pack more questions than Jev accepts, and
   the request failed. The question limit comes from real requests, recorded in
   `docs/jev.md` under Request limits.
-- A straight apostrophe in a tell's `pattern` or `words` now matches a curly one too, in
-  your own tells as well as the shipped ones. deslopper widens the pattern when it compiles
+- A straight apostrophe written as `'` in a tell's `pattern` or `words` now matches a curly
+  one too, in your own tells as well as the shipped ones. deslopper widens the pattern when it compiles
   the tell and leaves the text alone, so `curly-quote` still flags the curly character.
 
 ### Migrate from 1.x
