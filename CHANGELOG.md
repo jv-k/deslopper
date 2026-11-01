@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- `deslopper update` runs `brew update` before `brew upgrade` on a Homebrew install. A
+  stale tap named an old version, and the upgrade failed on its checksum.
+- The Homebrew formula installs from an sdist attached to the GitHub release, not from the
+  tag's source archive. GitHub regenerates those archives, so their checksums drifted and
+  broke the v1.8.0 and v2.0.0 formulas.
+
 ## Unreleased (2.0.0)
 
 This is a major release. The `json` payload renames its top-level key, which breaks any

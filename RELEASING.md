@@ -27,8 +27,14 @@ a release publishes to Homebrew only:
 
 For Homebrew, create the tap repo `jv-k/homebrew-tap` with `Formula/deslopper.rb` once.
 Then add a fine-grained token with Contents read and write on that repo alone as the
-`HOMEBREW_TAP_TOKEN` repository secret. Each release, `release.yml` rewrites the formula's
-`url` and `sha256` for the new tag and pushes it to the tap.
+`HOMEBREW_TAP_TOKEN` repository secret. Each release, `release.yml` builds the sdist,
+attaches it to the GitHub release as `deslopper-X.Y.Z.tar.gz`, rewrites the formula's `url`
+and `sha256` to name that file, and pushes the formula to the tap.
+
+The formula names the release asset, not the tag's `archive/refs/tags` tarball. GitHub
+regenerates those archives and their bytes can change, so a formula that names one stops
+installing once its checksum drifts. That broke the v1.8.0 and v2.0.0 formulas. A release
+asset keeps the bytes it was uploaded with, and a re-run reuses the asset it finds.
 
 ## Cut a release
 
@@ -85,6 +91,7 @@ skips a version PyPI already holds, and leaves a tap that is already current alo
 
 ## After publishing
 
-- Check that the tap moved: `Formula/deslopper.rb` in `jv-k/homebrew-tap` names the new tag.
+- Check that the tap moved: `Formula/deslopper.rb` in `jv-k/homebrew-tap` names the new
+  release asset, and the GitHub release lists `deslopper-X.Y.Z.tar.gz`.
 - Move consumers off the git ref. In a repo that pins `uvx --from git+...@main`, change it to
   `uvx deslopper@X.Y.Z`.
