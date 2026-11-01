@@ -528,6 +528,9 @@ WIDENED_POSITIVES = {
         "Several sources note the cost.",
         "Several sources said it scales.",
         "Several publications reported the cost.",
+        "Several sources claimed it scales.",
+        "Several sources suggested it scales.",
+        "Several sources noted the cost.",
     ],
     "chatbot-phrase": [
         "Would you like me to add tests?",
