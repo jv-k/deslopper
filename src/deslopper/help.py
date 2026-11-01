@@ -61,35 +61,35 @@ OPT_COL = 30
 COMMANDS = {
     "lint": {
         "synopsis": "[paths...] [options]",
-        "description": "Lint files and fail on findings.",
+        "description": "Lint files and fail on smells.",
         "paths": True,
         "choices": {"--format": ("text", "github", "json")},
         "options": [
-            ("", "--strict", "", "Fail on warn-tier findings too."),
+            ("", "--strict", "", "Fail on warn-tier smells too."),
             ("", "--config", "<file>", "Use this config file instead of discovering one."),
             ("", "--format", "<fmt>", "Output format: text (default), github, or json."),
-            ("", "--jev", "", "Ask Jev to mark each finding keep or rewrite. Needs AI_GATEWAY_API_KEY."),
-            ("", "--no-cache", "", "With --jev, ask again about findings Jev answered before."),
+            ("", "--jev", "", "Ask Jev to mark each smell keep or rewrite. Needs AI_GATEWAY_API_KEY."),
+            ("", "--no-cache", "", "With --jev, ask again about smells Jev answered before."),
         ],
         # --triage is the old name of --jev.
         "hidden": ("--triage",),
         "examples": [
             ("deslopper lint", "Lint the configured include set."),
             ("deslopper lint docs/ README.md", "Lint specific paths."),
-            ("deslopper lint --strict", "Fail on warn-tier findings too."),
+            ("deslopper lint --strict", "Fail on warn-tier smells too."),
             ("deslopper lint --format github", "Emit GitHub Actions annotations."),
-            ("deslopper lint --jev docs/", "Sort the findings into keep and rewrite."),
+            ("deslopper lint --jev docs/", "Sort the smells into keep and rewrite."),
         ],
     },
     "check": {
         "synopsis": "[paths...] [options]",
-        "description": "Report findings, always exit 0.",
+        "description": "Report smells, always exit 0.",
         "paths": True,
         "options": [
             ("", "--config", "<file>", "Use this config file instead of discovering one."),
         ],
         "examples": [
-            ("deslopper check", "See the findings without failing the run."),
+            ("deslopper check", "See the smells without failing the run."),
         ],
     },
     "rules": {
@@ -248,8 +248,8 @@ def render_root(stream=None):
 
     rend.pill("EXAMPLES")
     _example_row(rend, "deslopper lint", "Lint the configured include set.")
-    _example_row(rend, "deslopper lint --strict", "Fail on warn-tier findings too.")
-    _example_row(rend, "deslopper lint --jev", "Ask Jev which findings to keep or rewrite.")
+    _example_row(rend, "deslopper lint --strict", "Fail on warn-tier smells too.")
+    _example_row(rend, "deslopper lint --jev", "Ask Jev which smells to keep or rewrite.")
     _example_row(rend, "deslopper rules", "List the active tells.")
     _example_row(rend, "deslopper init", "Write a starter config.")
 

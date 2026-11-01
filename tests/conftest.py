@@ -70,20 +70,20 @@ def canned_jev(monkeypatch, verdicts, **envelope):
     return calls
 
 
-# The output schema's finding sub-schema and a stdlib walk over it. jsonschema
+# The output schema's smell sub-schema and a stdlib walk over it. jsonschema
 # is not a dependency, and the sub-schema uses only required, properties, type,
 # enum, minimum and maximum, each of which is checked here.
 
 _JSON_TYPES = {"string": str, "integer": int, "number": (int, float)}
 
 
-def finding_schema():
+def smell_schema():
     from importlib import resources
     text = resources.files("deslopper.schema").joinpath("output.schema.json").read_text(encoding="utf-8")
-    return json.loads(text)["properties"]["findings"]["items"]
+    return json.loads(text)["properties"]["smells"]["items"]
 
 
-def check_finding(item, schema):
+def check_smell(item, schema):
     props = schema["properties"]
     for key in schema["required"]:
         assert key in item, key

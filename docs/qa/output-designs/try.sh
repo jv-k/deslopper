@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Try every design on a real run: lint once, then draw the same findings each way.
+# Try every design on a real run: lint once, then draw the same smells each way.
 #
 #   bash docs/qa/output-designs/try.sh [lint args...]        e.g.  --jev README.md docs/
 #   DESIGN=5 bash docs/qa/output-designs/try.sh [lint args...]   one design only

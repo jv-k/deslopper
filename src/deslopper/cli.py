@@ -87,7 +87,7 @@ def _lint_command(args):
 
 
 def _jev_spinner(where, count, index, total):
-    noun = "finding" if count == 1 else "findings"
+    noun = "smell" if count == 1 else "smells"
     return gum.spin(f"({index}/{total}) Asking Jev about {count} {noun} in {where}")
 
 
@@ -110,8 +110,8 @@ def _draw(lines) -> bool:
 
 def _finish(result, strict, judged=None):
     """The plain run's ending: the unreadable paths and the summary, on stderr."""
-    # The findings go to stdout and the summary to stderr. Flush first, so the summary
-    # follows the findings when both streams share one pipe.
+    # The smells go to stdout and the summary to stderr. Flush first, so the summary
+    # follows the smells when both streams share one pipe.
     sys.stdout.flush()
     for path in result.unreadable:
         print(f"  {ui.I_TRACE} cannot read {path}", file=sys.stderr)
@@ -119,12 +119,12 @@ def _finish(result, strict, judged=None):
 
 
 def _read_sources(result, items) -> dict:
-    """The raw text of each file in `items` that has a finding, by display path.
+    """The raw text of each file in `items` that has a smell, by display path.
 
-    Files with no findings are never opened. A file that can no longer be read
-    maps to empty text, so its findings still go to Jev, without context.
+    Files with no smells are never opened. A file that can no longer be read
+    maps to empty text, so its smells still go to Jev, without context.
     """
-    flagged = {f.path for f in result.findings}
+    flagged = {f.path for f in result.smells}
     sources = {}
     for display, read_path in items:
         if display not in flagged:
@@ -151,7 +151,7 @@ def _do_lint(args):
     attended = args.format == "text" and gum.attended(sys.stdout)
     if args.format == "text" and not attended:
         gum.hint(sys.stdout)
-    # Read once: Jev gets the lines around each finding, and the view shows them.
+    # Read once: Jev gets the lines around each smell, and the view shows them.
     sources = _read_sources(result, items) if args.jev or attended else {}
     judged = None
     if args.jev:

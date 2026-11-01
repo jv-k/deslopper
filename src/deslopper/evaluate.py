@@ -1,7 +1,7 @@
 """The rewrite-pass eval: sandbox seeding, the judges, and the run loop.
 
 An eval seeds a sandbox with slop fixtures, hands it to the rewrite command under
-test, and judges the result twice: efficacy (the lint findings must be gone) and
+test, and judges the result twice: efficacy (the lint smells must be gone) and
 preservation (the protected content must be untouched). An opt-in third judge,
 plainness, asks Jev to score each fixture before and after the rewrite and
 reports the scores without touching the verdict.
@@ -175,9 +175,9 @@ def _broken(why: str) -> int:
 
 
 def _show_remaining(result, sources, fixtures):
-    """The findings left after the rewrite: the lint view when attended, else the
+    """The smells left after the rewrite: the lint view when attended, else the
     plain lines. A clean result prints nothing here; the verdict says it."""
-    if result.findings and gum.attended(sys.stdout):
+    if result.smells and gum.attended(sys.stdout):
         lines = report.lint_view(result, sources, fixtures, ui.term_cols(), command="eval")
         drawn = gum.render(lines)
         if drawn is not None:
@@ -205,11 +205,11 @@ def run_eval(command: str, keep: bool = False, plainness: bool = False) -> int:
 
         baseline = _lint_sandbox(sandbox, names, tells)
         if baseline.errors == 0:
-            return _broken("the raw fixtures produced no error-tier findings")
+            return _broken("the raw fixtures produced no error-tier smells")
         if baseline.warnings == 0:
             # The strictly-below warn gate needs headroom, so a warnless baseline
             # could never pass either.
-            return _broken("the raw fixtures produced no warn-tier findings")
+            return _broken("the raw fixtures produced no warn-tier smells")
         seeded, _ = _read_all(sandbox, names)
         before = {n: digest_text(seeded[n]) for n in names}
         ui.log_info(f"seeded {len(names)} fixture(s), baseline "

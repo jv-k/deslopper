@@ -3,20 +3,20 @@ import json
 import pytest
 
 from deslopper import gum
-from deslopper.findings import Finding, LintResult
+from deslopper.smells import Smell, LintResult
 from decimal import Decimal
 
 from deslopper.triage import Triage
 from deslopper.report import (exit_code, excerpt, format_github, format_json, format_text,
                               lint_view, rule_lines, summary_line)
-from tests.conftest import check_finding as _check_finding, finding_schema as _finding_schema
+from tests.conftest import check_smell as _check_smell, smell_schema as _smell_schema
 
 
 def sample():
     return LintResult(
-        findings=[
-            Finding("a.md", 3, 5, "error", "em-dash", "em dash in prose"),
-            Finding("a.md", 4, 1, "warn", "semicolon", "semi: a%b\nnext"),
+        smells=[
+            Smell("a.md", 3, 5, "error", "em-dash", "em dash in prose"),
+            Smell("a.md", 4, 1, "warn", "semicolon", "semi: a%b\nnext"),
         ],
         unreadable=["b.md"],
     )
@@ -38,7 +38,7 @@ def test_format_github_maps_tier_and_encodes():
 def test_format_github_escapes_delimiters_in_the_path():
     # , and : delimit workflow-command properties, so a path carrying them must escape
     # them or the annotation points nowhere.
-    r = LintResult(findings=[Finding("a,b:c.md", 1, 2, "error", "x", "m")])
+    r = LintResult(smells=[Smell("a,b:c.md", 1, 2, "error", "x", "m")])
     assert format_github(r).strip() == "::error file=a%2Cb%3Ac.md,line=1,col=2::x - m"
 
 
@@ -46,7 +46,7 @@ def test_format_json_envelope():
     out = json.loads(format_json(sample()))
     assert out["summary"] == {"errors": 1, "warnings": 1, "unreadable": 1}
     assert out["unreadable"] == ["b.md"]
-    assert out["findings"][0] == {
+    assert out["smells"][0] == {
         "path": "a.md", "line": 3, "col": 5, "tier": "error",
         "name": "em-dash", "message": "em dash in prose",
     }
@@ -56,7 +56,7 @@ def test_summary_line():
     assert summary_line(sample(), False) == "✖ 1 error(s), 1 warning(s), 1 unreadable"
     assert summary_line(sample(), True).endswith("[strict]")
     assert summary_line(LintResult(), False) == "✔ no slop found"
-    warn_only = LintResult(findings=[Finding("a.md", 1, 1, "warn", "x", "m")])
+    warn_only = LintResult(smells=[Smell("a.md", 1, 1, "warn", "x", "m")])
     assert summary_line(warn_only, False) == "! 0 error(s), 1 warning(s)"
 
 
@@ -80,10 +80,10 @@ def test_format_json_reports_what_the_cache_saved():
 def test_exit_code():
     clean = LintResult()
     assert exit_code(clean, False) == 0
-    warn_only = LintResult(findings=[Finding("a.md", 1, 1, "warn", "x", "m")])
+    warn_only = LintResult(smells=[Smell("a.md", 1, 1, "warn", "x", "m")])
     assert exit_code(warn_only, False) == 0
     assert exit_code(warn_only, True) == 1
-    err = LintResult(findings=[Finding("a.md", 1, 1, "error", "x", "m")])
+    err = LintResult(smells=[Smell("a.md", 1, 1, "error", "x", "m")])
     assert exit_code(err, False) == 1
     unreadable = LintResult(unreadable=["b.md"])
     assert exit_code(unreadable, False) == 1
@@ -91,18 +91,18 @@ def test_exit_code():
 
 def annotated():
     return LintResult(
-        findings=[
-            Finding("a.md", 3, 5, "error", "em-dash", "em dash in prose",
+        smells=[
+            Smell("a.md", 3, 5, "error", "em-dash", "em dash in prose",
                     verdict="keep", probability=0.93),
-            Finding("a.md", 4, 1, "warn", "semicolon", "semi",
+            Smell("a.md", 4, 1, "warn", "semicolon", "semi",
                     verdict="rewrite", probability=0.88),
-            Finding("a.md", 5, 1, "warn", "hedge", "hedge"),
+            Smell("a.md", 5, 1, "warn", "hedge", "hedge"),
         ],
     )
 
 
-def test_finding_verdict_fields_default_to_none():
-    f = Finding("a.md", 1, 1, "warn", "x", "m")
+def test_smell_verdict_fields_default_to_none():
+    f = Smell("a.md", 1, 1, "warn", "x", "m")
     assert f.verdict is None
     assert f.probability is None
 
@@ -114,16 +114,16 @@ def test_finding_verdict_fields_default_to_none():
     {"verdict": "keep", "probability": 1.5},
     {"verdict": "keep", "probability": -0.1},
 ])
-def test_finding_rejects_a_half_or_out_of_range_verdict(kwargs):
-    # The pair is one unit and the schema is the contract, so a Finding that could
+def test_smell_rejects_a_half_or_out_of_range_verdict(kwargs):
+    # The pair is one unit and the schema is the contract, so a Smell that could
     # not render as valid JSON cannot be built in the first place.
     with pytest.raises(ValueError):
-        Finding("a.md", 1, 1, "warn", "x", "m", **kwargs)
+        Smell("a.md", 1, 1, "warn", "x", "m", **kwargs)
 
 
-def test_finding_accepts_the_probability_bounds():
-    assert Finding("a.md", 1, 1, "warn", "x", "m", verdict="keep", probability=0).probability == 0
-    assert Finding("a.md", 1, 1, "warn", "x", "m", verdict="rewrite", probability=1).probability == 1
+def test_smell_accepts_the_probability_bounds():
+    assert Smell("a.md", 1, 1, "warn", "x", "m", verdict="keep", probability=0).probability == 0
+    assert Smell("a.md", 1, 1, "warn", "x", "m", verdict="rewrite", probability=1).probability == 1
 
 
 def test_format_text_appends_verdict_only_when_present():
@@ -137,14 +137,14 @@ def test_format_text_appends_verdict_only_when_present():
 # colour, the rest dim. Piped output above keeps the number and the pinned grammar.
 
 
-def test_format_json_carries_verdict_only_on_judged_findings():
-    findings = json.loads(format_json(annotated()))["findings"]
-    assert findings[0]["verdict"] == "keep"
-    assert findings[0]["probability"] == 0.93
-    assert findings[1]["verdict"] == "rewrite"
-    assert findings[1]["probability"] == 0.88
-    assert "verdict" not in findings[2]
-    assert "probability" not in findings[2]
+def test_format_json_carries_verdict_only_on_judged_smells():
+    smells = json.loads(format_json(annotated()))["smells"]
+    assert smells[0]["verdict"] == "keep"
+    assert smells[0]["probability"] == 0.93
+    assert smells[1]["verdict"] == "rewrite"
+    assert smells[1]["probability"] == 0.88
+    assert "verdict" not in smells[2]
+    assert "probability" not in smells[2]
 
 
 def test_format_github_folds_verdict_into_message():
@@ -155,17 +155,17 @@ def test_format_github_folds_verdict_into_message():
 
 
 def test_schema_walker_rejects_a_wrong_typed_key():
-    schema = _finding_schema()
+    schema = _smell_schema()
     good = {"path": "a.md", "line": 1, "col": 1, "tier": "warn", "name": "x", "message": "m"}
-    _check_finding(good, schema)
+    _check_smell(good, schema)
     for bad in ({**good, "line": "1"}, {**good, "line": 0}, {**good, "path": 3},
                 {**good, "verdict": "maybe"}, {**good, "probability": 2}, {**good, "extra": 1}):
         with pytest.raises(AssertionError):
-            _check_finding(bad, schema)
+            _check_smell(bad, schema)
 
 
 def test_output_schema_declares_optional_verdict_fields():
-    schema = _finding_schema()
+    schema = _smell_schema()
     assert schema["properties"]["verdict"]["enum"] == ["keep", "rewrite"]
     prob = schema["properties"]["probability"]
     assert (prob["type"], prob["minimum"], prob["maximum"]) == ("number", 0, 1)
@@ -174,10 +174,10 @@ def test_output_schema_declares_optional_verdict_fields():
 
 
 def test_json_output_validates_with_and_without_verdicts():
-    schema = _finding_schema()
+    schema = _smell_schema()
     for result in (sample(), annotated()):
-        for item in json.loads(format_json(result))["findings"]:
-            _check_finding(item, schema)
+        for item in json.loads(format_json(result))["smells"]:
+            _check_smell(item, schema)
 
 
 # The attended view: lines of (style, text) parts, which gum draws in one call. The
@@ -206,10 +206,10 @@ def _jev(lines):
 
 
 def _view_sample():
-    result = LintResult(findings=[
-        Finding("a.md", 1, 3, "error", "em-dash", "em dash in prose"),
-        Finding("a.md", 2, 2, "warn", "semicolon", "semicolon in prose"),
-        Finding("a.md", 3, 2, "warn", "semicolon", "semicolon in prose"),
+    result = LintResult(smells=[
+        Smell("a.md", 1, 3, "error", "em-dash", "em dash in prose"),
+        Smell("a.md", 2, 2, "warn", "semicolon", "semicolon in prose"),
+        Smell("a.md", 3, 2, "warn", "semicolon", "semicolon in prose"),
     ])
     sources = {"a.md": "a — b\nc; d\ne; f\n"}
     return result, sources
@@ -243,7 +243,7 @@ def test_lint_view_groups_each_tell_under_its_file_with_a_caret_per_place():
         "  ╭" + "─" * 10 + "┬" + "─" * 43 + "╮",
         "  │ summary  │ " + " " * 41 + " │",
         "  ├" + "─" * 10 + "┼" + "─" * 43 + "┤",
-        "  │ findings │ " + "3 in 1 file".ljust(41) + " │",
+        "  │ smells   │ " + "3 in 1 file".ljust(41) + " │",
         "  │ errors   │ " + "1".ljust(41) + " │",
         "  │ warnings │ " + "2".ljust(41) + " │",
         "  ╰" + "─" * 10 + "┴" + "─" * 43 + "╯",
@@ -264,10 +264,10 @@ def test_lint_view_styles_the_parts():
 
 
 def test_lint_view_leads_each_row_with_jev_rating():
-    result = LintResult(findings=[
-        Finding("a.md", 1, 3, "error", "em-dash", "em dash", verdict="keep", probability=0.93),
-        Finding("a.md", 2, 2, "warn", "semicolon", "semi", verdict="rewrite", probability=0.71),
-        Finding("a.md", 3, 2, "warn", "semicolon", "semi"),
+    result = LintResult(smells=[
+        Smell("a.md", 1, 3, "error", "em-dash", "em dash", verdict="keep", probability=0.93),
+        Smell("a.md", 2, 2, "warn", "semicolon", "semi", verdict="rewrite", probability=0.71),
+        Smell("a.md", 3, 2, "warn", "semicolon", "semi"),
     ])
     sources = {"a.md": "a — b\nc; d\ne; f\n"}
     judged = Triage(result=result, tokens=1577, cost=Decimal("0.000066"))
@@ -278,7 +278,7 @@ def test_lint_view_leads_each_row_with_jev_rating():
     # A place Jev did not answer is padded, so the columns still line up.
     assert rows[2] == "      " + " " * 20 + "3:2  e; f"
     lines = lint_view(result, sources, linted=1, width=80, judged=judged)
-    assert _table(lines) == {"findings": "3 in 1 file", "errors": "1", "warnings": "2",
+    assert _table(lines) == {"smells": "3 in 1 file", "errors": "1", "warnings": "2",
                              "rewrite": "1", "keep": "1"}
     assert _jev(lines) == {"this run": ["2", "1,577", "$0.000066"],
                            "cache saved": ["0", "0", "$0"]}
@@ -293,8 +293,8 @@ def test_lint_view_tables_span_the_rules():
 
 
 def test_lint_view_counts_the_cached_answers_and_what_they_saved():
-    result = LintResult(findings=[
-        Finding("a.md", 1, 1, "warn", "semicolon", "semi", verdict="keep", probability=0.9),
+    result = LintResult(smells=[
+        Smell("a.md", 1, 1, "warn", "semicolon", "semi", verdict="keep", probability=0.9),
     ] * 5)
     judged = Triage(result=result, tokens=120, cost=Decimal("0.00001"), cached=3,
                     saved_tokens=2400, saved_cost=Decimal("0.000090"))
@@ -329,7 +329,7 @@ def test_lint_view_styles_the_table():
     result, sources = _view_sample()
     lines = lint_view(result, sources, linted=3, width=60)
     table = next(line for line in lines if isinstance(line, gum.Table))
-    assert table.rows[0] == [[("muted", "findings")], [("bold", "3 in 1 file")]]
+    assert table.rows[0] == [[("muted", "smells")], [("bold", "3 in 1 file")]]
     assert table.rows[1][1] == [("error", "1")]
     assert table.rows[2][1] == [("warn", "2")]
 
@@ -351,15 +351,15 @@ def test_lint_view_of_a_clean_run_says_so():
 
 def test_lint_view_fits_a_narrow_terminal():
     long = "It is a seamless, robust and significantly faster toolkit for modern teams."
-    result = LintResult(findings=[
-        Finding("docs/a-long-file-name.md", 1, 30, "warn", "vague-intensifier",
+    result = LintResult(smells=[
+        Smell("docs/a-long-file-name.md", 1, 30, "warn", "vague-intensifier",
                 "vague intensifier with no number behind it", verdict="rewrite", probability=0.95),
     ])
     for width in (100, 60, 50, 40):
         judged = Triage(result=result, tokens=10, cost=Decimal("0.00001"))
         text = _text(lint_view(result, {"docs/a-long-file-name.md": long + "\n"}, linted=1,
                                width=width, judged=judged))
-        # The Jev table needs 50 columns; below that only the findings must fit.
+        # The Jev table needs 50 columns; below that only the smells must fit.
         boxed = [line for line in text if line.lstrip()[:1] in ("╭", "│", "├", "╰")]
         fits = text if width >= 50 else [line for line in text if line not in boxed]
         assert all(len(line) <= width for line in fits), (width, max(fits, key=len))
