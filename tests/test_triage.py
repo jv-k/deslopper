@@ -4,6 +4,7 @@ Every test fakes `jev.post`. The bodies the fake records are the only view into 
 request is built, and the smells that come back are what the user sees.
 """
 
+import json
 from decimal import Decimal
 
 import pytest
@@ -257,6 +258,37 @@ def test_one_file_over_the_budget_is_split_across_requests(monkeypatch):
 
     assert len(calls) == 3
     assert [f.verdict for f in judged.result.smells] == ["keep"] * 6
+
+
+def test_many_short_smells_split_on_the_question_budget_before_the_state_budget(monkeypatch):
+    # 600 short smells make about 80,000 characters of state, so the state budget
+    # alone would put 478 questions in the first request. Jev refused 418 in the
+    # measurement, so the questions must close each batch first.
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    result, sources = _many_files(files=1, per_file=600)
+
+    judged = triage.run(result, sources)
+
+    question_chars = [len(json.dumps(body["questions"])) for body in calls]
+    assert len(calls) > 2
+    assert all(size <= jev.QUESTION_CHAR_BUDGET for size in question_chars)
+    # Each full batch closed on its questions, far short of the state budget.
+    assert all(len(body["state"]) < 0.6 * jev.STATE_CHAR_BUDGET for body in calls)
+    one_question = question_chars[-1] / len(calls[-1]["questions"])
+    assert all(size + one_question > jev.QUESTION_CHAR_BUDGET for size in question_chars[:-1])
+    assert sum(len(body["questions"]) for body in calls) == 600
+    assert judged.result.keep == 600
+
+
+def test_a_question_over_the_question_budget_still_goes_alone_in_its_own_request(monkeypatch):
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    monkeypatch.setattr(jev, "QUESTION_CHAR_BUDGET", 1)
+    result, sources = _many_files(files=1, per_file=2)
+
+    judged = triage.run(result, sources)
+
+    assert [len(body["questions"]) for body in calls] == [1, 1]
+    assert [f.verdict for f in judged.result.smells] == ["keep", "keep"]
 
 
 def test_a_smell_too_big_for_the_budget_still_goes_alone_in_its_own_request(monkeypatch):

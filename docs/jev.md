@@ -102,7 +102,7 @@ lint pass, and the gate holds in CI. Some other limits apply:
 - deslopper never sends smells on an exempt line or in an exempt region.
 - A clean run sends no request. deslopper packs the smells, in file order, into as few
   requests as fit in Jev's window. One request can hold smells from many files, and a
-  file with many smells can span more than one request.
+  file with many smells can span more than one request. See [Request limits](#request-limits).
 - `--jev` is a command-line flag only, never a config key. So no repo can turn on network
   calls for everyone who lints it.
 - `check` does not accept `--jev`.
@@ -111,6 +111,48 @@ If a request fails, deslopper prints one error line to stderr that names the fir
 files in that request and counts the rest. It leaves the smells in that request without verdicts, still sends the requests
 after it, and exits with the code of the scan. With `--format json`, the error
 goes into the payload instead.
+
+## Request limits
+
+Each request carries two parts: the state, which holds each smell's lines, and one
+question for each smell. deslopper closes a request before either part passes its limit.
+Both limits are in characters, because the client does not count tokens:
+
+- The state stops at 64,000 characters (`jev.STATE_CHAR_BUDGET`).
+- The questions, as the JSON the client sends, stop at 110,000 characters
+  (`jev.QUESTION_CHAR_BUDGET`). One triage question is about 430 characters, so a
+  request holds at most about 255 smells.
+
+These numbers come from real requests to the gateway on 2026-11-01. The probe that sent
+them is `docs/qa/jev-question-budget-87/probe.py`, and its results are in `results.json`
+beside it.
+
+| What the probe measured | Result |
+| --- | --- |
+| Largest input Jev accepts, state and questions together | 415 short smells passed at 65,533 tokens and 418 failed, so the cap is most likely 65,536 (2^16) |
+| Largest state Jev accepts with one question | 142,183 characters of prose passed at 32,883 input tokens, and 142,964 failed |
+| Characters per token, triage questions | 3.66 |
+| Characters per token, short smell blocks | 2.83 |
+| Characters per token, plain prose | 4.4 |
+| Output tokens per question | about 31, not counted toward either limit |
+
+Each refused request failed with status 400 and the reason `max_tokens_exceeded`. The probe
+also packed short smells under the state limit alone, as triage did before this limit. The
+first request held 378 questions and 63,933 characters of state, and Jev refused it.
+
+The question limit is about 30,000 tokens. Beside the largest state Jev accepted, 32,883
+tokens, that leaves about 2,600 tokens of the 65,536 spare. In the same probe, two requests filled both limits
+together:
+
+| Request | Smells | State | Questions | Input tokens |
+| --- | --- | --- | --- | --- |
+| 600 short smells, first request | 256 | 43,193 | 109,756 | 51,334 |
+| Lines of prose that fill the state | 247 | 63,863 | 105,886 | 52,476 |
+| Lines of one repeated letter that fill the state | 247 | 63,863 | 105,886 | 60,616 |
+
+The repeated letter is the densest state the probe found, and it still leaves about 4,900
+tokens spare. Each full request came back in under 1.5 seconds, well inside the 10-second
+deadline.
 
 ## Send only the smells that need a rewrite
 
