@@ -142,17 +142,49 @@ def _decimal(cost) -> Decimal:
         return Decimal(0)
 
 
-def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
-    """Ask Jev about every finding in `result`, one request per file.
+def _state(blocks) -> str:
+    """The state one request sends: the framing, then each finding's block."""
+    return "\n\n".join([FRAMING] + blocks)
 
-    `sources` maps a finding's path to that file's raw text. A file with no
-    findings makes no request. A request that fails, or a reply missing usable
-    answers, adds one line to `errors` and leaves those findings unjudged.
-    `progress(path, count, index, total)`, when given, returns a context that
-    wraps each request, which is how the CLI shows a spinner per file.
+
+def _batches(findings, pending, budget) -> list:
+    """`pending`, (index, cache key, lines) triples in file order, packed into as few
+    batches as fit under `budget` characters of state, each with its blocks keyed
+    f1, f2, ... in order. A batch closes when the next block would take it over. A
+    block over the budget on its own still goes, alone in its batch, since cutting
+    it would part a finding from its context."""
+    batches = []
+    size = 0
+    for item in pending:
+        index, _, lines = item
+        batch = batches[-1] if batches else None
+        if batch:
+            block = _block(f"f{len(batch[0]) + 1}", findings[index], lines)
+            if size + 2 + len(block) <= budget:
+                batch[0].append(item)
+                batch[1].append(block)
+                size += 2 + len(block)
+                continue
+        block = _block("f1", findings[index], lines)
+        batches.append(([item], [block]))
+        size = len(_state([block]))
+    return batches
+
+
+def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
+    """Ask Jev about every finding in `result`, packed into as few requests as fit.
+
+    `sources` maps a finding's path to that file's raw text. Findings are packed in
+    file order under `jev.STATE_CHAR_BUDGET`, across files and splitting a file
+    when it runs over, so each finding is in exactly one request. A file with no
+    findings adds nothing. A request that fails, or a reply missing usable answers,
+    adds one line to `errors`, prefixed with the batch's files, and leaves those
+    findings unjudged. The next request is still sent.
+    `progress(where, count, index, total)`, when given, returns a context that
+    wraps each request, which is how the CLI shows a spinner per request. `where`
+    is the file's path when the request holds one file, else "N files".
     `cache`, when given, is a `cache.Store`: a finding it holds a verdict for is
-    judged from it, a file whose findings are all held makes no request, and each
-    usable answer Jev gives is stored.
+    judged from it and never sent, and each usable answer Jev gives is stored.
     """
     judged = list(result.findings)
     errors = []
@@ -164,38 +196,40 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
     by_file = {}
     for index, finding in enumerate(result.findings):
         by_file.setdefault(finding.path, []).append(index)
-    asking = {}
+    pending = []
     for path, indexes in by_file.items():
         lines = _lines(sources.get(path, ""))
         for index in indexes:
             key = _cache_key(result.findings[index], lines) if cache is not None else None
             hit = _recall(cache, key, result.findings[index])
             if hit is None:
-                asking.setdefault(path, (lines, []))[1].append((index, key))
+                pending.append((index, key, lines))
             else:
                 judged[index], hit_tokens, hit_cost = hit
                 cached += 1
                 saved_tokens += hit_tokens
                 saved_cost += hit_cost
-    for number, (path, (lines, pending)) in enumerate(asking.items(), 1):
-        keyed = {f"f{n}": item for n, item in enumerate(pending, 1)}
-        state = "\n\n".join([FRAMING] + [
-            _block(key, result.findings[index], lines) for key, (index, _) in keyed.items()
-        ])
+    batches = _batches(result.findings, pending, jev.STATE_CHAR_BUDGET)
+    for number, (items, blocks) in enumerate(batches, 1):
+        keyed = {f"f{n}": item for n, item in enumerate(items, 1)}
+        files = list(dict.fromkeys(result.findings[index].path for index, _, _ in items))
+        where = ", ".join(files)
+        state = _state(blocks)
         questions = {
             key: jev.choice(QUESTION.format(key=key, name=result.findings[index].name,
                                             line=result.findings[index].line,
                                             col=result.findings[index].col), OPTIONS)
-            for key, (index, _) in keyed.items()
+            for key, (index, _, _) in keyed.items()
         }
-        wrap = progress(path, len(pending), number, len(asking)) if progress else nullcontext()
+        label = files[0] if len(files) == 1 else f"{len(files)} files"
+        wrap = progress(label, len(keyed), number, len(batches)) if progress else nullcontext()
         try:
             with wrap:
                 reply = jev.evaluate(state, questions)
         except jev.JevError as exc:
             # One failed request never fails the lint: its findings stay
-            # unjudged and the next file is still asked.
-            errors.append(f"{path}: {exc}")
+            # unjudged and the next batch is still asked.
+            errors.append(f"{where}: {exc}")
             continue
         spent = (reply.input_tokens or 0) + (reply.output_tokens or 0)
         price = _decimal(reply.market_cost)
@@ -203,7 +237,7 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
         cost += price
         unusable = 0
         shares = _shares(spent, price, len(keyed))
-        for (key, (index, cache_key)), (share_tokens, share_cost) in zip(keyed.items(), shares):
+        for (key, (index, cache_key, _)), (share_tokens, share_cost) in zip(keyed.items(), shares):
             finding = _judge(result.findings[index], reply.answers.get(key))
             if finding is None:
                 unusable += 1
@@ -215,7 +249,7 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
                                       "tokens": share_tokens, "cost": f"{share_cost:f}"})
         if unusable:
             errors.append(
-                f"{path}: the reply had no usable answer for {unusable} of {len(keyed)} findings"
+                f"{where}: the reply had no usable answer for {unusable} of {len(keyed)} findings"
             )
     return Triage(
         result=LintResult(findings=judged, unreadable=list(result.unreadable)),
