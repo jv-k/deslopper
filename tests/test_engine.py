@@ -549,3 +549,15 @@ def test_astro_html_directives_in_markup_after_the_fence_still_exempt(tmp_path):
             "<!-- deslop-lint-enable -->\n"
             "<p>e; f</p>\n")
     assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(8, 5, "semicolon")]
+
+
+def test_astro_jsdoc_style_block_comment_holds_a_directive(tmp_path):
+    text = ("---\n"
+            "/** deslop-lint-disable */\n"
+            "const A = 'a; b';\n"
+            "/**\n"
+            " * deslop-lint-enable\n"
+            " */\n"
+            "const B = 'c; d';\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(7, 13, "semicolon")]

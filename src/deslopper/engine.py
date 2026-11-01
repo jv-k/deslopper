@@ -25,16 +25,37 @@ FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 # by two of a longer run, which would mask the prose between as code.
 INLINE_CODE = re.compile(r"(?<!`)(`+).*?(?<!`)\1(?!`)")
 ENTITY = re.compile(r"&#?[0-9a-zA-Z]+;")
-# The directive is exactly `-disable-line`, `-disable`, or `-enable`; the lookaheads stop
-# an unknown suffix (`-disable-next-line`, `-disable-line-foo`) from matching any of them.
-DISABLE_LINE = re.compile(r"<!--\s*deslop-lint-disable-line(?![-\w])[^>]*-->")
-DISABLE = re.compile(r"<!--\s*deslop-lint-disable(?![-\w])[^>]*-->")
-ENABLE = re.compile(r"<!--\s*deslop-lint-enable(?![-\w])[^>]*-->")
-# In the Astro fence the same words are read from the text of a JS comment, which must
-# start with the directive. The lookaheads reject an unknown suffix as above.
-JS_DISABLE_LINE = re.compile(r"^\s*deslop-lint-disable-line(?![-\w])")
-JS_DISABLE = re.compile(r"^\s*deslop-lint-disable(?![-\w])")
-JS_ENABLE = re.compile(r"^\s*deslop-lint-enable(?![-\w])")
+
+
+class Directive(Enum):
+    """An exemption directive. Each one takes its own line out of the scan."""
+    LINE = "disable-line"   # exempts its line only
+    OPEN = "disable"        # opens an exempt region
+    CLOSE = "enable"        # closes it
+
+
+# The directive is exactly one of the words above; the lookahead stops an unknown suffix
+# (`-disable-next-line`, `-disable-line-foo`) from matching any of them. In prose it is an
+# HTML comment. In the Astro fence it starts the text of a JS comment, after any `*` that
+# a JSDoc-style comment puts first. LINE is listed first, so it is tried before OPEN.
+HTML_DIRECTIVES = {d: re.compile(rf"<!--\s*deslop-lint-{d.value}(?![-\w])[^>]*-->")
+                   for d in Directive}
+JS_DIRECTIVES = {d: re.compile(rf"^[\s*]*deslop-lint-{d.value}(?![-\w])") for d in Directive}
+
+
+def _disabled_after(directive, disabled):
+    """Whether an exempt region is open after a directive line."""
+    return disabled if directive is Directive.LINE else directive is Directive.OPEN
+
+
+def _directive(patterns, texts):
+    """The first directive that any of the texts holds, or None."""
+    for directive, pattern in patterns.items():
+        if any(pattern.search(text) for text in texts):
+            return directive
+    return None
+
+
 # In .mdx, a top-level line that starts with import/export is an ESM statement,
 # not prose. Skip those lines so their punctuation is not scanned. JSX is left
 # alone: it wraps rendered prose that should still be linted.
@@ -267,21 +288,16 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
             if dialect.first_block_close.match(line):
                 in_first_block = False
                 lexer = None
-                # A region opened in the fence ends with it, so a missed enable does not
-                # exempt the markup.
+                # Only an Astro fence can open a region here, and it ends with the fence,
+                # so a missed enable does not exempt the markup.
                 disabled = False
             elif lexer is not None:
                 # An import line is lexed too, so a comment it opens still carries.
                 is_import = lexer.at_top_level and ASTRO_IMPORT.match(line)
                 masked, comments = lexer.feed(line)
-                # As in prose, a directive takes its own line out of the scan.
-                if any(JS_DISABLE_LINE.match(c) for c in comments):
-                    continue
-                if any(JS_DISABLE.match(c) for c in comments):
-                    disabled = True
-                    continue
-                if any(JS_ENABLE.match(c) for c in comments):
-                    disabled = False
+                directive = _directive(JS_DIRECTIVES, comments)
+                if directive is not None:
+                    disabled = _disabled_after(directive, disabled)
                     continue
                 if not is_import and not disabled:
                     yield ProseLine(ln, masked, ENTITY.sub(_blank, masked))
@@ -295,13 +311,9 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
 
         masked = INLINE_CODE.sub(_blank, line)
 
-        if DISABLE_LINE.search(masked):
-            continue
-        if DISABLE.search(masked):
-            disabled = True
-            continue
-        if ENABLE.search(masked):
-            disabled = False
+        directive = _directive(HTML_DIRECTIVES, [masked])
+        if directive is not None:
+            disabled = _disabled_after(directive, disabled)
             continue
         if disabled:
             continue
