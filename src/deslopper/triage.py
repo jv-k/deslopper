@@ -155,6 +155,14 @@ def _judge(smell, answer):
         return None
 
 
+def _price(cost) -> Decimal:
+    """A reply's cost as spent, or zero when the reply sent none or one that is not a
+    finite, non-negative number, the same as the cache path counts a stored share."""
+    if cost is None or not cost.is_finite() or cost < 0:
+        return Decimal(0)
+    return cost
+
+
 def _cached_cost(cost) -> Decimal:
     """A cached cost as a Decimal, or zero when the entry holds none or garbage."""
     if cost is None:
@@ -272,7 +280,7 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
             errors.append(f"{_named(files)}: {exc}")
             continue
         spent = reply.total_tokens or 0
-        price = reply.cost if reply.cost is not None else Decimal(0)
+        price = _price(reply.cost)
         tokens += spent
         cost += price
         unusable = 0
