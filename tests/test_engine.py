@@ -1,4 +1,4 @@
-from deslopper.engine import Dialect, dialect_for, lint_files, scan_prose
+from deslopper.engine import Dialect, FenceLexer, dialect_for, lint_files, scan_prose
 from deslopper.rules import compile_tell
 
 
@@ -370,3 +370,82 @@ def test_md_and_mdx_still_skip_the_same_fence_as_front_matter(tmp_path):
     for name in ("doc.md", "doc.mdx"):
         smells = lint_files([(name, str(p))], [compile_tell(SEMI)]).smells
         assert [(f.line, f.col) for f in smells] == [(4, 1)], name
+
+
+# Comments in the fence are code: masked whole, with no literal opened inside them.
+
+def test_astro_line_comment_raises_nothing(tmp_path):
+    text = "---\n// a note; with a dash — here\nconst A = 1; // why; it's — so\n---\n"
+    tells = [compile_tell(SEMI), compile_tell(EM_LITERAL)]
+    assert lint_astro(tmp_path, text, tells) == []
+
+
+def test_astro_block_comment_on_one_line_raises_nothing(tmp_path):
+    text = "---\nconst A = /* a; b — c */ 1;\n---\n"
+    tells = [compile_tell(SEMI), compile_tell(EM_LITERAL)]
+    assert lint_astro(tmp_path, text, tells) == []
+
+
+def test_astro_block_comment_across_lines_raises_nothing(tmp_path):
+    text = ("---\n"
+            "/**\n"
+            " * The tagline; it's shown — on the home page.\n"
+            " */\n"
+            "const T = 'a; b';\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI), compile_tell(EM_LITERAL)]) == \
+        [(5, 13, "semicolon")]
+
+
+def test_astro_quote_in_a_comment_opens_no_literal(tmp_path):
+    text = ("---\n"
+            "// it's a note; ok\n"
+            "/* don't; stop\n"
+            "   it's; here */\n"
+            "const T = 'a; b';\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(5, 13, "semicolon")]
+
+
+def test_astro_literal_after_a_closed_block_comment_keeps_its_column(tmp_path):
+    text = "---\n/* it's; */ const T = 'b; c';\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 25, "semicolon")]
+
+
+def test_astro_comment_markers_inside_a_literal_are_text(tmp_path):
+    text = "---\nconst U = 'https://a; /* b; */';\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == \
+        [(2, 21, "semicolon"), (2, 27, "semicolon")]
+
+
+def test_astro_typescript_annotation_masked_and_literal_type_scanned(tmp_path):
+    text = ("---\n"
+            "interface Props { title: string; tone?: 'calm; plain' | \"loud\"; }\n"
+            "const { title }: Props = Astro.props;\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 46, "semicolon")]
+
+
+def test_fence_lexer_reports_comment_text_by_line():
+    # The scanner reads directives from comments, so the lexer hands back each comment's
+    # text on the line, delimiters stripped, beside the masked line.
+    # This asserts on feed's output, not lexer state, since no smell observes it yet.
+    lexer = FenceLexer()
+    fed = [lexer.feed(line) for line in (
+        "const A = 1; // deslop-lint-disable-line",
+        "/* one */ const B = 'x'; /* two",
+        "   three */",
+        "const C = '// not a comment';",
+    )]
+    assert [comments for _, comments in fed] == [
+        [" deslop-lint-disable-line"], [" one ", " two"], ["   three "], []]
+
+
+def test_astro_block_comment_opened_on_an_import_line_still_masks(tmp_path):
+    # The import line is skipped, but the comment it opens still runs to its closer.
+    text = ("---\n"
+            "import A from './a'; /* the card\n"
+            "   it's; reused */\n"
+            "const T = 'a; b';\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(4, 13, "semicolon")]

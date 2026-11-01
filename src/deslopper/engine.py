@@ -120,17 +120,39 @@ class FenceLexer:
     included, so a match offset is still the source column. A backslash escapes the next
     character inside a literal; escapes are not decoded. A quoted literal that reaches
     the end of the line without a closer ends there and does not carry to the next line.
-    The lexer is a class because later regions (comments, template literals) do carry.
+
+    A `//` line comment runs to the end of its line and a `/* */` block comment to its
+    closer, across lines if need be, which is the state the lexer carries. Both are masked
+    whole, so a quote inside one opens no literal. `feed` also returns the text of each
+    comment on the line, delimiters stripped, so the scanner can read directives from it.
     """
 
     QUOTES = "'\""
 
-    def feed(self, line: str) -> str:
+    def __init__(self):
+        # True while a block comment is open at the end of the last line fed.
+        self.in_block_comment = False
+
+    def feed(self, line: str) -> tuple[str, list[str]]:
+        """Return the masked line and the text of each comment on it, in order."""
         out = []
+        comments = []
         quote = None
         i = 0
+        if self.in_block_comment:
+            i = self._consume_block_comment(line, 0, comments)
+            out.append(" " * i)
         while i < len(line):
             ch = line[i]
+            if quote is None and line.startswith("//", i):
+                comments.append(line[i + 2:])
+                out.append(" " * (len(line) - i))
+                break
+            if quote is None and line.startswith("/*", i):
+                end = self._consume_block_comment(line, i + 2, comments)
+                out.append(" " * (end - i))
+                i = end
+                continue
             if quote is None:
                 if ch in self.QUOTES:
                     quote = ch
@@ -144,7 +166,19 @@ class FenceLexer:
             else:
                 out.append(ch)
             i += 1
-        return "".join(out)
+        return "".join(out), comments
+
+    def _consume_block_comment(self, line: str, start: int, comments: list[str]) -> int:
+        """Read block comment text from `start` and return the index just after it.
+
+        The text is appended to `comments`. The comment stays open past the line end when
+        `*/` is not on the line.
+        """
+        close = line.find("*/", start)
+        self.in_block_comment = close < 0
+        end = len(line) if close < 0 else close
+        comments.append(line[start:end])
+        return end if close < 0 else close + 2
 
 
 @dataclass(frozen=True)
@@ -188,9 +222,12 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
             if dialect.first_block_close.match(line):
                 in_first_block = False
                 lexer = None
-            elif lexer is not None and not ASTRO_IMPORT.match(line):
-                masked = lexer.feed(line)
-                yield ProseLine(ln, masked, ENTITY.sub(_blank, masked))
+            elif lexer is not None:
+                # An import line is lexed too, so a comment it opens still carries.
+                is_import = not lexer.in_block_comment and ASTRO_IMPORT.match(line)
+                masked, _comments = lexer.feed(line)
+                if not is_import:
+                    yield ProseLine(ln, masked, ENTITY.sub(_blank, masked))
             continue
 
         if fences.feed(line) != "prose":
