@@ -27,7 +27,7 @@ notes. It never changes the result of the lint.
 
 ## Highlights
 
-- A deterministic lint for 38 tells, with an opt-in `aggressive` preset for 17 more.
+- A deterministic lint for 38 tells, with an opt-in `aggressive` preset for 18 more.
 - Jev triage: `deslopper lint --jev` gives each smell a `keep` or `rewrite` verdict and
   a probability. A file with smells costs one request, at a fraction of a cent, and a
   disk cache skips the smells that did not change.
@@ -214,6 +214,7 @@ regex cannot tell the metaphor from the term.
 | `invented-concept-label` | ⚠️ | `Call it the context tax.` | coined label used as an established term, describe the effect instead |
 | `tutorial-signposting` | ⚠️ | `Let's dive in.` | tutorial signpost, start with the first step |
 | `contrast-adverb` | ⚠️ | `It is not simply a cache.` | contrast with a softening adverb, say what it is |
+| `negation-pivot-joined` | ⚠️ | `It's not a bug; it's a feature.` | "it's not X; it's Y" pivot joined by a colon or semicolon, say what it is |
 | `strawman-tail` | ⚠️ | `It keeps one copy, not one per caller.` | negated tail nobody claimed, cut it and keep the claim |
 | `restatement-marker` | ⚠️ | `In other words, it caches.` | restatement marker, say it once and plainly |
 | `numbered-lead-in` | ⚠️ | `Three key reasons:` | count announced before a list, start the list |

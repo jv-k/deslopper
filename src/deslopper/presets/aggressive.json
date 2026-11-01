@@ -91,6 +91,13 @@
       "message": "contrast with a softening adverb, say what it is"
     },
     {
+      "name": "negation-pivot-joined",
+      "tier": "warn",
+      "flags": "i",
+      "pattern": "\\b(?:it|this|that|they|these)(?:['\u2019]s|['\u2019]re| is| are| was| were)? ?(?:not|n['\u2019]t)\\b[^.!?:;]{1,60}[:;]\\s*(?:it|this|that|they|these)(?:['\u2019]s|['\u2019]re| is| are| was| were) (?:a|an|the|about|just|simply|really|actually|more|less|what|how|why)\\b|\\bnot because\\b[^.!?:;]{1,80}[:;]\\s+because\\b|\\byou don['\u2019]?t need (?:more |another |a |an )?[^.!?:;]{1,40}[:;]\\s+you need\\b",
+      "message": "\"it's not X; it's Y\" pivot joined by a colon or semicolon, say what it is"
+    },
+    {
       "name": "strawman-tail",
       "tier": "warn",
       "flags": "i",
