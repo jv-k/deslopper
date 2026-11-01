@@ -496,6 +496,7 @@ WIDENED_POSITIVES = {
         # Issue #74. The slop forms stay caught once bare "realm" is exempt.
         "in the realm of possibility",
         "It sits in the realm of tests.",
+        "the realms of possibility",
         "a myriad of options",
         "a plethora of flags",
         "the interconnectedness of parts",
