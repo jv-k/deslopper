@@ -128,7 +128,7 @@ def test_command_help_adapts_to_columns(capsys, monkeypatch):
 def test_wide_columns_keep_rows_on_one_line(capsys, monkeypatch):
     monkeypatch.setenv("COLUMNS", "200")
     _, out, _ = run(["--help"], capsys)
-    assert "  Lint files and fail on findings." in out
+    assert "  Lint files and fail on smells." in out
 
 
 def test_lint_help_lists_jev_and_check_help_does_not(capsys):

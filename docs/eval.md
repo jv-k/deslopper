@@ -21,7 +21,7 @@ deslopper eval ./scripts/deslop.sh
 
 Two judges decide the result:
 
-- Efficacy lints the rewritten files. It needs zero error-tier findings. The warn count
+- Efficacy lints the rewritten files. It needs zero error-tier smells. The warn count
   must also fall below the count before the rewrite. This gives the model some room, but it
   cannot leave the warnings as they were.
 - Preservation compares the protected content before and after the rewrite. That is
@@ -39,7 +39,7 @@ no errors, the harness is broken, and the run stops before it spends tokens.
 | 3 | Preservation failure |
 | 4 | A broken harness, or a rewrite command that exited nonzero |
 
-A failure names the remaining findings by file and line. To keep the temporary folder for
+A failure names the remaining smells by file and line. To keep the temporary folder for
 inspection, add `--keep`.
 
 ## Score plainness with Jev

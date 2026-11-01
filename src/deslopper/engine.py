@@ -1,14 +1,14 @@
 """The line scanner. A faithful port of the verified deslop-lint core.
 
 `scan_prose` owns the block structure: it decides which lines are prose (not front
-matter, not fenced or inline code, not MDX ESM, not inside a disable region) and masks
+matter, not fenced or inline code, not MDX ESM, not inside an exempt region) and masks
 what a tell must not see. `lint_file` is then a thin runner over the prose lines.
 """
 
 import re
 from dataclasses import dataclass
 
-from .findings import Finding, LintResult
+from .smells import Smell, LintResult
 
 FRONT_OPEN = re.compile(r"^---\s*$")
 FRONT_CLOSE = re.compile(r"^(---|\.\.\.)\s*$")
@@ -81,7 +81,7 @@ class ProseLine:
 def scan_prose(raw_lines, is_mdx=False):
     """Yield a ProseLine for each line that is prose, in order.
 
-    Skips front matter, fenced code, MDX ESM statements, and disable regions, and masks
+    Skips front matter, fenced code, MDX ESM statements, and exempt regions, and masks
     inline code and HTML entities. Line endings on the input are tolerated, not required.
     """
     fences = FenceTracker()
@@ -127,7 +127,7 @@ def scan_prose(raw_lines, is_mdx=False):
 def _run_tells(tells, text, path, ln):
     for tell in tells:
         for off in tell.matcher(text):
-            yield Finding(path, ln, off + 1, tell.tier, tell.name, tell.message)
+            yield Smell(path, ln, off + 1, tell.tier, tell.name, tell.message)
             if tell.scope == "first":
                 break
 
@@ -139,14 +139,14 @@ def lint_file(display_path, read_path, pre_tells, post_tells):
     except OSError:
         return [], False
 
-    findings = []
+    smells = []
     for prose in scan_prose(raw_lines, display_path.endswith(".mdx")):
-        findings.extend(_run_tells(pre_tells, prose.pre_entity, display_path, prose.lineno))
-        findings.extend(_run_tells(post_tells, prose.post_entity, display_path, prose.lineno))
-    # Tells run one after another, so a line's findings arrive in tell order. Sort them
+        smells.extend(_run_tells(pre_tells, prose.pre_entity, display_path, prose.lineno))
+        smells.extend(_run_tells(post_tells, prose.post_entity, display_path, prose.lineno))
+    # Tells run one after another, so a line's smells arrive in tell order. Sort them
     # into reading order; the sort is stable, so a shared column keeps the tell order.
-    findings.sort(key=lambda f: (f.line, f.col))
-    return findings, True
+    smells.sort(key=lambda f: (f.line, f.col))
+    return smells, True
 
 
 def lint_files(items, tells) -> LintResult:
@@ -156,7 +156,7 @@ def lint_files(items, tells) -> LintResult:
     for display_path, read_path in items:
         found, ok = lint_file(display_path, read_path, pre, post)
         if ok:
-            result.findings.extend(found)
+            result.smells.extend(found)
         else:
             result.unreadable.append(display_path)
     return result

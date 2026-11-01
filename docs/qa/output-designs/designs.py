@@ -1,6 +1,6 @@
 """Throwaway prototypes of deslopper's terminal output, to choose a design from.
 
-Each design draws the same captured run (sample.json: real findings and real Jev
+Each design draws the same captured run (sample.json: real smells and real Jev
 verdicts) as a gum template and renders it with `gum format`, the way deslopper
 would, so anything shown here is buildable.
 
@@ -76,19 +76,19 @@ def load(jev, source=None):
         d = json.load(open(source, encoding="utf-8"))
         root = _root()
         d["sources"] = {}
-        for path in {f["path"] for f in d["findings"]}:
+        for path in {f["path"] for f in d["smells"]}:
             try:
                 with open(os.path.join(root, path), encoding="utf-8") as fh:
                     d["sources"][path] = fh.read()
             except OSError:
                 d["sources"][path] = ""
         jev = jev or "jev" in d
-    findings = d["findings"]
+    smells = d["smells"]
     if not jev:
-        findings = [{k: v for k, v in f.items() if k not in ("verdict", "probability")}
-                    for f in findings]
+        smells = [{k: v for k, v in f.items() if k not in ("verdict", "probability")}
+                    for f in smells]
     files = {}
-    for f in findings:
+    for f in smells:
         files.setdefault(f["path"], []).append(f)
     return d, files, jev
 
@@ -151,7 +151,7 @@ def tier_colour(tier):
 
 
 def header(d, width, jev):
-    files_with = len({f["path"] for f in d["findings"]})
+    files_with = len({f["path"] for f in d["smells"]})
     if "linted" in d:
         right = f"{plural(len(d['linted']), 'file')}, {files_with} with slop"
     else:
@@ -161,7 +161,7 @@ def header(d, width, jev):
     line = lit("  ") + pill(ACCENT, "deslopper") + lit(" ") + bold("lint") + lit(" " * gap) + faint(right)
     out = ["", line]
     if jev:
-        out.append(lit("  ") + faint("Jev read " + plural(len(d["findings"]), "finding")
+        out.append(lit("  ") + faint("Jev read " + plural(len(d["smells"]), "smell")
                                      + f" in {files_with} files"))
     return out + [""]
 
@@ -215,7 +215,7 @@ def ledger(d, files, width, jev):
 
 
 # ---------------------------------------------------------------------------------------
-# 2. Snippet: each finding shows its source line with the match underlined.
+# 2. Snippet: each smell shows its source line with the match underlined.
 
 
 def _excerpt(text, col, room):
@@ -334,7 +334,7 @@ def main(argv):
     source = argv[argv.index("--from") + 1] if "--from" in argv else None
     which = next((a for a in argv if a in DESIGNS), "1")
     d, files, jev = load(jev, source)
-    if not d["findings"]:
+    if not d["smells"]:
         render(clean(d, width))
         return
     lines = DESIGNS[which](d, files, width, jev)

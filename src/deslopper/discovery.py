@@ -1,4 +1,4 @@
-"""File and config discovery, and the path base for emitted findings."""
+"""File and config discovery, and the path base for emitted smells."""
 
 import os
 import re
@@ -139,8 +139,8 @@ def resolve_inputs(paths, root: str, start_dir: str, include, exclude) -> list:
                 items.extend(_expand_dir(full, root, include, exclude))
                 continue
             display = os.path.relpath(full, root).replace(os.sep, "/")
-            # A file outside root relpaths to ../.., which is not a usable finding path;
-            # fall back to the absolute path so the finding still points somewhere real.
+            # A file outside root relpaths to ../.., which is not a usable smell path;
+            # fall back to the absolute path so the smell still points somewhere real.
             if display == ".." or display.startswith("../"):
                 display = os.path.abspath(full).replace(os.sep, "/")
             items.append((display, full))
@@ -167,7 +167,7 @@ def _expand_dir(full: str, root: str, include, exclude) -> list:
 
 def _unique(items) -> list:
     """The items without repeats, kept where each first appears. Overlapping arguments,
-    such as `. docs`, would otherwise lint a file twice and count its findings twice."""
+    such as `. docs`, would otherwise lint a file twice and count its smells twice."""
     seen, out = set(), []
     for display, read in items:
         key = os.path.realpath(read)

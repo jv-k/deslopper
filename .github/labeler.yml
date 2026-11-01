@@ -7,7 +7,7 @@
       - any-glob-to-any-file:
           - "src/deslopper/engine.py"
           - "src/deslopper/rules.py"
-          - "src/deslopper/findings.py"
+          - "src/deslopper/smells.py"
 
 "area: rules":
   - changed-files:

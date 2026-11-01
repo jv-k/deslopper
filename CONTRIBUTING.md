@@ -35,7 +35,7 @@ to `ds`, use `pnpm run ds <args>`.
 | `preflight` | Runs the release gates without a version bump. |
 
 The pre-commit hook runs the suite and the lint. When `AI_GATEWAY_API_KEY` is set in your
-shell the lint also runs `--jev`, so a finding you introduce arrives with a keep or
+shell the lint also runs `--jev`, so a smell you introduce arrives with a keep or
 rewrite verdict. Without the key it lints plainly and makes no network call. CI does the
 same with the repo secret of that name, which fork PRs do not receive.
 
@@ -43,7 +43,7 @@ same with the repo secret of that name, which fork PRs do not receive.
 
 Tells live in `src/deslopper/presets/recommended.json`, one JSON object each. A tell has:
 
-- `name`: a short label, shown in the finding. Names need not be unique across phases.
+- `name`: a short label, shown in the smell. Names need not be unique across phases.
 - `tier`: `error` (fails the run) or `warn` (prints, and fails only under `--strict`).
 - `phase`: `pre-entity` (runs before HTML entities are masked) or `post-entity` (the default).
 - `kind`: `regex`, `bold-bullet`, or `id-label`. Omit it for `regex`.

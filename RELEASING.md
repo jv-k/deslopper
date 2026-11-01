@@ -49,7 +49,7 @@ The gates in steps 1 and 3 are VerBump's own hooks, `PRE_BUMP_CMD` and `POST_TAG
 
 1. `scripts/preflight.sh` checks a clean tree on `main`, then runs the tests, the lint, a
    build, and a live `--jev` run over `tests/fixtures/ai_slop.md` that must judge every
-   finding. The suite fakes the gateway, so this is where the real integration is proved
+   smell. The suite fakes the gateway, so this is where the real integration is proved
    before a release, and it needs `AI_GATEWAY_API_KEY` in your shell. A failure here
    changes nothing.
 2. VerBump prompts for the version, bumps the three files, commits, and tags `vX.Y.Z`.
