@@ -184,7 +184,7 @@ def test_a_garbled_answer_is_reported_and_leaves_that_finding_unjudged(monkeypat
 # client's state budget, in file order.
 
 
-def _many(files=4, per_file=3):
+def _many_files(files=4, per_file=3):
     """`files` files of `per_file` flagged lines each, every line text unique, as the
     lint result and its sources."""
     findings, sources = [], {}
@@ -195,22 +195,22 @@ def _many(files=4, per_file=3):
     return LintResult(findings=findings), sources
 
 
-def _room(result, sources, blocks):
+def _budget_for(result, sources, blocks):
     """A budget with room for the framing and `blocks` of the largest block in `result`."""
     largest = max(len(triage._block("f1", f, triage._lines(sources[f.path])))
                   for f in result.findings)
     return len(triage.FRAMING) + blocks * (largest + 2)
 
 
-def _flagged(state):
+def _flagged_lines(state):
     """The flagged lines a request's state carries, in order."""
     return [line.split(": ", 1)[1] for line in state.splitlines() if line.startswith("> ")]
 
 
 def test_a_small_budget_splits_the_findings_into_requests_and_annotates_every_one(monkeypatch):
     calls = canned_jev(monkeypatch, [("rewrite", 0.8)])
-    result, sources = _many()
-    budget = _room(result, sources, 2)
+    result, sources = _many_files()
+    budget = _budget_for(result, sources, 2)
     monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", budget)
 
     judged = triage.run(result, sources)
@@ -219,18 +219,18 @@ def test_a_small_budget_splits_the_findings_into_requests_and_annotates_every_on
     assert all(len(body["state"]) <= budget for body in calls)
     # Every finding is asked once, in file order, and each request has one question
     # per block it carries.
-    asked = [line for body in calls for line in _flagged(body["state"])]
+    asked = [line for body in calls for line in _flagged_lines(body["state"])]
     expected = [f"file {f} line {n}; tail" for f in range(4) for n in range(1, 4)]
     assert asked == expected
-    assert all(len(body["questions"]) == len(_flagged(body["state"])) for body in calls)
+    assert all(len(body["questions"]) == len(_flagged_lines(body["state"])) for body in calls)
     # Requests pack across files: one carries the end of one file and the start of the next.
-    assert any(len({line.split()[1] for line in _flagged(body["state"])}) > 1 for body in calls)
+    assert any(len({line.split()[1] for line in _flagged_lines(body["state"])}) > 1 for body in calls)
     assert [f.verdict for f in judged.result.findings] == ["rewrite"] * 12
 
 
 def test_findings_from_many_files_share_one_request_under_the_default_budget(monkeypatch):
     calls = canned_jev(monkeypatch, [("keep", 0.9)])
-    result, sources = _many(files=5, per_file=4)
+    result, sources = _many_files(files=5, per_file=4)
 
     judged = triage.run(result, sources)
 
@@ -241,8 +241,8 @@ def test_findings_from_many_files_share_one_request_under_the_default_budget(mon
 
 def test_one_file_over_the_budget_is_split_across_requests(monkeypatch):
     calls = canned_jev(monkeypatch, [("keep", 0.9)])
-    result, sources = _many(files=1, per_file=6)
-    monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", _room(result, sources, 2))
+    result, sources = _many_files(files=1, per_file=6)
+    monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", _budget_for(result, sources, 2))
 
     judged = triage.run(result, sources)
 
@@ -253,7 +253,7 @@ def test_one_file_over_the_budget_is_split_across_requests(monkeypatch):
 def test_a_finding_too_big_for_the_budget_still_goes_alone_in_its_own_request(monkeypatch):
     calls = canned_jev(monkeypatch, [("keep", 0.9)])
     monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", 1)
-    result, sources = _many(files=1, per_file=2)
+    result, sources = _many_files(files=1, per_file=2)
 
     judged = triage.run(result, sources)
 
@@ -272,8 +272,8 @@ def test_a_failed_batch_names_its_files_and_the_next_batch_still_runs(monkeypatc
                             cost="0.00001")
 
     monkeypatch.setattr(jev, "post", post)
-    result, sources = _many(files=3, per_file=2)
-    monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", _room(result, sources, 3))
+    result, sources = _many_files(files=3, per_file=2)
+    monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", _budget_for(result, sources, 3))
 
     judged = triage.run(result, sources)
 
@@ -283,6 +283,18 @@ def test_a_failed_batch_names_its_files_and_the_next_batch_still_runs(monkeypatc
     assert [f.verdict for f in judged.result.findings] == [None] * 3 + ["rewrite"] * 3
     assert (judged.result.keep, judged.result.rewrite) == (0, 3)
     assert (judged.tokens, judged.cost) == (100, Decimal("0.00001"))
+
+
+def test_a_failed_batch_of_many_files_names_the_first_few_and_counts_the_rest(monkeypatch):
+    def post(body):
+        raise jev.JevError("gateway returned 500: boom")
+
+    monkeypatch.setattr(jev, "post", post)
+    result, sources = _many_files(files=5, per_file=1)
+
+    judged = triage.run(result, sources)
+
+    assert judged.errors == ["doc0.md, doc1.md, doc2.md and 2 more files: gateway returned 500: boom"]
 
 
 # The cache: a finding Jev answered once is not asked about again while its tell,
