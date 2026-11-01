@@ -1,0 +1,270 @@
+[
+  {
+    "label": "questions",
+    "questions": 1,
+    "state_chars": 245,
+    "question_chars": 424,
+    "seconds": 0.67,
+    "input_tokens": 439,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "questions",
+    "questions": 10,
+    "state_chars": 1255,
+    "question_chars": 4242,
+    "seconds": 0.51,
+    "input_tokens": 1810,
+    "output_tokens": 294,
+    "answers": 10
+  },
+  {
+    "label": "questions",
+    "questions": 50,
+    "state_chars": 5815,
+    "question_chars": 21282,
+    "seconds": 0.71,
+    "input_tokens": 8010,
+    "output_tokens": 1494,
+    "answers": 50
+  },
+  {
+    "label": "questions",
+    "questions": 100,
+    "state_chars": 11517,
+    "question_chars": 42584,
+    "seconds": 0.83,
+    "input_tokens": 15763,
+    "output_tokens": 2995,
+    "answers": 100
+  },
+  {
+    "label": "questions",
+    "questions": 200,
+    "state_chars": 23117,
+    "question_chars": 85384,
+    "seconds": 1.04,
+    "input_tokens": 31563,
+    "output_tokens": 6095,
+    "answers": 200
+  },
+  {
+    "label": "questions only",
+    "questions": 100,
+    "state_chars": 245,
+    "question_chars": 42584,
+    "seconds": 0.74,
+    "input_tokens": 11916,
+    "output_tokens": 2995,
+    "answers": 100
+  },
+  {
+    "label": "questions only",
+    "questions": 200,
+    "state_chars": 245,
+    "question_chars": 85384,
+    "seconds": 0.78,
+    "input_tokens": 23616,
+    "output_tokens": 6095,
+    "answers": 200
+  },
+  {
+    "label": "blocks only",
+    "questions": 1,
+    "state_chars": 23117,
+    "question_chars": 424,
+    "seconds": 0.71,
+    "input_tokens": 8386,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "blocks only",
+    "questions": 1,
+    "state_chars": 57917,
+    "question_chars": 424,
+    "seconds": 0.76,
+    "input_tokens": 20686,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "padded state",
+    "questions": 1,
+    "state_chars": 1996,
+    "question_chars": 424,
+    "seconds": 0.57,
+    "input_tokens": 839,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "padded state",
+    "questions": 1,
+    "state_chars": 15996,
+    "question_chars": 424,
+    "seconds": 0.65,
+    "input_tokens": 4039,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "padded state",
+    "questions": 1,
+    "state_chars": 31996,
+    "question_chars": 424,
+    "seconds": 0.64,
+    "input_tokens": 7696,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "padded state",
+    "questions": 1,
+    "state_chars": 63996,
+    "question_chars": 424,
+    "seconds": 0.72,
+    "input_tokens": 15011,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "question ceiling",
+    "questions": 450,
+    "state_chars": 52117,
+    "question_chars": 192384,
+    "seconds": 1.72,
+    "error": "400 max_tokens_exceeded"
+  },
+  {
+    "label": "question ceiling",
+    "questions": 425,
+    "state_chars": 49217,
+    "question_chars": 181684,
+    "seconds": 1.34,
+    "error": "400 max_tokens_exceeded"
+  },
+  {
+    "label": "question ceiling",
+    "questions": 412,
+    "state_chars": 47709,
+    "question_chars": 176120,
+    "seconds": 1.56,
+    "input_tokens": 65059,
+    "output_tokens": 12667,
+    "answers": 412
+  },
+  {
+    "label": "question ceiling",
+    "questions": 418,
+    "state_chars": 48405,
+    "question_chars": 178688,
+    "seconds": 1.25,
+    "error": "400 max_tokens_exceeded"
+  },
+  {
+    "label": "question ceiling",
+    "questions": 415,
+    "state_chars": 48057,
+    "question_chars": 177404,
+    "seconds": 1.31,
+    "input_tokens": 65533,
+    "output_tokens": 12760,
+    "answers": 415
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 124996,
+    "question_chars": 424,
+    "seconds": 0.99,
+    "input_tokens": 28954,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 137496,
+    "question_chars": 424,
+    "seconds": 0.87,
+    "input_tokens": 31811,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 143746,
+    "question_chars": 424,
+    "seconds": 1.12,
+    "error": "400 max_tokens_exceeded"
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 140621,
+    "question_chars": 424,
+    "seconds": 0.94,
+    "input_tokens": 32526,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 142183,
+    "question_chars": 424,
+    "seconds": 0.93,
+    "input_tokens": 32883,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 142964,
+    "question_chars": 424,
+    "seconds": 1.22,
+    "error": "400 max_tokens_exceeded"
+  },
+  {
+    "label": "state budget alone, short smells",
+    "questions": 378,
+    "state_chars": 63933,
+    "question_chars": 162216,
+    "seconds": 1.55,
+    "error": "400 max_tokens_exceeded"
+  },
+  {
+    "label": "shipped, short smells",
+    "questions": 256,
+    "state_chars": 43193,
+    "question_chars": 109756,
+    "seconds": 1.21,
+    "input_tokens": 51334,
+    "output_tokens": 7831,
+    "answers": 256
+  },
+  {
+    "label": "shipped, full state of prose",
+    "questions": 247,
+    "state_chars": 63863,
+    "question_chars": 105886,
+    "seconds": 1.2,
+    "input_tokens": 52476,
+    "output_tokens": 7552,
+    "answers": 247
+  },
+  {
+    "label": "shipped, full state of one letter",
+    "questions": 247,
+    "state_chars": 63863,
+    "question_chars": 105886,
+    "seconds": 1.42,
+    "input_tokens": 60616,
+    "output_tokens": 7552,
+    "answers": 247
+  }
+]

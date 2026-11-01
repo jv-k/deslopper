@@ -12,6 +12,7 @@ stored verdict keeps its share of the request that answered it, so a hit can cou
 what it saved.
 """
 
+import json
 from contextlib import nullcontext
 from dataclasses import dataclass, field, replace
 from decimal import Decimal, InvalidOperation
@@ -52,6 +53,16 @@ class Pending(NamedTuple):
     index: int
     cache_key: object
     lines: list
+
+
+class Entry(NamedTuple):
+    """One smell in a batch: its pending item, its block of state, its question, and
+    the characters that question adds to the questions' JSON."""
+
+    item: Pending
+    block: str
+    question: dict
+    question_chars: int
 
 
 @dataclass
@@ -159,27 +170,43 @@ def _state(blocks) -> str:
     return "\n\n".join([FRAMING] + blocks)
 
 
-def _batches(smells, pending, budget) -> list:
+def _entry(key, smell, item) -> Entry:
+    """`item` as the smell under `key` in a batch: its block and its one question.
+    The question's characters are its share of the questions' JSON: the shares of a
+    map add up to the length of the map's own JSON."""
+    question = jev.choice(QUESTION.format(key=key, name=smell.name, line=smell.line,
+                                          col=smell.col), OPTIONS)
+    return Entry(item, _block(key, smell, item.lines), question,
+                 len(json.dumps({key: question})))
+
+
+def _batches(smells, pending, budget, question_budget) -> list:
     """`pending` in file order, packed into as few batches as fit under `budget`
-    characters of state. Each batch maps a question key, f1, f2, ... in order, to
-    the pending smell and its block, so the block's label and its question's key
-    are the one string. A batch closes when the next block would take it over. A
-    block over the budget on its own still goes, alone in its batch, since cutting
-    it would part a smell from its context."""
+    characters of state and `question_budget` characters of questions, as the JSON
+    the request sends. Each batch maps a question key, f1, f2, ... in order, to the
+    smell's `Entry`, so the block's label and its question's key are the one
+    string. A batch closes when the next smell would take it over either budget. A
+    smell over a budget on its own still goes, alone in its batch, since cutting it
+    would part a smell from its context."""
     batches = []
     size = 0
+    asked = 0
     for item in pending:
+        smell = smells[item.index]
         batch = batches[-1] if batches else None
         if batch:
             key = f"f{len(batch) + 1}"
-            block = _block(key, smells[item.index], item.lines)
-            if size + 2 + len(block) <= budget:
-                batch[key] = (item, block)
-                size += 2 + len(block)
+            entry = _entry(key, smell, item)
+            if (size + 2 + len(entry.block) <= budget
+                    and asked + entry.question_chars <= question_budget):
+                batch[key] = entry
+                size += 2 + len(entry.block)
+                asked += entry.question_chars
                 continue
-        block = _block("f1", smells[item.index], item.lines)
-        batches.append({"f1": (item, block)})
-        size = len(_state([block]))
+        entry = _entry("f1", smell, item)
+        batches.append({"f1": entry})
+        size = len(_state([entry.block]))
+        asked = entry.question_chars
     return batches
 
 
@@ -194,11 +221,12 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
     """Ask Jev about every smell in `result`, packed into as few requests as fit.
 
     `sources` maps a smell's path to that file's raw text. Smells are packed in
-    file order under `jev.STATE_CHAR_BUDGET`, across files and splitting a file
-    when it runs over, so each smell is in exactly one request. A file with no
-    smells adds nothing. A request that fails, or a reply missing usable answers,
-    adds one line to `errors`, prefixed with the batch's first files, and leaves those
-    smells unjudged. The next request is still sent.
+    file order under `jev.STATE_CHAR_BUDGET` of state and `jev.QUESTION_CHAR_BUDGET`
+    of questions, across files and splitting a file when it runs over, so each
+    smell is in exactly one request. A file with no smells adds nothing. A request
+    that fails, or a reply missing usable answers, adds one line to `errors`,
+    prefixed with the batch's first files, and leaves those smells unjudged. The
+    next request is still sent.
     `progress(where, count, index, total)`, when given, returns a context that
     wraps each request, which is how the CLI shows a spinner per request. Its
     `where` is the file's path when the request holds one file, else "N files".
@@ -228,16 +256,11 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
                 cached += 1
                 saved_tokens += hit_tokens
                 saved_cost += hit_cost
-    batches = _batches(result.smells, pending, jev.STATE_CHAR_BUDGET)
+    batches = _batches(result.smells, pending, jev.STATE_CHAR_BUDGET, jev.QUESTION_CHAR_BUDGET)
     for number, batch in enumerate(batches, 1):
-        files = list(dict.fromkeys(result.smells[item.index].path for item, _ in batch.values()))
-        state = _state([block for _, block in batch.values()])
-        questions = {}
-        for key, (item, _) in batch.items():
-            smell = result.smells[item.index]
-            questions[key] = jev.choice(QUESTION.format(key=key, name=smell.name,
-                                                        line=smell.line, col=smell.col),
-                                        OPTIONS)
+        files = list(dict.fromkeys(result.smells[e.item.index].path for e in batch.values()))
+        state = _state([e.block for e in batch.values()])
+        questions = {key: e.question for key, e in batch.items()}
         label = files[0] if len(files) == 1 else f"{len(files)} files"
         wrap = progress(label, len(batch), number, len(batches)) if progress else nullcontext()
         try:
@@ -254,8 +277,8 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
         cost += price
         unusable = 0
         shares = _shares(spent, price, len(batch))
-        for (key, (item, _)), (share_tokens, share_cost) in zip(batch.items(), shares):
-            index, cache_key = item.index, item.cache_key
+        for (key, entry), (share_tokens, share_cost) in zip(batch.items(), shares):
+            index, cache_key = entry.item.index, entry.item.cache_key
             smell = _judge(result.smells[index], reply.answers.get(key))
             if smell is None:
                 unusable += 1
