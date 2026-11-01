@@ -249,7 +249,7 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
             errors.append(f"{_named(files)}: {exc}")
             continue
         spent = reply.total_tokens or 0
-        price = reply.cost or Decimal(0)
+        price = reply.cost if reply.cost is not None else Decimal(0)
         tokens += spent
         cost += price
         unusable = 0
