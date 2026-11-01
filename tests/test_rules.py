@@ -809,65 +809,6 @@ def test_vague_attribution_misses_a_clause_between_noun_and_verb_by_design():
     assert not offsets(_preset_tell("vague-attribution"), text)
 
 
-# The tells from issues #60 and #61 whose patterns hold an apostrophe. Each takes a
-# curly one as well as a straight one (issue #63), so the tell still names the slop
-# when curly-quote is turned off.
-CURLY_APOSTROPHE_TELLS = [
-    ("recommended", "not-just-x-but-y"),
-    ("recommended", "throat-clearing"),
-    ("recommended", "chatbot-phrase"),
-    ("recommended", "sycophancy"),
-    ("recommended", "real-problem-reframe"),
-    ("recommended", "false-suspense"),
-    ("recommended", "emphasis-crutch"),
-    ("recommended", "staged-candor"),
-    ("recommended", "mic-drop"),
-    ("recommended", "negation-pivot"),
-    ("aggressive", "cutoff-disclaimer"),
-    ("aggressive", "negation-pivot-joined"),
-]
-
-APOSTROPHE_CLASS = "['’]"
-
-
-@pytest.mark.parametrize("preset,name", CURLY_APOSTROPHE_TELLS)
-def test_survey_tell_has_no_straight_only_apostrophe(preset, name):
-    raw = _preset_tell_json(name, preset)
-    source = raw.get("pattern") or "|".join(raw["words"])
-    assert "'" in source, f"{name} has no apostrophe, so it does not belong in the list"
-    assert "'" not in source.replace(APOSTROPHE_CLASS, ""), (
-        f"{name} matches only a straight apostrophe somewhere: {source!r}"
-    )
-
-
-def _curly_cases():
-    tables = (
-        ("recommended", SURVEY_TELL_POSITIVES),
-        ("recommended", WIDENED_POSITIVES),
-        ("aggressive", AGGRESSIVE_WIDENED_POSITIVES),
-        ("aggressive", {"negation-pivot-joined": NEGATION_PIVOT_JOINED_POSITIVES}),
-    )
-    wanted = set(CURLY_APOSTROPHE_TELLS)
-    return [
-        (preset, name, text)
-        for preset, name, text in _cases(*tables)
-        if (preset, name) in wanted and "'" in text
-    ]
-
-
-def test_every_curly_apostrophe_tell_has_a_case_with_an_apostrophe():
-    covered = {(preset, name) for preset, name, _text in _curly_cases()}
-    assert covered == set(CURLY_APOSTROPHE_TELLS)
-
-
-@pytest.mark.parametrize("preset,name,text", _curly_cases())
-def test_survey_tell_flags_the_curly_apostrophe_form(preset, name, text):
-    tell = _preset_tell(name, preset)
-    curly = text.replace("'", "’")
-    assert offsets(tell, curly), f"{name} should flag: {curly!r}"
-    assert offsets(tell, curly) == offsets(tell, text)
-
-
 def test_new_aggressive_tells_are_warn_tier():
     raw = {t["name"]: t for t in load_builtin("aggressive")["tells"]}
     for name in ("strong-intensifier", "unicode-arrow"):
@@ -1179,3 +1120,68 @@ def test_no_aggressive_tell_shares_a_name_with_a_recommended_tell():
     recommended = {t["name"] for t in load_builtin("recommended")["tells"]}
     aggressive = {t["name"] for t in load_builtin("aggressive")["tells"]}
     assert not recommended & aggressive
+
+
+# The survey tells whose patterns hold an apostrophe: those from issues #60 and #61
+# (issue #63), and those from #77, #80 and #81 (issue #90). Each takes a curly one as
+# well as a straight one, so the tell still names the slop when curly-quote is turned off.
+CURLY_APOSTROPHE_TELLS = [
+    ("recommended", "not-just-x-but-y"),
+    ("recommended", "throat-clearing"),
+    ("recommended", "chatbot-phrase"),
+    ("recommended", "sycophancy"),
+    ("recommended", "real-problem-reframe"),
+    ("recommended", "false-suspense"),
+    ("recommended", "emphasis-crutch"),
+    ("recommended", "staged-candor"),
+    ("recommended", "mic-drop"),
+    ("recommended", "negation-pivot"),
+    ("recommended", "urgency-inflation"),
+    ("aggressive", "cutoff-disclaimer"),
+    ("aggressive", "negation-pivot-joined"),
+    ("aggressive", "contrarian-hook"),
+    ("aggressive", "overreach"),
+    ("aggressive", "contrast-adverb"),
+    ("aggressive", "tutorial-signposting"),
+]
+
+APOSTROPHE_CLASS = "['’]"
+
+
+@pytest.mark.parametrize("preset,name", CURLY_APOSTROPHE_TELLS)
+def test_survey_tell_has_no_straight_only_apostrophe(preset, name):
+    raw = _preset_tell_json(name, preset)
+    source = raw.get("pattern") or "|".join(raw["words"])
+    assert "'" in source, f"{name} has no apostrophe, so it does not belong in the list"
+    assert "'" not in source.replace(APOSTROPHE_CLASS, ""), (
+        f"{name} matches only a straight apostrophe somewhere: {source!r}"
+    )
+
+
+def _curly_cases():
+    tables = (
+        ("recommended", SURVEY_TELL_POSITIVES),
+        ("recommended", WIDENED_POSITIVES),
+        ("aggressive", AGGRESSIVE_WIDENED_POSITIVES),
+        ("aggressive", AGGRESSIVE_SURVEY_TELL_POSITIVES),
+        ("aggressive", {"negation-pivot-joined": NEGATION_PIVOT_JOINED_POSITIVES}),
+    )
+    wanted = set(CURLY_APOSTROPHE_TELLS)
+    return [
+        (preset, name, text)
+        for preset, name, text in _cases(*tables)
+        if (preset, name) in wanted and "'" in text
+    ]
+
+
+def test_every_curly_apostrophe_tell_has_a_case_with_an_apostrophe():
+    covered = {(preset, name) for preset, name, _text in _curly_cases()}
+    assert covered == set(CURLY_APOSTROPHE_TELLS)
+
+
+@pytest.mark.parametrize("preset,name,text", _curly_cases())
+def test_survey_tell_flags_the_curly_apostrophe_form(preset, name, text):
+    tell = _preset_tell(name, preset)
+    curly = text.replace("'", "’")
+    assert offsets(tell, curly), f"{name} should flag: {curly!r}"
+    assert offsets(tell, curly) == offsets(tell, text)
