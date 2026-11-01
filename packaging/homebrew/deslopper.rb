@@ -1,8 +1,8 @@
 # Homebrew formula for deslopper, kept here as the source of truth.
 #
-# At release, a maintainer fills `url` and `sha256` from the PyPI sdist here, then copies
-# this file into the jv-k/homebrew-tap repo as Formula/deslopper.rb (see RELEASING.md).
-# Until the first release those two fields are placeholders. deslopper has no runtime
+# The live copy is Formula/deslopper.rb in the jv-k/homebrew-tap repo. At each release,
+# release.yml points its `url` and `sha256` at the sdist attached to the GitHub release
+# (see RELEASING.md). The two fields here are placeholders. deslopper has no runtime
 # dependencies, so the formula needs no resource stanzas.
 class Deslopper < Formula
   include Language::Python::Virtualenv

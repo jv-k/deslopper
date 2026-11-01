@@ -62,25 +62,64 @@ jobs:
           skip-existing: true
 
   # Independent of publish-pypi on purpose: a PyPI failure must not block the tap.
+  # The formula points at an sdist attached to the GitHub release, not at the tag's
+  # archive/refs/tags tarball. GitHub regenerates those archives, and their bytes drift:
+  # the v1.8.0 and v2.0.0 checksums no longer matched their formulas within days.
   bump-homebrew-formula:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
     steps:
-      - name: Compute the tag tarball checksum
-        id: tarball
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.TAG }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # VerBump creates the release just after it pushes the tag, so it can lag this job.
+      - name: Wait for the GitHub release
         run: |
-          url="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${TAG}.tar.gz"
-          sha="$(curl -fsSL "$url" | shasum -a 256 | cut -d' ' -f1)"
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-          echo "sha256=$sha" >> "$GITHUB_OUTPUT"
+          for _ in $(seq 30); do
+            gh release view "$TAG" >/dev/null 2>&1 && exit 0
+            sleep 10
+          done
+          echo "no GitHub release for $TAG after 5 minutes"; exit 1
+      # An asset that is already up stays as it is, so a re-run never changes the bytes
+      # that existing formulas name.
+      - name: Attach the sdist to the release
+        id: asset
+        run: |
+          name="deslopper-${TAG#v}.tar.gz"
+          mkdir -p dist
+          if gh release view "$TAG" --json assets --jq '.assets[].name' | grep -qxF "$name"; then
+            gh release download "$TAG" --pattern "$name" --dir dist
+          else
+            pip install build
+            python -m build --sdist
+            test -f "dist/$name"
+            gh release upload "$TAG" "dist/$name"
+          fi
+          echo "url=https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${name}" >> "$GITHUB_OUTPUT"
+          echo "sha256=$(shasum -a 256 "dist/$name" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Check the published asset matches
+        env:
+          URL: ${{ steps.asset.outputs.url }}
+          SHA256: ${{ steps.asset.outputs.sha256 }}
+        run: test "$(curl -fsSL "$URL" | shasum -a 256 | cut -d' ' -f1)" = "$SHA256"
       - uses: actions/checkout@v4
         with:
           repository: jv-k/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: tap
       - name: Update the formula and push
+        working-directory: tap
         env:
-          TARBALL_URL: ${{ steps.tarball.outputs.url }}
-          TARBALL_SHA256: ${{ steps.tarball.outputs.sha256 }}
+          TARBALL_URL: ${{ steps.asset.outputs.url }}
+          TARBALL_SHA256: ${{ steps.asset.outputs.sha256 }}
         run: |
           sed -i \
             -e "s|^  url \".*\"$|  url \"${TARBALL_URL}\"|" \
