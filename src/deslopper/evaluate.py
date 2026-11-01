@@ -13,7 +13,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from decimal import Decimal, InvalidOperation
 from importlib import resources
 
 from . import gum, jev, report, ui
@@ -128,16 +127,7 @@ def score_plainness(texts, unreadable, label: str) -> PlainnessPass:
         answer = result.answers.get(name)
         if answer is not None and isinstance(answer.value, (int, float)):
             scores[name] = float(answer.value)
-    tokens = None
-    if result.input_tokens is not None or result.output_tokens is not None:
-        tokens = (result.input_tokens or 0) + (result.output_tokens or 0)
-    cost = None
-    if result.market_cost is not None:
-        try:
-            cost = Decimal(str(result.market_cost))
-        except InvalidOperation:
-            cost = None
-    return PlainnessPass(scores, unreadable, tokens, cost)
+    return PlainnessPass(scores, unreadable, result.total_tokens, result.cost)
 
 
 def _plainness_pair(before, after) -> str:
