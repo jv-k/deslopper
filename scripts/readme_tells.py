@@ -92,6 +92,7 @@ AGGRESSIVE_EXAMPLES = {
     "invented-concept-label": "Call it the context tax.",
     "tutorial-signposting": "Let's dive in.",
     "contrast-adverb": "It is not simply a cache.",
+    "negation-pivot-joined": "It's not a bug; it's a feature.",
     "strawman-tail": "It keeps one copy, not one per caller.",
     "restatement-marker": "In other words, it caches.",
     "numbered-lead-in": "Three key reasons:",

@@ -16,7 +16,8 @@ sounds familiar, and I hope this helps.
 Here's the thing: nobody talks about the cost of a missed run. The uncomfortable truth
 is that cron fails quietly. The real problem isn't speed, it's trust. The result? Lost
 data. Let that sink in. And honestly? It's not a scheduler. It's a safety net for
-your jobs. This matters because every run counts. That's the whole point.
+your jobs. It's not a cron wrapper; it's a promise. This matters because every run
+counts. That's the whole point.
 
 Reliable scheduling has never been more critical, and its value cannot be overstated.
 A missed job could potentially cost a day. Ticker is fast without sacrificing

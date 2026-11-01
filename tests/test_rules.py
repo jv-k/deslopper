@@ -1042,3 +1042,57 @@ def test_arrow_stays_out_of_the_recommended_emoji_tell():
     assert tells
     for raw in tells:
         assert not offsets(compile_tell(raw), "Settings → General")
+
+
+# Issue #101. The recommended negation-pivot takes only a full stop or a comma
+# between the clauses (issue #62). The aggressive layer takes the colon and the
+# semicolon. The two CPython 3.9 docs lines are honest prose, and they are the
+# known cost of opting in to aggressive.
+NEGATION_PIVOT_JOINED_POSITIVES = [
+    "It's not a bug; it's a feature.",
+    "It's not a bug: it's a feature.",
+    "This isn't about speed; it's about trust.",
+    "This is not a bug: it's a result of the fact that most decimal fractions",
+    "That is not a future statement; it's an ordinary import statement with no",
+    "Not because it is slow; because it is wrong.",
+    "You don't need more tests: you need better ones.",
+]
+
+NEGATION_PIVOT_JOINED_NEGATIVES = [
+    # A full stop or a comma is the recommended tell's form, so this one stays quiet.
+    "It's not a bug. It's a feature.",
+    "This isn't about speed, it's about trust.",
+    # A colon or a semicolon that leads into something other than the pivot.
+    "It is not set by default; the env sets it.",
+    "This is not supported: see the docs.",
+    "It is not a bug. Note: it's a feature.",
+]
+
+
+@pytest.mark.parametrize("text", NEGATION_PIVOT_JOINED_POSITIVES)
+def test_negation_pivot_joined_flags_a_colon_or_semicolon_pivot(text):
+    tell = _preset_tell("negation-pivot-joined", "aggressive")
+    assert offsets(tell, text), f"should flag: {text!r}"
+
+
+@pytest.mark.parametrize("text", NEGATION_PIVOT_JOINED_NEGATIVES)
+def test_negation_pivot_joined_leaves_other_lines_alone(text):
+    tell = _preset_tell("negation-pivot-joined", "aggressive")
+    assert not offsets(tell, text), f"false positive: {text!r}"
+
+
+@pytest.mark.parametrize("text", [t for t in NEGATION_PIVOT_JOINED_POSITIVES if "'" in t])
+def test_negation_pivot_joined_flags_the_curly_apostrophe_form(text):
+    tell = _preset_tell("negation-pivot-joined", "aggressive")
+    curly = text.replace("'", "’")
+    assert offsets(tell, curly) == offsets(tell, text)
+
+
+def test_negation_pivot_joined_is_warn_tier_and_named_apart_from_recommended():
+    raw = _preset_tell_json("negation-pivot-joined", "aggressive")
+    assert raw["tier"] == "warn"
+    assert raw["flags"] == "i"
+    source = raw["pattern"]
+    assert "'" not in source.replace(APOSTROPHE_CLASS, "")
+    recommended = {t["name"] for t in load_builtin("recommended")["tells"]}
+    assert "negation-pivot-joined" not in recommended
