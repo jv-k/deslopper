@@ -11,7 +11,12 @@ set -euo pipefail
 root="$(cd "${1:-$(dirname "$0")/..}" && pwd)"
 
 out="$(npx -y skills add "$root" -l 2>&1 || true)"
-clean="$(printf '%s' "$out" | LC_ALL=C sed -e $'s/\x1b\\[[0-9;?]*[a-zA-Z]//g' -e $'s/[^[:print:]\t]//g')"
+# The CLI redraws its "Discovering skills" spinner in place, by carriage return or by a
+# cursor-to-column escape (ESC[<n>G). Stripped as decoration, those would merge the frames
+# onto the result line and break the anchored count match, so each one becomes a newline
+# first and every frame lands on a line of its own.
+clean="$(printf '%s' "$out" | LC_ALL=C sed -e $'s/\x1b\\[[0-9]*G/\r/g' | tr '\r' '\n' |
+  LC_ALL=C sed -e $'s/\x1b\\[[0-9;?]*[a-zA-Z]//g' -e $'s/[^[:print:]\t]//g')"
 
 fail() {
   echo "$clean"
