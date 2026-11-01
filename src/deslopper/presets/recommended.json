@@ -85,7 +85,7 @@
       "name": "filler-verb",
       "tier": "warn",
       "flags": "i",
-      "words": ["surfaces", "leverages?", "enables?", "powers", "facilitates?", "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?", "streamlines?", "empowers?", "showcases?", "(?-i:delve)s?", "(?-i:Delve)s?(?=\\s+(?:into|deeper))", "elevates?", "embark(?:s|ed|ing)?", "unleash(?:es|ed|ing)?", "bolster(?:s|ed|ing)?", "orchestrates?", "transcends?", "enhances?", "navigate the complexities"],
+      "words": ["surfaces", "leverages?", "enables?", "powers", "facilitates?", "utili[sz]es?", "fosters?", "drives", "unlocks?", "delivers?", "streamlines?", "empowers?", "showcases?", "(?-i:delve)s?", "(?-i:Delve)s?(?=\\s+(?:into|deeper))", "elevates?", "embark(?:s|ed|ing)?", "unleash(?:es|ed|ing)?", "bolster(?:s|ed|ing)?", "orchestrates?(?=\\s+(?:(?:an?|the|your|our|their|every|this)\\s+)?(?:(?:whole|entire|complete|end-to-end|seamless)\\s+)?(?:seamless|everything|symphony|harmony|experiences?|journeys?|transformation|success|synergy|magic|innovation|vision|narrative|collaboration|alignment)\\b)", "transcends?", "enhances?", "navigate the complexities"],
       "message": "filler verb, use a plain verb or cut"
     },
     {

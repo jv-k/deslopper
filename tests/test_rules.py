@@ -437,8 +437,9 @@ def test_pithy_fragment_points_at_the_fragment_not_what_comes_before(text):
 
 
 # The words and patterns that widen existing tells, from the same survey (issue
-# #61). Each positive is one addition the issue lists, so a dropped alternative
-# fails here by name.
+# #61), and the later fixes that narrowed some of them, labelled inline. Each
+# positive is one addition an issue lists, so a dropped alternative fails here by
+# name.
 WIDENED_POSITIVES = {
     "not-just-x-but-y": [
         "not only per type of object, but also per instance",
@@ -471,7 +472,14 @@ WIDENED_POSITIVES = {
         "It is unleashing the cache.",
         "This bolsters the case.",
         "It is bolstering the case.",
-        "It orchestrates the jobs.",
+        # Issue #75: orchestrates only with an abstract or marketing object.
+        "It orchestrates the experience.",
+        "It orchestrates a seamless rollout.",
+        "Orchestrate a symphony of services.",
+        "It orchestrates your entire journey.",
+        "It orchestrates everything.",
+        "It orchestrates collaboration.",
+        "It orchestrates the entire transformation.",
         "It transcends the old design.",
         "This enhances the output.",
         "It helps you navigate the complexities of config.",
@@ -577,7 +585,20 @@ WIDENED_POSITIVES = {
 }
 
 WIDENED_NEGATIVES = {
-    "filler-verb": ["Navigate to the settings page."],
+    "filler-verb": [
+        "Navigate to the settings page.",
+        # Issue #75. Orchestration of concrete things is the honest technical sense.
+        "Kubernetes orchestrates containers.",
+        "It orchestrates the jobs.",
+        "The scheduler orchestrates the build steps.",
+        "Orchestrate runs your jobs.",
+        "Use a tool that can orchestrate deployments.",
+        # An abstract-sounding word that only names a concrete thing.
+        "It orchestrates the comprehensive test suite.",
+        "It orchestrates the build success check.",
+        "It orchestrates the payment journey service.",
+        "The platform orchestrates your entire workflow.",
+    ],
     # Issue #74. "Realm" as the authentication term, not the inflated word.
     "inflated-word": [
         "Create a Keycloak realm.",
