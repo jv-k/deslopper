@@ -48,6 +48,8 @@ Tells live in `src/deslopper/presets/recommended.json`, one JSON object each. A 
 - `phase`: `pre-entity` (runs before HTML entities are masked) or `post-entity` (the default).
 - `kind`: `regex`, `bold-bullet`, or `id-label`. Omit it for `regex`.
 - `pattern` or `words`: a regex, or a word list compiled to a boundaried alternation.
+  Write an apostrophe as a plain `'`. deslopper widens it to match a curly one as well
+  when it compiles the tell, so do not spell out the curly form.
 - `message`: the text printed after the name.
 - `flags`: an optional string of regex flags. Only `i` is supported today.
 
