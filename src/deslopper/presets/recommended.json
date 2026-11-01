@@ -155,7 +155,7 @@
       "name": "inflated-word",
       "tier": "warn",
       "flags": "i",
-      "words": ["tapestry", "interplay", "garners?", "intricate", "crucial", "pivotal", "enduring", "realms?(?=\\s+of\\b)(?!\\s+of\\s+(?:(?:the|a|an|this|that|each|every|its|their|your|our)\\s+(?:[\\w-]+\\s+)?(?:client|user|token|principal|server|service|host|kdc|ticket|account|application)s?|(?:client|user|token|principal|server|service|host|kdc)s)\\b)", "myriad", "plethora", "interconnectedness", "nuanced", "commendable", "noteworthy", "ever-evolving", "ever-changing"],
+      "words": ["tapestry", "interplay", "garners?", "intricate", "crucial", "pivotal", "enduring", "realms?(?=\\s+of\\b)(?!\\s+of\\s+(?:(?:the|a|an|this|that|each|its|their|your|our)\\s+(?:(?:client|delegated|compromised)\\s+)?(?:client|user|token|principal|server|host|kdc)s?|(?:client|user|token|principal|server|host|kdc)s)(?![\\w-])(?!\\s+(?!(?:is|are|was|were|it|they|for|and|or|with|from|to|in|on|at|by|that|which|who|whose|will|can|may|must|should|has|have|had|does|issuing|identity)\\b)\\w))", "myriad", "plethora", "interconnectedness", "nuanced", "commendable", "noteworthy", "ever-evolving", "ever-changing"],
       "message": "inflated word, use a plain one"
     },
     {
