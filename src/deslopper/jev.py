@@ -150,7 +150,7 @@ def post(body: dict) -> dict:
     """Send one evaluate request and decode the JSON reply.
 
     The only place the network is touched, and the one function tests replace.
-    `evaluate` calls it through the module attribute so a monkeypatch takes.
+    `_post_within_deadline` calls it through the module attribute so a monkeypatch takes.
     """
     request = urllib.request.Request(
         ENDPOINT,
@@ -238,10 +238,10 @@ def evaluate(state: str, questions: dict) -> Result:
         raise ValueError("questions is empty; build at least one with boolean, choice, or score")
     require_key()
     body = {"model": MODEL, "state": state, "questions": questions}
-    return Result.from_reply(_within_deadline(body))
+    return Result.from_reply(_post_within_deadline(body))
 
 
-def _within_deadline(body: dict) -> dict:
+def _post_within_deadline(body: dict) -> dict:
     """`post(body)`, or JevError once TIMEOUT_SECONDS of wall-clock time pass.
 
     urlopen's timeout bounds each socket operation, not the request, so `post`

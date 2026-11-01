@@ -275,7 +275,7 @@ def test_empty_state_or_questions_raises_before_any_call(monkeypatch, state, que
 
 def test_a_request_past_the_deadline_raises_jev_error_saying_it_timed_out(monkeypatch):
     """urlopen's timeout bounds each socket read, so a slow drip could run past it.
-    The deadline bounds the whole call to post, here a fake that never returns."""
+    The deadline bounds the whole call to post, here a fake that stalls past the deadline."""
     release = threading.Event()
 
     def stalled_post(body):
