@@ -4,6 +4,8 @@ This survey reads the rule files and source of other slop detectors, plus the ar
 cite, and lists tells that the `recommended` and `aggressive` presets miss. It was compiled
 on 2026-10-28.
 
+The presets in `src/deslopper/presets/` are the source of truth, and the patterns in this survey show what was surveyed on 2026-10-28.
+
 Each candidate has a kebab-case name, example phrases, a draft regex (or a note on why a
 regex struggles), a false-positive estimate for technical docs, a suggested tier, and its
 sources. Example phrases sit in inline code so the linter skips them.
