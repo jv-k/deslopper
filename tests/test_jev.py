@@ -233,6 +233,21 @@ def test_cost_is_the_market_cost_parsed_once_as_a_decimal(raw, expected, monkeyp
     assert result.market_cost == raw
 
 
+@pytest.mark.parametrize(
+    "raw, expected",
+    [
+        ("0.000066", Decimal("0.000066")),
+        ("6.6E-5", Decimal("0.000066")),
+        (6.6e-05, Decimal("0.000066")),
+        (None, None),
+        ("not a number", None),
+    ],
+    ids=["plain", "exponent-form", "unquoted-number", "missing", "garbage"],
+)
+def test_parse_cost_is_public_and_reads_a_cost_as_a_decimal_or_none(raw, expected):
+    assert jev.parse_cost(raw) == expected
+
+
 def test_cost_always_follows_market_cost_on_a_result_built_directly():
     result = jev.Result(answers={}, input_tokens=1, output_tokens=2, market_cost="6.6E-5")
 

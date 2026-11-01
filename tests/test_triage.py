@@ -452,6 +452,35 @@ def test_a_cached_answer_counts_its_share_of_the_request_as_saved(monkeypatch, t
     assert (second.saved_tokens, second.saved_cost) == (1577, Decimal("0.000066"))
 
 
+@pytest.mark.parametrize(
+    "cost, saved",
+    [
+        ("0.000066", Decimal("0.000066")),
+        ("6.6E-5", Decimal("0.000066")),
+        (6.6e-05, Decimal("0.000066")),
+        (None, Decimal(0)),
+        ("not a number", Decimal(0)),
+        ("-0.5", Decimal(0)),
+        ("NaN", Decimal(0)),
+        ("Infinity", Decimal(0)),
+    ],
+    ids=["plain", "exponent-form", "unquoted-number", "missing", "garbage",
+         "negative", "nan", "infinity"],
+)
+def test_a_cached_cost_reads_as_its_decimal_or_zero(cost, saved, monkeypatch, tmp_path):
+    calls = canned_jev(monkeypatch, [("keep", 0.9)])
+    store = cache.Store(str(tmp_path))
+    smell = _smell("a.md", 1, 1, "semicolon")
+    store.put(triage._cache_key(smell, ["a; b"]),
+              {"verdict": "keep", "probability": 0.9, "tokens": 5, "cost": cost})
+
+    judged = triage.run(LintResult(smells=[smell]), {"a.md": "a; b\n"}, cache=store)
+
+    assert calls == []
+    assert judged.saved_cost == saved
+    assert isinstance(judged.saved_cost, Decimal)
+
+
 def test_an_entry_without_a_recorded_share_saves_nothing_it_can_count(monkeypatch, tmp_path):
     calls = canned_jev(monkeypatch, [("keep", 0.9)])
     store = cache.Store(str(tmp_path))
