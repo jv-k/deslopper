@@ -1,10 +1,10 @@
 from deslopper.presets import load_builtin, available
 
 
-def test_recommended_has_forty_two_tells_including_both_phase_variants():
+def test_recommended_includes_both_phase_variants():
+    # No count pin: the README test checks the count against the preset file.
     fragment = load_builtin("recommended")
     tells = fragment["tells"]
-    assert len(tells) == 42
     names = [t["name"] for t in tells]
     assert names.count("em-dash") == 2
     assert names.count("section-sign") == 2
