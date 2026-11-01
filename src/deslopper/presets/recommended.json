@@ -100,7 +100,7 @@
       "tier": "warn",
       "scope": "first",
       "flags": "i",
-      "pattern": "^\\s*(?:[-*+]\\s+|>\\s*|#{1,6}\\s+)?(In today's|It's worth noting that|When it comes to|At its core|Furthermore|Moreover|Additionally|That being said|It's important to (?:note|remember|understand)|It bears mentioning|Importantly|Interestingly|Notably|Ultimately|In the realm of|In an era where|In a world where|Imagine a world where|Picture this|Have you ever wondered|Since the dawn of|As we navigate)\\b",
+      "pattern": "^\\s*(?:[-*+]\\s+|>\\s*|#{1,6}\\s+)?(In today's|It's worth noting that|When it comes to|At its core|Furthermore|Moreover|Additionally|That being said|It's important to (?:note|remember|understand)|It bears mentioning|Importantly|Interestingly|Notably|Ultimately|In the realm of(?!\\s+(?:(?:the|a|an|this|that|each|its|their|your|our)\\s+(?:(?:client|delegated|compromised)\\s+)?(?:client|user|token|principal|server|host|kdc)s?|(?:client|user|token|principal|server|host|kdc)s)(?![\\w'-])(?!\\s+(?!(?:is|are|was|were|it|they|for|and|or|with|from|to|in|on|at|by|that|which|who|whose|will|can|may|must|should|has|have|had|does|issuing|identity)\\b)\\w))|In an era where|In a world where|Imagine a world where|Picture this|Have you ever wondered|Since the dawn of|As we navigate)\\b",
       "message": "throat-clearing or transition opener, start with the point"
     },
     {

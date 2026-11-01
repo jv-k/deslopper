@@ -531,6 +531,11 @@ WIDENED_POSITIVES = {
         "Notably, the run is fast.",
         "Ultimately, this is a choice.",
         "In the realm of build tools, speed wins.",
+        # Issue #123. The opener takes the inflated-word auth-noun exemption, so
+        # these stay flagged by the same guards.
+        "In the realm of possibility",
+        "In the realm of the user's experience",
+        "In the realm of the user experience",
         "In an era where builds are slow, speed wins.",
         "In a world where builds are slow, speed wins.",
         "Imagine a world where builds are fast.",
@@ -766,6 +771,13 @@ WIDENED_NEGATIVES = {
         "The name and realm of the delegated principal identity.",
         "principals registered in the realm of the compromised KDC",
     ],
+    # Issue #123. The "In the realm of" opener before an auth noun.
+    "throat-clearing": [
+        "In the realm of the client, set the redirect URI.",
+        "In the realm of the user, add a role.",
+        "In the realm of clients, tokens are short-lived.",
+        "- In the realm of the client, set the redirect URI.",
+    ],
     "vague-attribution": [
         "Config merges several sources in order.",
         # Issue #95. Each verb's noun form after have/has is not a reporting verb.
@@ -879,6 +891,30 @@ def test_widened_tell_flags_each_addition(preset, name, text):
 ))
 def test_widened_tell_leaves_honest_prose_alone(preset, name, text):
     assert not offsets(_preset_tell(name, preset), text), f"{name} false positive: {text!r}"
+
+
+def _realm_of_exemption(name, before):
+    pattern = _preset_tell_json(name)
+    source = pattern.get("pattern") or "|".join(pattern["words"])
+    start = source.index(before) + len(before)
+    depth = 1
+    for end in range(start, len(source)):
+        if source[end] == "(" and source[end - 1] != "\\":
+            depth += 1
+        elif source[end] == ")" and source[end - 1] != "\\":
+            depth -= 1
+            if depth == 0:
+                return source[start:end]
+    raise AssertionError(f"unbalanced exemption in {name}")
+
+
+def test_throat_clearing_realm_exemption_matches_inflated_word():
+    # Issue #123. The two tells hold one exemption in two copies, since a preset
+    # cannot share a fragment. throat-clearing spells the apostrophe guard as an
+    # alternation so the curly-apostrophe check reads it.
+    inflated = _realm_of_exemption("inflated-word", r"realms?(?=\s+of\b)(?!\s+of")
+    opener = _realm_of_exemption("throat-clearing", "In the realm of(?!")
+    assert opener.replace(r"(?![\w-]|['’])", r"(?![\w'’-])") == inflated
 
 
 # Issue #101. The recommended negation-pivot takes only a full stop or a comma
