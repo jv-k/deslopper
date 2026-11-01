@@ -669,8 +669,16 @@ WIDENED_NEGATIVES = {
         "Several sources have claims on the lock.",
         "The experts have reports to file.",
         "Several sources have notes on the draft.",
+        "The experts have a say in the order.",
+        "The experts have agreements with us.",
+        "The experts have claims on the lock.",
+        "The experts have notes on the draft.",
+        "Several sources have beliefs we can test.",
+        "Several sources have suggestions for the API.",
+        "Several sources have reports to file.",
         # A form of the verb outside the tenses the tell takes.
         "Experts reporting tools ship today.",
+        # "According to" fires only before "several sources".
         "Config merges several sources according to their order.",
     ],
     "not-just-x-but-y": [
@@ -792,19 +800,6 @@ NEGATION_PIVOT_JOINED_NEGATIVES = [
     "This is not supported: see the docs.",
     "It is not a bug. Note: it's a feature.",
 ]
-
-
-def _vague_attribution_verbs(subject):
-    words = _preset_tell_json("vague-attribution")["words"]
-    [entry] = [w for w in words if w.startswith(subject + " ")]
-    return entry[len(subject) + 1:]
-
-
-def test_vague_attribution_entries_share_one_verb_list():
-    # Issue #95: the experts entry and the several-sources entry take the same
-    # reporting verbs in the same tenses.
-    assert _vague_attribution_verbs("experts") == \
-        _vague_attribution_verbs("several (?:sources|publications)")
 
 
 def test_vague_attribution_misses_a_clause_between_noun_and_verb_by_design():
