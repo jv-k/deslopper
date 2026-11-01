@@ -22,6 +22,51 @@ NON_SPACE = re.compile(r"\S")
 ID_LABEL_TAIL = re.compile(r"[:).]?\s+(?:[-\u2013\u2014]\s*)?[*_\"']?[A-Z]")
 
 
+CURLY_APOSTROPHE = "\u2019"
+
+
+def _widen_apostrophes(pattern: str) -> str:
+    """Let each apostrophe in a pattern match the straight and the curly form.
+
+    A bare or escaped ' becomes ['’]. Inside a character class it gains the curly
+    character instead, so [^'] keeps out both forms. Only the pattern changes: the
+    input is never folded, so a tell for the curly character still sees it.
+    """
+    out = []
+    i, n = 0, len(pattern)
+    in_class = False
+    while i < n:
+        ch = pattern[i]
+        if ch == "\\" and i + 1 < n:
+            esc = pattern[i:i + 2]
+            if esc == "\\'":
+                out.append("'" + CURLY_APOSTROPHE if in_class else "['" + CURLY_APOSTROPHE + "]")
+            else:
+                out.append(esc)
+            i += 2
+            continue
+        if in_class:
+            if ch == "]":
+                in_class = False
+            out.append("'" + CURLY_APOSTROPHE if ch == "'" else ch)
+            i += 1
+            continue
+        if ch == "[":
+            # A ] straight after the opening [ or [^ is a literal, not the close.
+            j = i + 1
+            if j < n and pattern[j] == "^":
+                j += 1
+            if j < n and pattern[j] == "]":
+                j += 1
+            out.append(pattern[i:j].replace("'", "'" + CURLY_APOSTROPHE))
+            in_class = True
+            i = j
+            continue
+        out.append("['" + CURLY_APOSTROPHE + "]" if ch == "'" else ch)
+        i += 1
+    return "".join(out)
+
+
 @dataclass(frozen=True)
 class CompiledTell:
     name: str
@@ -121,7 +166,7 @@ def compile_tell(raw: dict, extra_kinds: Optional[dict] = None) -> CompiledTell:
         pattern = raw["pattern"]
     else:
         raise ConfigError(f"tell {name!r} has neither pattern nor words")
-    spec = {**raw, "pattern": pattern}
+    spec = {**raw, "pattern": _widen_apostrophes(pattern)}
     try:
         matcher = kinds[kind](spec, flags)
     except re.error as exc:

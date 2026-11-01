@@ -78,7 +78,7 @@
       "tier": "warn",
       "scope": "first",
       "flags": "i",
-      "pattern": "\\bnot (?:just|only|merely)\\b[^.?!]{0,60}?\\b(?:but|it['\u2019]s)\\b",
+      "pattern": "\\bnot (?:just|only|merely)\\b[^.?!]{0,60}?\\b(?:but|it's)\\b",
       "message": "\"not just X but Y\" padding, make the point once"
     },
     {
@@ -100,7 +100,7 @@
       "tier": "warn",
       "scope": "first",
       "flags": "i",
-      "pattern": "^\\s*(?:[-*+]\\s+|>\\s*|#{1,6}\\s+)?(In today['\u2019]s|It['\u2019]s worth noting that|When it comes to|At its core|Furthermore|Moreover|Additionally|That being said|It['\u2019]s important to (?:note|remember|understand)|It bears mentioning|Importantly|Interestingly|Notably|Ultimately|In the realm of|In an era where|In a world where|Imagine a world where|Picture this|Have you ever wondered|Since the dawn of|As we navigate)\\b",
+      "pattern": "^\\s*(?:[-*+]\\s+|>\\s*|#{1,6}\\s+)?(In today's|It's worth noting that|When it comes to|At its core|Furthermore|Moreover|Additionally|That being said|It's important to (?:note|remember|understand)|It bears mentioning|Importantly|Interestingly|Notably|Ultimately|In the realm of|In an era where|In a world where|Imagine a world where|Picture this|Have you ever wondered|Since the dawn of|As we navigate)\\b",
       "message": "throat-clearing or transition opener, start with the point"
     },
     {
@@ -120,14 +120,14 @@
       "name": "chatbot-phrase",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\b(?:I hope this helps|hope th(?:is|at) helps|let me know if|feel free to|would you like me to|if you(?:['\u2019]d)? (?:want|like), I can|want me to|is there anything else|don['\u2019]t hesitate to|happy to help|shall I)\\b|^\\s*(?:Of course|Certainly)[.!]",
+      "pattern": "\\b(?:I hope this helps|hope th(?:is|at) helps|let me know if|feel free to|would you like me to|if you(?:'d)? (?:want|like), I can|want me to|is there anything else|don't hesitate to|happy to help|shall I)\\b|^\\s*(?:Of course|Certainly)[.!]",
       "message": "chatbot phrase, delete it"
     },
     {
       "name": "sycophancy",
       "tier": "warn",
       "flags": "i",
-      "words": ["great question", "excellent point", "you['\u2019]re absolutely right", "you['\u2019]re right to", "that['\u2019]s a fair (?:concern|point)", "good catch", "I hear you"],
+      "words": ["great question", "excellent point", "you're absolutely right", "you're right to", "that's a fair (?:concern|point)", "good catch", "I hear you"],
       "message": "sycophantic tone, respond directly"
     },
     {
@@ -155,7 +155,7 @@
       "name": "inflated-word",
       "tier": "warn",
       "flags": "i",
-      "words": ["tapestry", "interplay", "garners?", "intricate", "crucial", "pivotal", "enduring", "realms?(?=\\s+of\\b)(?!\\s+of\\s+(?:(?:the|a|an|this|that|each|its|their|your|our)\\s+(?:(?:client|delegated|compromised)\\s+)?(?:client|user|token|principal|server|host|kdc)s?|(?:client|user|token|principal|server|host|kdc)s)(?![\\w'\u2019-])(?!\\s+(?!(?:is|are|was|were|it|they|for|and|or|with|from|to|in|on|at|by|that|which|who|whose|will|can|may|must|should|has|have|had|does|issuing|identity)\\b)\\w))", "myriad", "plethora", "interconnectedness", "nuanced", "commendable", "noteworthy", "ever-evolving", "ever-changing"],
+      "words": ["tapestry", "interplay", "garners?", "intricate", "crucial", "pivotal", "enduring", "realms?(?=\\s+of\\b)(?!\\s+of\\s+(?:(?:the|a|an|this|that|each|its|their|your|our)\\s+(?:(?:client|delegated|compromised)\\s+)?(?:client|user|token|principal|server|host|kdc)s?|(?:client|user|token|principal|server|host|kdc)s)(?![\\w'-])(?!\\s+(?!(?:is|are|was|were|it|they|for|and|or|with|from|to|in|on|at|by|that|which|who|whose|will|can|may|must|should|has|have|had|does|issuing|identity)\\b)\\w))", "myriad", "plethora", "interconnectedness", "nuanced", "commendable", "noteworthy", "ever-evolving", "ever-changing"],
       "message": "inflated word, use a plain one"
     },
     {
@@ -183,14 +183,14 @@
       "name": "real-problem-reframe",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\bthe (?:real|actual|true|bigger|deeper) (?:problem|issue|question|bottleneck|story|work|risk|lesson)(?: here)? (?:isn['\u2019]?t|is not|wasn['\u2019]?t|was not)\\b|\\bthe question (?:isn['\u2019]?t|is not)\\b[^.!?]{1,60}[.,;]\\s*it(?:['\u2019]s| is)\\b|\\b[\\w-]+ (?:isn['\u2019]?t|is not|wasn['\u2019]?t) the (?:real |actual )?(?:problem|bottleneck|issue|point)[.,:]|\\b(?:it|this) (?:was|is) never (?:really )?about\\b",
+      "pattern": "\\bthe (?:real|actual|true|bigger|deeper) (?:problem|issue|question|bottleneck|story|work|risk|lesson)(?: here)? (?:isn'?t|is not|wasn'?t|was not)\\b|\\bthe question (?:isn'?t|is not)\\b[^.!?]{1,60}[.,;]\\s*it(?:'s| is)\\b|\\b[\\w-]+ (?:isn'?t|is not|wasn'?t) the (?:real |actual )?(?:problem|bottleneck|issue|point)[.,:]|\\b(?:it|this) (?:was|is) never (?:really )?about\\b",
       "message": "reframe to a \"real\" problem, name the problem and show why"
     },
     {
       "name": "false-suspense",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\bhere['\u2019]?s (?:the (?:thing|kicker|catch|deal|twist|truth|reality|secret|rub|part)|where (?:it|things) gets? (?:interesting|tricky|weird|good)|what (?:most|nobody|no one|everyone|few|I (?:learned|found|mean|noticed)|you need to know|matters)|why (?:this|that|it) matters)\\b|\\bthe kicker\\b",
+      "pattern": "\\bhere'?s (?:the (?:thing|kicker|catch|deal|twist|truth|reality|secret|rub|part)|where (?:it|things) gets? (?:interesting|tricky|weird|good)|what (?:most|nobody|no one|everyone|few|I (?:learned|found|mean|noticed)|you need to know|matters)|why (?:this|that|it) matters)\\b|\\bthe kicker\\b",
       "message": "false suspense before a reveal, start with the point"
     },
     {
@@ -204,28 +204,28 @@
       "name": "emphasis-crutch",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\blet that sink in\\b|\\bread that again\\b|\\bfull stop\\.|\\bmake no mistake\\b|\\bI['\u2019]?ll say it again\\b|\\bthink about that for a (?:second|moment)\\b|\\byes, really\\b",
+      "pattern": "\\blet that sink in\\b|\\bread that again\\b|\\bfull stop\\.|\\bmake no mistake\\b|\\bI'?ll say it again\\b|\\bthink about that for a (?:second|moment)\\b|\\byes, really\\b",
       "message": "emphasis crutch, cut it and let the point stand"
     },
     {
       "name": "staged-candor",
       "tier": "warn",
       "flags": "i",
-      "pattern": "(?:^|[.!?]\\s+)(?:and |but )?(?:honestly|frankly|look|real talk|truthfully)\\?|\\b(?:let['\u2019]?s be honest|to be (?:honest|frank)|if I['\u2019]?m (?:being )?honest|I['\u2019]?ll be honest|in all honesty|(?:(?:the|my|an) )?honest (?:take|assessment)|(?:the|my) honest (?:answer|truth))\\b",
+      "pattern": "(?:^|[.!?]\\s+)(?:and |but )?(?:honestly|frankly|look|real talk|truthfully)\\?|\\b(?:let'?s be honest|to be (?:honest|frank)|if I'?m (?:being )?honest|I'?ll be honest|in all honesty|(?:(?:the|my|an) )?honest (?:take|assessment)|(?:the|my) honest (?:answer|truth))\\b",
       "message": "staged candor, drop the honesty marker and make the claim"
     },
     {
       "name": "mic-drop",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\b(?:that['\u2019]?s|this is|which is) (?:exactly )?the (?:whole |entire |real )?point\\b|\\b(?:that['\u2019]?s|this is) the (?:beauty|power|magic) of\\b|\\b(?:this|that) is what [^.!?]{1,40} (?:actually |really )?looks like\\b|\\band that['\u2019]?s (?:okay|fine|the point|the whole point)\\.|^\\s*(?:it|this|that) (?:matters|works|scales|compounds|shows)\\.\\s*$",
+      "pattern": "\\b(?:that'?s|this is|which is) (?:exactly )?the (?:whole |entire |real )?point\\b|\\b(?:that'?s|this is) the (?:beauty|power|magic) of\\b|\\b(?:this|that) is what [^.!?]{1,40} (?:actually |really )?looks like\\b|\\band that'?s (?:okay|fine|the point|the whole point)\\.|^\\s*(?:it|this|that) (?:matters|works|scales|compounds|shows)\\.\\s*$",
       "message": "mic-drop line that grades the point, cut it or add a fact"
     },
     {
       "name": "negation-pivot",
       "tier": "warn",
       "flags": "i",
-      "pattern": "\\b(?:it|this|that|they|these)(?:['\u2019]s|['\u2019]re| is| are| was| were)? ?(?:not|n['\u2019]t)\\b[^.!?]{1,60}[.,]\\s*(?:it|this|that|they)(?:['\u2019]s|['\u2019]re| is| are| was) (?:a|an|the|about|just|simply|really|actually|more|less|what|how|why)\\b|\\bnot because\\b[^.!?]{1,80}[.,]\\s+because\\b|\\byou don['\u2019]?t need (?:more |another |a |an )?[^.!?]{1,40}[.,]\\s+you need\\b",
+      "pattern": "\\b(?:it|this|that|they|these)(?:'s|'re| is| are| was| were)? ?(?:not|n't)\\b[^.!?]{1,60}[.,]\\s*(?:it|this|that|they)(?:'s|'re| is| are| was) (?:a|an|the|about|just|simply|really|actually|more|less|what|how|why)\\b|\\bnot because\\b[^.!?]{1,80}[.,]\\s+because\\b|\\byou don'?t need (?:more |another |a |an )?[^.!?]{1,40}[.,]\\s+you need\\b",
       "message": "\"it's not X, it's Y\" pivot, say what it is"
     },
     {
@@ -246,7 +246,7 @@
       "name": "urgency-inflation",
       "tier": "warn",
       "flags": "i",
-      "words": ["can(?:not|['\u2019]?t) be (?:overstated|understated|emphasi[sz]ed enough)", "more (?:important|critical|relevant|urgent|essential|vital) than ever", "ha(?:s|ve) never been more", "at (?:a|an) (?:crossroads|inflection point|critical juncture|pivotal moment|turning point)", "the stakes (?:have never been|are|couldn['\u2019]?t be) (?:higher|enormous|immense)"],
+      "words": ["can(?:not|'?t) be (?:overstated|understated|emphasi[sz]ed enough)", "more (?:important|critical|relevant|urgent|essential|vital) than ever", "ha(?:s|ve) never been more", "at (?:a|an) (?:crossroads|inflection point|critical juncture|pivotal moment|turning point)", "the stakes (?:have never been|are|couldn'?t be) (?:higher|enormous|immense)"],
       "message": "inflated stakes, give the reason it is urgent"
     },
     {
