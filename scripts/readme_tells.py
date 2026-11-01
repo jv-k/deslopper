@@ -1,7 +1,8 @@
-"""Render the README's tell tables from the shipped presets.
+"""Render the README's tell tables and tell counts from the shipped presets.
 
-The tables between the marker pairs below are generated, and tests/test_readme.py
-fails when either drifts from its preset. After changing a tell, run:
+The tables between the marker pairs below, and the tell counts in the highlights
+line, are generated, and tests/test_readme.py fails when any of them drifts from
+its preset. After changing a tell, run:
 
     python scripts/readme_tells.py
 
@@ -19,6 +20,16 @@ BEGIN = "<!-- tell-table:begin -->"
 END = "<!-- tell-table:end -->"
 AGGRESSIVE_BEGIN = "<!-- aggressive-table:begin -->"
 AGGRESSIVE_END = "<!-- aggressive-table:end -->"
+# The highlights line. The counts are the number of tell names in each preset.
+COUNTS_TEMPLATE = (
+    "A deterministic lint for {recommended} tells, "
+    "with an opt-in `aggressive` preset for {aggressive} more."
+)
+COUNTS_PATTERN = re.compile(
+    re.escape(COUNTS_TEMPLATE)
+    .replace(r"\{recommended\}", r"\d+")
+    .replace(r"\{aggressive\}", r"\d+")
+)
 README = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "README.md")
 
 TIER_EMOJI = {"error": "❌", "warn": "⚠️"}
@@ -88,6 +99,14 @@ AGGRESSIVE_EXAMPLES = {
 }
 
 
+def _recommended_tells():
+    return resolve({}).tells
+
+
+def _aggressive_tells():
+    return resolve({"extends": ["deslopper:aggressive"]}).tells
+
+
 def _rows(tells, examples):
     # One row per name. The entity-capable tells appear twice in the preset
     # (pre- and post-entity); the post-entity message is the prose-facing one,
@@ -123,7 +142,7 @@ def render_block() -> str:
         BEGIN,
         END,
         "❌ error, fails the run. ⚠️ warn, passes unless `--strict`.",
-        resolve({}).tells,
+        _recommended_tells(),
         EXAMPLES,
     )
 
@@ -133,23 +152,36 @@ def render_aggressive_block() -> str:
         AGGRESSIVE_BEGIN,
         AGGRESSIVE_END,
         "⚠️ warn throughout: the layer trades precision for reach, and you triage.",
-        resolve({"extends": ["deslopper:aggressive"]}).tells,
+        _aggressive_tells(),
         AGGRESSIVE_EXAMPLES,
     )
 
 
-def _substitute(text, begin, end, block) -> str:
-    pattern = re.compile(re.escape(begin) + r".*?" + re.escape(end), re.S)
+def render_counts() -> str:
+    recommended = {t.name for t in _recommended_tells()}
+    aggressive = {t.name for t in _aggressive_tells()}
+    return COUNTS_TEMPLATE.format(recommended=len(recommended), aggressive=len(aggressive))
+
+
+def _substitute(text, pattern, block, what) -> str:
     if not pattern.search(text):
-        raise SystemExit(f"no {begin} ... {end} block in README.md")
+        raise SystemExit(f"no {what} in README.md")
     return pattern.sub(lambda _: block, text)
+
+
+def _marker_pattern(begin, end):
+    return re.compile(re.escape(begin) + r".*?" + re.escape(end), re.S)
 
 
 def main() -> int:
     with open(README, encoding="utf-8") as fh:
         text = fh.read()
-    text = _substitute(text, BEGIN, END, render_block())
-    text = _substitute(text, AGGRESSIVE_BEGIN, AGGRESSIVE_END, render_aggressive_block())
+    for begin, end, block in (
+        (BEGIN, END, render_block()),
+        (AGGRESSIVE_BEGIN, AGGRESSIVE_END, render_aggressive_block()),
+    ):
+        text = _substitute(text, _marker_pattern(begin, end), block, f"{begin} ... {end} block")
+    text = _substitute(text, COUNTS_PATTERN, render_counts(), "tell-count line")
     with open(README, "w", encoding="utf-8") as fh:
         fh.write(text)
     return 0
