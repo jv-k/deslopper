@@ -516,6 +516,27 @@ WIDENED_POSITIVES = {
         "in the realm of possibility",
         "It sits in the realm of tests.",
         "the realms of possibility",
+        # Issue #97. Near the auth exemption, but no auth noun follows "of".
+        "in the realm of the possible",
+        "In the realm of AI, models win.",
+        "the realm of user experience",
+        "the realm of a myriad of options",
+        # An auth noun used as a modifier is not an auth noun.
+        "in the realm of the user experience",
+        "in the realm of the service economy",
+        "in the realm of the token economy",
+        "the realm of the client-side",
+        "in the realm of the server-side rendering",
+        "the realm of the possible application",
+        "In the realm of every application of AI",
+        # Honest krb5 prose that stays flagged. An exemption for a realm name
+        # in capitals would also pass "the realm of AI".
+        "ANL has a sub realm of TEST.",
+        "the Kerberos realms of interest",
+        # A possessive makes the auth noun a modifier, so the exemption does not apply.
+        "It sits in the realm of the user's experience.",
+        "It sits in the realm of the user’s experience.",
+        "the realm of the users' needs",
         "a myriad of options",
         "a plethora of flags",
         "the interconnectedness of parts",
@@ -658,6 +679,23 @@ WIDENED_NEGATIVES = {
         "the Kerberos realm",
         "Add the user in the realm.",
         "Each realm has its own users.",
+        # Issue #97. "Realm of" before an auth noun. The first two come from
+        # the issue. The rest come from the MIT krb5 docs, RFC 4120 and the
+        # Keycloak server admin guide.
+        "Set the realm of the client.",
+        "the realm of the token",
+        "where realm is the realm of your client",
+        "The realm-admin role can administer the realm of the user.",
+        "substituting the realm of the principal for $0",
+        "find the path between its realm and the realm of the server",
+        "the Kerberos realm of the host",
+        "A server needs a tag for each realm of the clients it will serve.",
+        "subtags for all the realms of servers it will need",
+        "Do not use untrusted servers to determine the realm of a host.",
+        "the realm of the KDC issuing the TGS ticket",
+        "if it is not the realm of the client principal",
+        "The name and realm of the delegated principal identity.",
+        "principals registered in the realm of the compromised KDC",
     ],
     "vague-attribution": [
         "Config merges several sources in order.",
