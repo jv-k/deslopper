@@ -522,6 +522,12 @@ WIDENED_POSITIVES = {
         "Some argue it scales.",
         "Several sources say it scales.",
         "Several publications say it scales.",
+        "Several sources claim it scales.",
+        "Several sources report that it scales.",
+        "Several publications suggest it scales.",
+        "Several sources note the cost.",
+        "Several sources said it scales.",
+        "Several publications reported the cost.",
     ],
     "chatbot-phrase": [
         "Would you like me to add tests?",
@@ -565,6 +571,7 @@ WIDENED_POSITIVES = {
 
 WIDENED_NEGATIVES = {
     "filler-verb": ["Navigate to the settings page."],
+    "vague-attribution": ["Config merges several sources in order."],
     "not-just-x-but-y": [
         "The cache is not only keyed by its hash.",
         "It is not just its size.",
