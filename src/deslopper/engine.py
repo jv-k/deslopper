@@ -3,7 +3,8 @@
 `scan_prose` owns the block structure: it decides which lines are prose (not front
 matter, not fenced or inline code, not MDX ESM, not inside an exempt region) and masks
 what a tell must not see. In an Astro file the first-line `---` fence is code, and
-`FenceLexer` masks all of it except the text inside its string literals. `lint_file` is then a thin runner over the prose lines.
+`FenceLexer` masks all of it except the text inside its string literals. `lint_file` is
+then a thin runner over the prose lines.
 """
 
 import re
@@ -15,7 +16,7 @@ from .smells import Smell, LintResult
 FRONT_OPEN = re.compile(r"^---\s*$")
 FRONT_CLOSE = re.compile(r"^(---|\.\.\.)\s*$")
 # Astro's code fence closes only on a bare `---`, never on the YAML `...` closer.
-ASTRO_FENCE_CLOSE = re.compile(r"^---\s*$")
+ASTRO_FENCE_CLOSE = FRONT_OPEN
 # A fence is indented at most 3 spaces (4+ is indented code, not a fence); the rest of
 # the line is the info string. `scan_prose` applies the CommonMark opener/closer rules.
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
@@ -33,9 +34,10 @@ ENABLE = re.compile(r"<!--\s*deslop-lint-enable(?![-\w])[^>]*-->")
 # not prose. Skip those lines so their punctuation is not scanned. JSX is left
 # alone: it wraps rendered prose that should still be linted.
 MDX_ESM = re.compile(r"^(import|export)\b")
-# In the Astro fence an import line is skipped, so its module specifier is never read as
-# copy. An export line is lexed like any other, because `export const` often holds copy.
-ASTRO_IMPORT = re.compile(r"^import\b")
+# In the Astro fence an import statement is skipped, so its module specifier is never read
+# as copy. `import.meta` and `import(` start expressions, so those lines are lexed. An
+# export line is lexed like any other, because `export const` often holds copy.
+ASTRO_IMPORT = re.compile(r"^import\b(?![.(])")
 
 
 class Dialect(Enum):
@@ -50,13 +52,13 @@ class Dialect(Enum):
     ASTRO = auto()
 
     @property
-    def front_matter_close(self) -> "re.Pattern":
-        """The line that closes a first-line `---` block."""
+    def first_block_close(self) -> "re.Pattern":
+        """The line that closes a first-line `---` block: front matter or an Astro fence."""
         return ASTRO_FENCE_CLOSE if self is Dialect.ASTRO else FRONT_CLOSE
 
     @property
-    def lexes_front_matter(self) -> bool:
-        """Whether the first-line `---` block is code to lex, not front matter to skip."""
+    def lexes_first_block(self) -> bool:
+        """Whether the first-line `---` block is an Astro fence to lex, not front matter."""
         return self is Dialect.ASTRO
 
     @property
@@ -167,7 +169,7 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
     are tolerated, not required.
     """
     fences = FenceTracker()
-    in_front = False
+    in_first_block = False
     lexer = None
     disabled = False
     first = True
@@ -178,13 +180,13 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
         if first:
             first = False
             if FRONT_OPEN.match(line):
-                in_front = True
-                if dialect.lexes_front_matter:
+                in_first_block = True
+                if dialect.lexes_first_block:
                     lexer = FenceLexer()
                 continue
-        if in_front:
-            if dialect.front_matter_close.match(line):
-                in_front = False
+        if in_first_block:
+            if dialect.first_block_close.match(line):
+                in_first_block = False
                 lexer = None
             elif lexer is not None and not ASTRO_IMPORT.match(line):
                 masked = lexer.feed(line)

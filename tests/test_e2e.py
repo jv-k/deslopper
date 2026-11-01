@@ -116,3 +116,8 @@ def test_astro_probe_reports_fence_literals_and_markup(tmp_path):
     assert proc.returncode == 1
     lines = sorted({f["line"] for f in json.loads(proc.stdout)["smells"]})
     assert lines == [2, 3, 7]
+    # A fence smell is an ordinary smell, so the github annotations carry it too.
+    gh = _run(["lint", "--format", "github"], str(tmp_path))
+    assert gh.returncode == 1
+    assert "file=Probe.astro,line=2," in gh.stdout
+    assert "file=Probe.astro,line=3," in gh.stdout
