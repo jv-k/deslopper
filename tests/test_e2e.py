@@ -105,3 +105,19 @@ def test_triage_without_the_key_exits_two_with_the_hint(tmp_path):
     assert proc.stdout == ""
     assert "AI_GATEWAY_API_KEY" in proc.stderr
     assert len(proc.stderr.splitlines()) == 1
+
+
+def test_astro_probe_reports_fence_literals_and_markup(tmp_path):
+    # The fixture from issue #29: the config opts in to .astro, and the fence literals on
+    # lines 2 and 3 are linted beside the markup on line 7.
+    for name in ("deslopper.config.json", "Probe.astro"):
+        shutil.copy(os.path.join(FIXTURES, "astro", name), tmp_path / name)
+    proc = _run(["lint", "--format", "json"], str(tmp_path))
+    assert proc.returncode == 1
+    lines = sorted({f["line"] for f in json.loads(proc.stdout)["smells"]})
+    assert lines == [2, 3, 7]
+    # A fence smell is an ordinary smell, so the github annotations carry it too.
+    gh = _run(["lint", "--format", "github"], str(tmp_path))
+    assert gh.returncode == 1
+    assert "file=Probe.astro,line=2," in gh.stdout
+    assert "file=Probe.astro,line=3," in gh.stdout
