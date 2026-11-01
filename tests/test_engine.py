@@ -306,6 +306,24 @@ def test_astro_import_line_skipped_and_export_const_scanned(tmp_path):
     assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(3, 20, "semicolon")]
 
 
+def test_astro_import_meta_and_dynamic_import_lines_are_scanned(tmp_path):
+    # Only an import statement is skipped. `import.meta` and `import(` start expressions
+    # whose literals are copy like any other.
+    text = ("---\n"
+            "import.meta.env.X ?? 'a; b';\n"
+            "import('./a;b').then(() => 'c; d');\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == \
+        [(2, 24, "semicolon"), (3, 12, "semicolon"), (3, 30, "semicolon")]
+
+
+def test_astro_warn_tier_tell_fires_on_a_fence_literal(tmp_path):
+    p = tmp_path / "Page.astro"
+    p.write_text("---\nconst T = 'a; b';\n---\n", encoding="utf-8")
+    smells = lint_files([("Page.astro", str(p))], [compile_tell(SEMI)]).smells
+    assert [(f.line, f.tier) for f in smells] == [(2, "warn")]
+
+
 def test_astro_fence_closes_on_dashes_not_dots(tmp_path):
     text = ("---\n"
             "const A = 'a; b';\n"
@@ -332,7 +350,7 @@ def test_astro_both_entity_phases_apply_to_fence_literals(tmp_path):
     assert lint_astro(tmp_path, text, tells) == [(2, 14, "em-dash"), (2, 24, "em-dash")]
 
 
-def test_astro_fence_lines_skip_inline_code_masking(tmp_path):
+def test_astro_fence_lines_get_no_inline_code_masking(tmp_path):
     text = "---\nconst T = 'a `x;` b';\n---\n"
     assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 16, "semicolon")]
 
