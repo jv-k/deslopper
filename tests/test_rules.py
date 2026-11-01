@@ -533,6 +533,10 @@ WIDENED_POSITIVES = {
         # in capitals would also pass "the realm of AI".
         "ANL has a sub realm of TEST.",
         "the Kerberos realms of interest",
+        # A possessive makes the auth noun a modifier, so the exemption does not apply.
+        "It sits in the realm of the user's experience.",
+        "It sits in the realm of the user’s experience.",
+        "the realm of the users' needs",
         "a myriad of options",
         "a plethora of flags",
         "the interconnectedness of parts",
