@@ -80,7 +80,7 @@ class Result:
 
     def __post_init__(self):
         # Frozen, so the derived field is set past the dataclass's own guard.
-        object.__setattr__(self, "cost", _parse_cost(self.market_cost))
+        object.__setattr__(self, "cost", parse_cost(self.market_cost))
 
     @property
     def total_tokens(self) -> Optional[int]:
@@ -110,8 +110,9 @@ class Result:
         )
 
 
-def _parse_cost(raw) -> Optional[Decimal]:
-    """The gateway's cost string as a Decimal, or None when it is missing or garbage.
+def parse_cost(raw) -> Optional[Decimal]:
+    """A cost as a Decimal, or None when it is missing or garbage. Reads the gateway's
+    `marketCost` here and a cached cost in triage.
 
     Through `str` so an exponent form such as `6.6E-5` parses the same as the
     plain one, and a number sent unquoted keeps its printed digits.
