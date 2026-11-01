@@ -145,6 +145,15 @@ def test_tokens_and_cost_are_summed_across_requests(monkeypatch):
     assert (judged.result.keep, judged.result.rewrite) == (2, 0)
 
 
+def test_a_zero_cost_keeps_the_digits_the_gateway_sent(monkeypatch):
+    canned_jev(monkeypatch, [("keep", 0.9)], tokens=(10, 1), cost="0.000000")
+    result = LintResult(smells=[_smell("a.md", 1, 1, "semicolon")])
+
+    judged = triage.run(result, {"a.md": "a; b\n"})
+
+    assert f"{judged.cost:f}" == "0.000000"
+
+
 def test_a_reply_without_usage_or_cost_still_counts_the_verdicts(monkeypatch):
     def post(body):
         return {"answers": {key: {"type": "choice", "choice": "rewrite",
