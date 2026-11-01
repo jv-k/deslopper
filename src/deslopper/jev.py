@@ -8,6 +8,7 @@ import time, so `deslopper lint` stays network-free on a machine with no key.
 
 import json
 import os
+import threading
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
@@ -18,9 +19,11 @@ ENDPOINT = "https://ai-gateway.vercel.sh/v1/evaluate"
 MODEL = "typesafe-ai/jev"
 KEY_VAR = "AI_GATEWAY_API_KEY"
 
-# One bounded wait per request and no retries: a consumer runs once per
-# invocation and reports a failed batch rather than looping on it. urllib
-# applies it to each socket operation, so it caps a stall, not a slow drip.
+# The wall-clock deadline for one whole request: connect, send, and the read of
+# the full reply. `evaluate` enforces it by joining the worker thread that runs
+# `post`, so a gateway that drips bytes slowly cannot hold a run past it. urllib
+# also applies it to each socket operation. No retries: a consumer runs once per
+# invocation and reports a failed batch rather than looping on it.
 TIMEOUT_SECONDS = 10
 
 # Jev's window is 32k tokens. This is what a consumer batches `state` against.
@@ -234,4 +237,31 @@ def evaluate(state: str, questions: dict) -> Result:
     if not questions:
         raise ValueError("questions is empty; build at least one with boolean, choice, or score")
     require_key()
-    return Result.from_reply(post({"model": MODEL, "state": state, "questions": questions}))
+    body = {"model": MODEL, "state": state, "questions": questions}
+    return Result.from_reply(_within_deadline(body))
+
+
+def _within_deadline(body: dict) -> dict:
+    """`post(body)`, or JevError once TIMEOUT_SECONDS of wall-clock time pass.
+
+    urlopen's timeout bounds each socket operation, not the request, so `post`
+    runs in a worker thread joined against the deadline. The worker is a daemon:
+    on expiry it is abandoned, not stopped, and cannot keep the process alive.
+    Whatever `post` raises reaches the caller unchanged.
+    """
+    outcome = {}
+
+    def work():
+        try:
+            outcome["reply"] = post(body)
+        except BaseException as err:  # handed to the caller's thread below
+            outcome["error"] = err
+
+    worker = threading.Thread(target=work, name="jev-post", daemon=True)
+    worker.start()
+    worker.join(TIMEOUT_SECONDS)
+    if worker.is_alive():
+        raise JevError(f"the gateway request timed out after {TIMEOUT_SECONDS} seconds")
+    if "error" in outcome:
+        raise outcome["error"]
+    return outcome["reply"]
