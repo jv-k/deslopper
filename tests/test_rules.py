@@ -521,6 +521,18 @@ WIDENED_POSITIVES = {
         "In the realm of AI, models win.",
         "the realm of user experience",
         "the realm of a myriad of options",
+        # An auth noun used as a modifier is not an auth noun.
+        "in the realm of the user experience",
+        "in the realm of the service economy",
+        "in the realm of the token economy",
+        "the realm of the client-side",
+        "in the realm of the server-side rendering",
+        "the realm of the possible application",
+        "In the realm of every application of AI",
+        # Honest krb5 prose that stays flagged. An exemption for a realm name
+        # in capitals would also pass "the realm of AI".
+        "ANL has a sub realm of TEST.",
+        "the Kerberos realms of interest",
         "a myriad of options",
         "a plethora of flags",
         "the interconnectedness of parts",
@@ -663,8 +675,9 @@ WIDENED_NEGATIVES = {
         "the Kerberos realm",
         "Add the user in the realm.",
         "Each realm has its own users.",
-        # Issue #97. "Realm of" before an auth noun, from the MIT krb5 docs,
-        # RFC 4120 and the Keycloak server admin guide.
+        # Issue #97. "Realm of" before an auth noun. The first two come from
+        # the issue. The rest come from the MIT krb5 docs, RFC 4120 and the
+        # Keycloak server admin guide.
         "Set the realm of the client.",
         "the realm of the token",
         "where realm is the realm of your client",
