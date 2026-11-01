@@ -321,6 +321,28 @@ def test_plainness_shows_only_the_after_score_when_the_baseline_failed(tmp_path,
     assert "ℹ plainness mean: 0.81 | 400 tokens, $0.000066" in captured.out
 
 
+def test_plainness_skips_a_pass_over_the_state_budget(tmp_path, capsys, monkeypatch):
+    calls = _scoring_transport(monkeypatch, [BEFORE, AFTER])
+    monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", 10)
+    code = run_eval(_fake_command(tmp_path, "clean"), plainness=True)
+    captured = capsys.readouterr()
+    assert code == 0
+    assert calls == []
+    # Every judge error line starts `plainness (<pass>):`, so this filter sees
+    # all of them: one skip line per pass and no other.
+    skipped = [l for l in captured.err.splitlines() if "plainness" in l]
+    assert skipped == [
+        "✖ plainness (baseline): fixtures exceed the Jev state budget, skipped",
+        "✖ plainness (after): fixtures exceed the Jev state budget, skipped",
+    ]
+    assert captured.out.splitlines()[-4:] == [
+        "ℹ plainness overview.md: unscored",
+        "ℹ plainness reference.md: unscored",
+        "ℹ plainness template.md: unscored",
+        "ℹ plainness mean: unscored",
+    ]
+
+
 def _deleting_command(tmp_path, name):
     script = tmp_path / "delete_one.py"
     script.write_text(
