@@ -163,18 +163,33 @@ def test_attended_check_draws_the_view_and_exits_zero(tmp_path, capsys, gum_shim
     assert '{{ Bold "check" }}' in out
 
 
-def test_attended_jev_spins_per_file_and_rates_each_place(tmp_path, capsys, gum_shim, monkeypatch):
+def test_attended_jev_spins_per_request_and_rates_each_place(tmp_path, capsys, gum_shim, monkeypatch):
     canned_jev(monkeypatch, [("keep", 0.93), ("rewrite", 0.62), ("keep", 0.8)])
     spins = _record_spins(monkeypatch)
     write(tmp_path, "a.md", "a — dash\nc; d\n")
     write(tmp_path, "b.md", "e; f\n")
     _, out, err = run(["lint", "--jev", "a.md", "b.md"], str(tmp_path), capsys)
-    assert spins == ["(1/2) Asking Jev about 2 findings in a.md",
-                     "(2/2) Asking Jev about 1 finding in b.md"]
+    # Both files fit in one request, so one spinner names how many files it holds.
+    assert spins == ["(1/1) Asking Jev about 3 findings in 2 files"]
     assert '{{ " 0.93 " }}{{ Faint "keep" }}' in out
     assert '"keep" }}\t{{ "2" }}' in out
-    assert '"this run" }}\t{{ "3" }}\t{{ "3,154" }}\t{{ "$0.00013" }}' in out
+    assert '"this run" }}\t{{ "3" }}\t{{ "1,577" }}\t{{ "$0.000066" }}' in out
     assert err == ""
+
+
+def test_attended_jev_names_the_file_when_a_request_holds_one(tmp_path, capsys, gum_shim,
+                                                              monkeypatch):
+    from deslopper import jev
+
+    canned_jev(monkeypatch, [("keep", 0.93)])
+    monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", 1)
+    spins = _record_spins(monkeypatch)
+    write(tmp_path, "a.md", "a — dash\nc; d\n")
+    write(tmp_path, "b.md", "e; f\n")
+    run(["lint", "--jev", "a.md", "b.md"], str(tmp_path), capsys)
+    assert spins == ["(1/3) Asking Jev about 1 finding in a.md",
+                     "(2/3) Asking Jev about 1 finding in a.md",
+                     "(3/3) Asking Jev about 1 finding in b.md"]
 
 
 def test_attended_rules_draw_one_gum_view(tmp_path, capsys, gum_shim):
