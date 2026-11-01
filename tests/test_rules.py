@@ -486,6 +486,11 @@ WIDENED_POSITIVES = {
         "It orchestrates everything.",
         "It orchestrates collaboration.",
         "It orchestrates the entire transformation.",
+        # Issue #99: the -ed and -ing forms, same abstract-object lookahead.
+        "It orchestrated the transformation.",
+        "We orchestrated a seamless experience.",
+        "orchestrating a seamless experience",
+        "It is orchestrating your entire journey.",
         "It transcends the old design.",
         "This enhances the output.",
         "It helps you navigate the complexities of config.",
@@ -604,6 +609,11 @@ WIDENED_NEGATIVES = {
         "It orchestrates the build success check.",
         "It orchestrates the payment journey service.",
         "The platform orchestrates your entire workflow.",
+        # Issue #99: the -ed and -ing forms before a concrete object.
+        "Kubernetes orchestrated the rollout of the containers.",
+        "It orchestrated the jobs.",
+        "It is orchestrating the build steps.",
+        "orchestrating deployments across regions",
     ],
     # Issue #74. "Realm" as the authentication term, not the inflated word.
     "inflated-word": [
