@@ -706,6 +706,34 @@ def test_widened_tell_leaves_honest_prose_alone(preset, name, text):
     assert not offsets(_preset_tell(name, preset), text), f"{name} false positive: {text!r}"
 
 
+# Issue #101. The recommended negation-pivot takes only a full stop or a comma
+# between the clauses (issue #62). The aggressive layer takes the colon and the
+# semicolon. The two CPython 3.9 docs lines are honest prose, and they are the
+# known cost of opting in to aggressive.
+NEGATION_PIVOT_JOINED_POSITIVES = [
+    "It's not a bug; it's a feature.",
+    "It's not a bug: it's a feature.",
+    "This isn't about speed; it's about trust.",
+    "This is not a bug: it's a result of the fact that most decimal fractions",
+    "That is not a future statement; it's an ordinary import statement with no",
+    "Not because it is slow; because it is wrong.",
+    "You don't need more tests: you need better ones.",
+    # The second clause takes every subject and verb the first one does.
+    "They were not wrong; they were just early.",
+    "These are not bugs; these are the features.",
+]
+
+NEGATION_PIVOT_JOINED_NEGATIVES = [
+    # A full stop or a comma is the recommended tell's form, so this one stays quiet.
+    "It's not a bug. It's a feature.",
+    "This isn't about speed, it's about trust.",
+    # A colon or a semicolon that leads into something other than the pivot.
+    "It is not set by default; the env sets it.",
+    "This is not supported: see the docs.",
+    "It is not a bug. Note: it's a feature.",
+]
+
+
 # The tells from issues #60 and #61 whose patterns hold an apostrophe. Each takes a
 # curly one as well as a straight one (issue #63), so the tell still names the slop
 # when curly-quote is turned off.
@@ -721,6 +749,7 @@ CURLY_APOSTROPHE_TELLS = [
     ("recommended", "mic-drop"),
     ("recommended", "negation-pivot"),
     ("aggressive", "cutoff-disclaimer"),
+    ("aggressive", "negation-pivot-joined"),
 ]
 
 APOSTROPHE_CLASS = "['’]"
@@ -741,6 +770,7 @@ def _curly_cases():
         ("recommended", SURVEY_TELL_POSITIVES),
         ("recommended", WIDENED_POSITIVES),
         ("aggressive", AGGRESSIVE_WIDENED_POSITIVES),
+        ("aggressive", {"negation-pivot-joined": NEGATION_PIVOT_JOINED_POSITIVES}),
     )
     wanted = set(CURLY_APOSTROPHE_TELLS)
     return [
@@ -1044,31 +1074,6 @@ def test_arrow_stays_out_of_the_recommended_emoji_tell():
         assert not offsets(compile_tell(raw), "Settings → General")
 
 
-# Issue #101. The recommended negation-pivot takes only a full stop or a comma
-# between the clauses (issue #62). The aggressive layer takes the colon and the
-# semicolon. The two CPython 3.9 docs lines are honest prose, and they are the
-# known cost of opting in to aggressive.
-NEGATION_PIVOT_JOINED_POSITIVES = [
-    "It's not a bug; it's a feature.",
-    "It's not a bug: it's a feature.",
-    "This isn't about speed; it's about trust.",
-    "This is not a bug: it's a result of the fact that most decimal fractions",
-    "That is not a future statement; it's an ordinary import statement with no",
-    "Not because it is slow; because it is wrong.",
-    "You don't need more tests: you need better ones.",
-]
-
-NEGATION_PIVOT_JOINED_NEGATIVES = [
-    # A full stop or a comma is the recommended tell's form, so this one stays quiet.
-    "It's not a bug. It's a feature.",
-    "This isn't about speed, it's about trust.",
-    # A colon or a semicolon that leads into something other than the pivot.
-    "It is not set by default; the env sets it.",
-    "This is not supported: see the docs.",
-    "It is not a bug. Note: it's a feature.",
-]
-
-
 @pytest.mark.parametrize("text", NEGATION_PIVOT_JOINED_POSITIVES)
 def test_negation_pivot_joined_flags_a_colon_or_semicolon_pivot(text):
     tell = _preset_tell("negation-pivot-joined", "aggressive")
@@ -1081,18 +1086,21 @@ def test_negation_pivot_joined_leaves_other_lines_alone(text):
     assert not offsets(tell, text), f"false positive: {text!r}"
 
 
-@pytest.mark.parametrize("text", [t for t in NEGATION_PIVOT_JOINED_POSITIVES if "'" in t])
-def test_negation_pivot_joined_flags_the_curly_apostrophe_form(text):
-    tell = _preset_tell("negation-pivot-joined", "aggressive")
-    curly = text.replace("'", "’")
-    assert offsets(tell, curly) == offsets(tell, text)
+@pytest.mark.parametrize("text", NEGATION_PIVOT_JOINED_POSITIVES)
+def test_recommended_negation_pivot_leaves_the_joined_form_to_aggressive(text):
+    # The two tells split the cases, so a line never smells twice for one pivot.
+    assert not offsets(_preset_tell("negation-pivot"), text), f"recommended flags: {text!r}"
 
 
-def test_negation_pivot_joined_is_warn_tier_and_named_apart_from_recommended():
+def test_negation_pivot_joined_is_warn_tier_and_case_insensitive():
     raw = _preset_tell_json("negation-pivot-joined", "aggressive")
     assert raw["tier"] == "warn"
     assert raw["flags"] == "i"
-    source = raw["pattern"]
-    assert "'" not in source.replace(APOSTROPHE_CLASS, "")
+
+
+def test_no_aggressive_tell_shares_a_name_with_a_recommended_tell():
+    # Stricter than the (name, phase) rule in test_config: a shared name at a
+    # different phase would still make two tells read as one in the output.
     recommended = {t["name"] for t in load_builtin("recommended")["tells"]}
-    assert "negation-pivot-joined" not in recommended
+    aggressive = {t["name"] for t in load_builtin("aggressive")["tells"]}
+    assert not recommended & aggressive
