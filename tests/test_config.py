@@ -176,3 +176,8 @@ def test_unknown_builtin_preset_in_extends_is_error(tmp_path):
     write_config(tmp_path, {"extends": ["deslopper:nope"]})
     with pytest.raises(ConfigError):
         load_config(None, str(tmp_path))
+
+
+def test_default_include_holds_only_markdown_and_mdx_globs():
+    # Astro is opt-in: a run with no config never lints .astro files.
+    assert DEFAULT_INCLUDE == ["**/*.md", "**/*.markdown", "**/*.mdx"]
