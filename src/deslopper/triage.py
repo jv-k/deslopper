@@ -121,8 +121,12 @@ def _recall(cache, key, smell):
     tokens = entry.get("tokens")
     if isinstance(tokens, bool) or not isinstance(tokens, int) or tokens < 0:
         tokens = 0
-    cost = jev.parse_cost(entry.get("cost")) or Decimal(0)
-    return hit, tokens, cost if cost.is_finite() and cost >= 0 else Decimal(0)
+    # One guard, not `or Decimal(0)`: a zero is falsy, and `or` would drop the places
+    # of a cached "0.000000000" that the report prints.
+    cost = jev.parse_cost(entry.get("cost"))
+    if cost is None or not cost.is_finite() or cost < 0:
+        cost = Decimal(0)
+    return hit, tokens, cost
 
 
 def _shares(tokens: int, cost: Decimal, count: int) -> list:

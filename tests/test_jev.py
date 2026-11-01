@@ -212,7 +212,8 @@ def test_total_tokens_adds_input_and_output_and_is_none_when_both_are_missing(
     assert jev.evaluate("some state", QUESTIONS).total_tokens == expected
 
 
-@pytest.mark.parametrize(
+# Raw costs and what each parses to, shared by the parser and the Result built on it.
+COSTS = pytest.mark.parametrize(
     "raw, expected",
     [
         ("0.000066", Decimal("0.000066")),
@@ -223,6 +224,9 @@ def test_total_tokens_adds_input_and_output_and_is_none_when_both_are_missing(
     ],
     ids=["plain", "exponent-form", "unquoted-number", "missing", "garbage"],
 )
+
+
+@COSTS
 def test_cost_is_the_market_cost_parsed_once_as_a_decimal(raw, expected, monkeypatch):
     monkeypatch.setattr(jev, "post", _canned(_envelope(cost=raw)))
 
@@ -233,18 +237,8 @@ def test_cost_is_the_market_cost_parsed_once_as_a_decimal(raw, expected, monkeyp
     assert result.market_cost == raw
 
 
-@pytest.mark.parametrize(
-    "raw, expected",
-    [
-        ("0.000066", Decimal("0.000066")),
-        ("6.6E-5", Decimal("0.000066")),
-        (6.6e-05, Decimal("0.000066")),
-        (None, None),
-        ("not a number", None),
-    ],
-    ids=["plain", "exponent-form", "unquoted-number", "missing", "garbage"],
-)
-def test_parse_cost_is_public_and_reads_a_cost_as_a_decimal_or_none(raw, expected):
+@COSTS
+def test_parse_cost_reads_a_cost_as_a_decimal_or_none(raw, expected):
     assert jev.parse_cost(raw) == expected
 
 

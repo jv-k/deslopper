@@ -458,13 +458,15 @@ def test_a_cached_answer_counts_its_share_of_the_request_as_saved(monkeypatch, t
         ("0.000066", Decimal("0.000066")),
         ("6.6E-5", Decimal("0.000066")),
         (6.6e-05, Decimal("0.000066")),
+        # What `run` caches for a request that cost nothing: the zero keeps its places.
+        ("0.000000000", Decimal("0.000000000")),
         (None, Decimal(0)),
         ("not a number", Decimal(0)),
         ("-0.5", Decimal(0)),
         ("NaN", Decimal(0)),
         ("Infinity", Decimal(0)),
     ],
-    ids=["plain", "exponent-form", "unquoted-number", "missing", "garbage",
+    ids=["plain", "exponent-form", "unquoted-number", "zero", "missing", "garbage",
          "negative", "nan", "infinity"],
 )
 def test_a_cached_cost_reads_as_its_decimal_or_zero(cost, saved, monkeypatch, tmp_path):
@@ -477,7 +479,8 @@ def test_a_cached_cost_reads_as_its_decimal_or_zero(cost, saved, monkeypatch, tm
     judged = triage.run(LintResult(smells=[smell]), {"a.md": "a; b\n"}, cache=store)
 
     assert calls == []
-    assert judged.saved_cost == saved
+    # Compared as printed, since the report prints the saved cost with `:f`.
+    assert f"{judged.saved_cost:f}" == f"{saved:f}"
     assert isinstance(judged.saved_cost, Decimal)
 
 
