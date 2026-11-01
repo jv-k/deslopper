@@ -27,7 +27,7 @@ notes. It never changes the result of the lint.
 
 ## Highlights
 
-- A deterministic lint for 30 tells, with an opt-in `aggressive` preset for 11 more.
+- A deterministic lint for 38 tells, with an opt-in `aggressive` preset for 17 more.
 - Jev triage: `deslopper lint --jev` gives each finding a `keep` or `rewrite` verdict and
   a probability. A file with findings costs one request, at a fraction of a cent, and a
   disk cache skips the findings that did not change.

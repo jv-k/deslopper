@@ -56,8 +56,8 @@ files: delete `tests/fixtures/comprehensive.*.golden` and run the golden test on
 the new tell's slop into the eval fixtures in `src/deslopper/data/eval/` as well, since the
 suite asserts every recommended tell fires there. Give the tell an example in the
 `EXAMPLES` table of `scripts/readme_tells.py` and rerun that script to regenerate the
-README table, since a test asserts the example fires the tell. Open a PR with the tell,
-the updated goldens, and the fixture changes.
+README table and its tell counts, since a test asserts the example fires the tell. Open
+a PR with the tell, the updated goldens, and the fixture changes.
 
 ## Add a preset
 
