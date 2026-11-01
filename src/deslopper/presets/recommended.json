@@ -148,7 +148,7 @@
       "name": "vague-attribution",
       "tier": "warn",
       "flags": "i",
-      "words": ["experts (?:believe|say|suggest|agree)", "industry reports? suggests?", "some (?:critics|observers|analysts) argue", "many believe", "studies show", "research suggests", "it is widely believed", "observers have (?:cited|noted)", "some argue", "several (?:sources|publications) (?:say|said|claim(?:ed)?|report(?:ed)?|suggest(?:ed)?|noted?)"],
+      "words": ["experts (?:(?:have|has) (?:believed|said|suggested|agreed|claimed|reported|noted)|believed?|say|said|suggest(?:ed)?|agreed?|claim(?:ed)?|report(?:ed)?|noted?)", "industry reports? suggests?", "some (?:critics|observers|analysts) argue", "many believe", "studies show", "research suggests", "it is widely believed", "observers have (?:cited|noted)", "some argue", "several (?:sources|publications) (?:(?:have|has) (?:believed|said|suggested|agreed|claimed|reported|noted)|believed?|say|said|suggest(?:ed)?|agreed?|claim(?:ed)?|report(?:ed)?|noted?)", "according to several (?:sources|publications)"],
       "message": "vague attribution, name the source or cut"
     },
     {
