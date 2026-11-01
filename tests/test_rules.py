@@ -1122,9 +1122,8 @@ def test_no_aggressive_tell_shares_a_name_with_a_recommended_tell():
     assert not recommended & aggressive
 
 
-# The survey tells whose patterns hold an apostrophe: those from issues #60 and #61
-# (issue #63), and those from #77, #80 and #81 (issue #90). Each takes a curly one as
-# well as a straight one, so the tell still names the slop when curly-quote is turned off.
+# The survey tells whose patterns hold an apostrophe. Each takes a curly one as well as
+# a straight one, so the tell still names the slop when curly-quote is turned off.
 CURLY_APOSTROPHE_TELLS = [
     ("recommended", "not-just-x-but-y"),
     ("recommended", "throat-clearing"),
