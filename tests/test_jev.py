@@ -10,6 +10,8 @@ import json
 import os
 import subprocess
 import sys
+import threading
+import time
 import urllib.error
 import urllib.request
 from decimal import Decimal
@@ -269,6 +271,40 @@ def test_empty_state_or_questions_raises_before_any_call(monkeypatch, state, que
         jev.evaluate(state, questions)
 
     assert post.calls == []
+
+
+def test_a_request_past_the_deadline_raises_jev_error_saying_it_timed_out(monkeypatch):
+    """urlopen's timeout bounds each socket read, so a slow drip could run past it.
+    The deadline bounds the whole call to post, here a fake that stalls past the deadline."""
+    release = threading.Event()
+
+    def stalled_post(body):
+        release.wait(5)
+        return PROBE_RESPONSE
+
+    monkeypatch.setattr(jev, "post", stalled_post)
+    monkeypatch.setattr(jev, "TIMEOUT_SECONDS", 0.05)
+    started = time.monotonic()
+    try:
+        with pytest.raises(jev.JevError) as excinfo:
+            jev.evaluate("some state", QUESTIONS)
+    finally:
+        release.set()
+
+    assert "timed out" in str(excinfo.value)
+    assert time.monotonic() - started < 2
+
+
+def test_an_error_inside_post_reaches_the_caller_unchanged(monkeypatch):
+    def failing_post(body):
+        raise jev.JevError("gateway returned 500: boom")
+
+    monkeypatch.setattr(jev, "post", failing_post)
+
+    with pytest.raises(jev.JevError) as excinfo:
+        jev.evaluate("some state", QUESTIONS)
+
+    assert str(excinfo.value) == "gateway returned 500: boom"
 
 
 class _SpyEnviron(dict):
