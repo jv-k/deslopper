@@ -62,7 +62,27 @@ def test_leading_bracket_in_a_class_is_a_literal():
     assert offsets(t, "ab") == []
 
 
-def test_widening_leaves_a_quote_after_an_escaped_backslash_bare():
+@pytest.mark.parametrize("text,want", [
+    ("a'b", [0]), ("a’b", [0]), ("a-b", [0]), ("akb", [0]), ("a{b", []),
+])
+def test_apostrophe_opening_a_class_range_keeps_the_range(text, want):
+    # ['-z] is a range from ' to z. The curly form must not land inside the range.
+    assert offsets(_regex(r"a['-z]b"), text) == want
+
+
+def test_widened_class_still_works_in_a_lookbehind():
+    t = _regex(r"(?<![\w'])x")
+    assert offsets(t, "’x") == []
+    assert offsets(t, " x") == [1]
+
+
+def test_invalid_pattern_error_names_the_pattern_as_written():
+    with pytest.raises(ConfigError) as err:
+        _regex("it's(")
+    assert "position 4" in str(err.value)
+
+
+def test_widening_treats_a_quote_after_an_escaped_backslash_as_bare():
     t = _regex(r"a\\'b")
     assert offsets(t, "a\\’b") == [0]
 
@@ -1228,7 +1248,11 @@ APOSTROPHE_TELLS = sorted(
 
 @pytest.mark.parametrize("preset,name,source", _preset_sources())
 def test_preset_pattern_does_not_spell_out_the_curly_apostrophe(preset, name, source):
-    assert "’" not in source and "'\\u2019" not in source, (
+    # Any spelling of U+2019 next to a straight apostrophe spells the pair out by hand:
+    # ['’], [’'], (?:'|’), or the same with an escape. A pattern with no straight
+    # apostrophe, like curly-quote's, may name U+2019 on purpose.
+    spellings = ("’", "\\u2019", "\\U00002019", "\\N{RIGHT SINGLE QUOTATION MARK}")
+    assert "'" not in source or not any(s in source for s in spellings), (
         f"{preset} {name} spells out the curly apostrophe; write a bare ' instead"
     )
 
