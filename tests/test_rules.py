@@ -50,8 +50,12 @@ def _preset_tell(name, preset="recommended"):
     Loaded through the same loader the app uses, rather than hand-copied, so these
     regress if the preset does and survive a layout change.
     """
-    raw = load_builtin(preset)
-    return compile_tell(next(t for t in raw["tells"] if t["name"] == name))
+    return compile_tell(_preset_tell_json(name, preset))
+
+
+def _preset_tell_json(name, preset="recommended"):
+    """A shipped tell as its uncompiled preset entry, for checks on the pattern text."""
+    return next(t for t in load_builtin(preset)["tells"] if t["name"] == name)
 
 
 @pytest.mark.parametrize("text,col", [
@@ -644,13 +648,9 @@ CURLY_APOSTROPHE_TELLS = [
 APOSTROPHE_CLASS = "['’]"
 
 
-def _raw_tell(name, preset):
-    return next(t for t in load_builtin(preset)["tells"] if t["name"] == name)
-
-
 @pytest.mark.parametrize("preset,name", CURLY_APOSTROPHE_TELLS)
 def test_survey_tell_has_no_straight_only_apostrophe(preset, name):
-    raw = _raw_tell(name, preset)
+    raw = _preset_tell_json(name, preset)
     source = raw.get("pattern") or "|".join(raw["words"])
     assert "'" in source, f"{name} has no apostrophe, so it does not belong in the list"
     assert "'" not in source.replace(APOSTROPHE_CLASS, ""), (
