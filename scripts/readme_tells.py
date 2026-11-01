@@ -1,7 +1,8 @@
-"""Render the README's tell tables from the shipped presets.
+"""Render the README's tell tables and tell counts from the shipped presets.
 
-The tables between the marker pairs below are generated, and tests/test_readme.py
-fails when either drifts from its preset. After changing a tell, run:
+The tables between the marker pairs below, and the tell counts in the highlights
+line, are generated, and tests/test_readme.py fails when any of them drifts from
+its preset. After changing a tell, run:
 
     python scripts/readme_tells.py
 
@@ -19,6 +20,14 @@ BEGIN = "<!-- tell-table:begin -->"
 END = "<!-- tell-table:end -->"
 AGGRESSIVE_BEGIN = "<!-- aggressive-table:begin -->"
 AGGRESSIVE_END = "<!-- aggressive-table:end -->"
+# The highlights line. The counts are the number of tell names in each preset.
+COUNTS = (
+    "A deterministic lint for {recommended} tells, "
+    "with an opt-in `aggressive` preset for {aggressive} more."
+)
+COUNTS_PATTERN = re.compile(
+    re.escape(COUNTS).replace(r"\{recommended\}", r"\d+").replace(r"\{aggressive\}", r"\d+")
+)
 README = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "README.md")
 
 TIER_EMOJI = {"error": "❌", "warn": "⚠️"}
@@ -138,6 +147,12 @@ def render_aggressive_block() -> str:
     )
 
 
+def render_counts() -> str:
+    recommended = {t.name for t in resolve({}).tells}
+    aggressive = {t.name for t in resolve({"extends": ["deslopper:aggressive"]}).tells}
+    return COUNTS.format(recommended=len(recommended), aggressive=len(aggressive))
+
+
 def _substitute(text, begin, end, block) -> str:
     pattern = re.compile(re.escape(begin) + r".*?" + re.escape(end), re.S)
     if not pattern.search(text):
@@ -150,6 +165,9 @@ def main() -> int:
         text = fh.read()
     text = _substitute(text, BEGIN, END, render_block())
     text = _substitute(text, AGGRESSIVE_BEGIN, AGGRESSIVE_END, render_aggressive_block())
+    if not COUNTS_PATTERN.search(text):
+        raise SystemExit("no tell-count line in README.md")
+    text = COUNTS_PATTERN.sub(lambda _: render_counts(), text)
     with open(README, "w", encoding="utf-8") as fh:
         fh.write(text)
     return 0

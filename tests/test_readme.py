@@ -20,6 +20,20 @@ def test_readme_tell_table_matches_recommended_preset():
     assert _renderer().render_block() in readme
 
 
+def test_readme_tell_counts_match_the_presets():
+    # The highlights line counts each preset's tells by name. It is generated
+    # with the tables, so adding a tell needs no hand edit to a count.
+    from deslopper.config import resolve
+    recommended = {t.name for t in resolve({}).tells}
+    aggressive = {t.name for t in resolve({"extends": ["deslopper:aggressive"]}).tells}
+    line = _renderer().render_counts()
+    assert f" {len(recommended)} tells" in line
+    assert f" {len(aggressive)} more" in line
+    with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as fh:
+        readme = fh.read()
+    assert line in readme
+
+
 def test_tell_table_shape():
     block = _renderer().render_block()
     assert "❌ error" in block and "⚠️ warn" in block   # legend above the table
