@@ -53,7 +53,7 @@ def test_every_example_fires_exactly_its_tell(tmp_path):
     for name, example in examples.items():
         p = tmp_path / "doc.md"
         p.write_text(example + "\n", encoding="utf-8")
-        found = {f.name for f in lint_files([("doc.md", str(p))], tells).findings}
+        found = {f.name for f in lint_files([("doc.md", str(p))], tells).smells}
         assert name in found, f"example for {name!r} does not fire it: {example!r}"
 
 
@@ -74,7 +74,7 @@ def test_every_aggressive_example_fires_its_tell(tmp_path):
     for name, example in examples.items():
         p = tmp_path / "doc.md"
         p.write_text(example + "\n", encoding="utf-8")
-        found = {f.name for f in lint_files([("doc.md", str(p))], tells).findings}
+        found = {f.name for f in lint_files([("doc.md", str(p))], tells).smells}
         assert name in found, f"example for {name!r} does not fire it: {example!r}"
 
 

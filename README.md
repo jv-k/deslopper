@@ -14,7 +14,7 @@
 Slop is the set of habits that make text read as machine-written: the em-dash aside, the
 filler verb, the marketing adjective, the `not just X but Y` padding. deslopper finds slop
 in Markdown with plain patterns. It uses no model and no network, so a run is free, fast,
-and gives the same findings for the same input. That makes it safe to use as a gate in CI
+and gives the same smells for the same input. That makes it safe to use as a gate in CI
 and pre-commit, where an LLM check would cost a call each run and could change its answer.
 
 deslopper does one narrow job. It does not check spelling, grammar, house style, or
@@ -22,15 +22,15 @@ readability. Tools such as [Vale](https://vale.sh) and proselint do that, and de
 runs next to them.
 
 For the judgement calls that a pattern cannot make, `--jev` asks the
-[Jev](docs/jev.md) decision model whether to keep or rewrite each finding. Jev only adds
+[Jev](docs/jev.md) decision model whether to keep or rewrite each smell. Jev only adds
 notes. It never changes the result of the lint.
 
 ## Highlights
 
 - A deterministic lint for 38 tells, with an opt-in `aggressive` preset for 17 more.
-- Jev triage: `deslopper lint --jev` gives each finding a `keep` or `rewrite` verdict and
-  a probability. A file with findings costs one request, at a fraction of a cent, and a
-  disk cache skips the findings that did not change.
+- Jev triage: `deslopper lint --jev` gives each smell a `keep` or `rewrite` verdict and
+  a probability. A file with smells costs one request, at a fraction of a cent, and a
+  disk cache skips the smells that did not change.
 - An eval for your rewrite pass: `deslopper eval` checks that a model rewrite removes the
   tells and keeps your code, headings, tables, and links.
 - A skill for coding agents, so the agent writes within the tells and lints its own work.
@@ -47,7 +47,7 @@ notes. It never changes the result of the lint.
 - [Configure](#configure)
 - [Fix slop with an LLM](#fix-slop-with-an-llm)
 - [Agent skill](#agent-skill)
-- [Triage findings with Jev](#triage-findings-with-jev)
+- [Triage smells with Jev](#triage-smells-with-jev)
 - [Commands](#commands)
 - [Contributing](#contributing)
 
@@ -96,10 +96,10 @@ notes. It never changes the result of the lint.
 
    This view needs [gum](https://github.com/charmbracelet/gum), a tool from Charm that
    draws styled output in a terminal. Without gum, and whenever the output is piped,
-   deslopper prints one `path:line:col [tier] tell: message` line per finding. See
+   deslopper prints one `path:line:col [tier] tell: message` line per smell. See
    [Output formats](docs/output.md).
 
-3. Fix the findings and run the lint again. An error fails the run. A warning only
+3. Fix the smells and run the lint again. An error fails the run. A warning only
    reports, unless you add `--strict`. To let an LLM do the fixing, see
    [Fix slop with an LLM](#fix-slop-with-an-llm).
 
@@ -169,13 +169,13 @@ each sample fires its tell. To see the tells for your own config, run `deslopper
 
 ### Tiers and exit codes
 
-An error fails the run. A warn prints the finding but passes the run. Add `--strict` to
+An error fails the run. A warn prints the smell but passes the run. Add `--strict` to
 make warnings fail too.
 
 | Exit code | Meaning |
 | --- | --- |
-| 0 | No failing finding |
-| 1 | A failing finding, or a file deslopper could not read |
+| 0 | No failing smell |
+| 1 | A failing smell, or a file deslopper could not read |
 | 2 | A usage or configuration error |
 
 ### The `aggressive` preset
@@ -279,10 +279,10 @@ jobs:
       - run: uvx --from git+https://github.com/jv-k/deslopper@v1.8.0 deslopper lint --format github
 ```
 
-The `github` format writes each finding as an annotation on the pull request.
+The `github` format writes each smell as an annotation on the pull request.
 
 If the repo has prose from before you added deslopper, lint only the files that the pull
-request changes. Then the old findings do not block every change:
+request changes. Then the old smells do not block every change:
 
 ```yaml
 - uses: actions/checkout@v4
@@ -348,9 +348,9 @@ See [Configure deslopper](docs/configure.md) for every key and the fields of a t
 deslopper finds slop, and an LLM can fix it. deslopper never calls an LLM itself, so you
 bring your own. The loop is always the same:
 
-1. deslopper lints the files and lists the findings.
-2. The LLM rewrites the text at each finding, and changes nothing else.
-3. deslopper lints again. The loop ends when no error-tier finding is left.
+1. deslopper lints the files and lists the smells.
+2. The LLM rewrites the text at each smell, and changes nothing else.
+3. deslopper lints again. The loop ends when no error-tier smell is left.
 
 The lint is the judge in this loop, not the LLM. So the loop ends on a fact, and the LLM
 cannot declare the job done too early.
@@ -369,16 +369,16 @@ Any LLM that can read and edit files works. This example runs Claude Code withou
 session, and allows it to run the lint and edit files only:
 
 ```sh
-claude -p "Run 'deslopper lint --format json docs/'. Fix each finding in place. \
+claude -p "Run 'deslopper lint --format json docs/'. Fix each smell in place. \
 Keep code, headings, tables, and links exactly as they are. \
 Run the lint again, and repeat until it exits 0." \
   --allowedTools "Bash(deslopper lint:*)" Read Edit
 ```
 
-Each finding carries a short fix hint in its `message`, such as "use a plain verb or cut".
+Each smell carries a short fix hint in its `message`, such as "use a plain verb or cut".
 The LLM can follow the hint without a long prompt. On a large backlog,
-[ask Jev first](docs/jev.md#send-only-the-findings-that-need-a-rewrite), so that the LLM
-rewrites only the findings that need it.
+[ask Jev first](docs/jev.md#send-only-the-smells-that-need-a-rewrite), so that the LLM
+rewrites only the smells that need it.
 
 ### Check the rewrite with `deslopper eval`
 
@@ -414,20 +414,20 @@ you ask the agent to de-slop existing text. The agent then does these steps:
    presets.
 2. It writes within those tells.
 3. Before it finishes, it lints the files it touched.
-4. It fixes every error-tier finding and lints again, until no error-tier finding is left.
-5. It fixes a warn-tier finding only when the rewrite is clearly better. It reports the
-   other warn-tier findings to you.
+4. It fixes every error-tier smell and lints again, until no error-tier smell is left.
+5. It fixes a warn-tier smell only when the rewrite is clearly better. It reports the
+   other warn-tier smells to you.
 
-## Triage findings with Jev
+## Triage smells with Jev
 
 A regex cannot tell a decorative em dash from one inside a quoted title. So on a repo with
-real prose, the warn tier fills up with findings that a careful editor would keep.
+real prose, the warn tier fills up with smells that a careful editor would keep.
 
-`deslopper lint --jev` sends each finding, with the lines around it, to
+`deslopper lint --jev` sends each smell, with the lines around it, to
 [Jev](https://vercel.com/ai-gateway/models/jev) (`typesafe-ai/jev`) through the
 [Vercel AI Gateway](https://vercel.com/docs/ai-gateway). Jev is a decision model, not a
-text generator. It answers one question for each finding: rewrite it, or keep it? Each
-finding comes back with a verdict and a probability:
+text generator. It answers one question for each smell: rewrite it, or keep it? Each
+smell comes back with a verdict and a probability:
 
 ```sh
 export AI_GATEWAY_API_KEY=...
@@ -442,17 +442,17 @@ deslopper lint --jev
 ```
 
 Triage never changes the exit code, so a `keep` verdict cannot make a lint pass. A disk
-cache keeps each verdict, so a later run asks Jev only about new or changed findings.
+cache keeps each verdict, so a later run asks Jev only about new or changed smells.
 `--jev` is a command-line flag only, so no repo can turn on network calls for everyone who
 lints it.
 
-See [Triage findings with Jev](docs/jev.md) for the output, the cache, and the limits.
+See [Triage smells with Jev](docs/jev.md) for the output, the cache, and the limits.
 
 ## Commands
 
 ```text
 deslopper lint  [PATHS...] [--strict] [--config P] [--format text|github|json] [--jev] [--no-cache]
-deslopper check [PATHS...] [--config P]   # report only, exits 0 on findings
+deslopper check [PATHS...] [--config P]   # report only, exits 0 on smells
 deslopper rules [--config P]              # list the active tells
 deslopper init                            # write a starter config
 deslopper eval 'COMMAND' [--keep] [--plainness]   # judge a rewrite command

@@ -1,5 +1,5 @@
 {
-  "findings": [
+  "smells": [
     {
       "path": "comprehensive.md",
       "line": 6,

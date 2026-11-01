@@ -39,7 +39,7 @@ def test_raw_fixtures_trip_every_tell(tmp_path):
     expected = {t.name for t in resolve({}).tells}
     seed_sandbox(str(tmp_path))
     result = _lint_dir(str(tmp_path))
-    names = {f.name for f in result.findings}
+    names = {f.name for f in result.smells}
     assert expected <= names, f"missing tells: {sorted(expected - names)}"
     assert result.errors >= 1
 
@@ -51,7 +51,7 @@ def test_raw_fixtures_trip_every_aggressive_tell(tmp_path):
     seed_sandbox(str(tmp_path))
     names = sorted(n for n in os.listdir(str(tmp_path)) if n.endswith(".md"))
     items = [(n, os.path.join(str(tmp_path), n)) for n in names]
-    fired = {f.name for f in lint_files(items, cfg.tells).findings}
+    fired = {f.name for f in lint_files(items, cfg.tells).smells}
     assert expected <= fired, f"missing tells: {sorted(expected - fired)}"
 
 
@@ -267,13 +267,13 @@ def test_plainness_scores_each_fixture_before_and_after(tmp_path, capsys, monkey
             assert name in body["state"]
 
 
-def test_plainness_lines_come_after_the_findings_and_preservation_lines(tmp_path, capsys, monkeypatch):
+def test_plainness_lines_come_after_the_smells_and_preservation_lines(tmp_path, capsys, monkeypatch):
     _scoring_transport(monkeypatch, [BEFORE, BEFORE])
     assert run_eval("true", plainness=True) == 1
     lines = capsys.readouterr().out.splitlines()
-    last_finding = max(i for i, l in enumerate(lines) if "[warn]" in l or "[error]" in l)
+    last_smell = max(i for i, l in enumerate(lines) if "[warn]" in l or "[error]" in l)
     first_score = next(i for i, l in enumerate(lines) if "plainness " in l)
-    assert last_finding < first_score
+    assert last_smell < first_score
 
     _scoring_transport(monkeypatch, [BEFORE, AFTER])
     assert run_eval(_fake_command(tmp_path, "mangle"), plainness=True) == 3

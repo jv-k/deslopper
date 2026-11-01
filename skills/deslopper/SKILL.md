@@ -37,19 +37,19 @@ path:
     deslopper lint docs/guide.md README.md
 
 Never run a lint without explicit paths, whichever runner you use: a bare lint sweeps
-every configured glob in the repo and drags pre-existing findings into your diff.
+every configured glob in the repo and drags pre-existing smells into your diff.
 
-Handle the findings by tier:
+Handle the smells by tier:
 
-1. Fix every error-tier finding, then re-run until the error tier is clean. For an
+1. Fix every error-tier smell, then re-run until the error tier is clean. For an
    intentional example that must contain a tell, wrap it in `<!-- deslop-lint-disable -->`
    and `<!-- deslop-lint-enable -->`, or put `<!-- deslop-lint-disable-line -->` on the
    offending line.
-2. Fix a warn-tier finding only when the rewrite is clearly better. Otherwise leave the
-   text as it is and mention the finding to the user.
+2. Fix a warn-tier smell only when the rewrite is clearly better. Otherwise leave the
+   text as it is and mention the smell to the user.
 
-Findings that predate your edit in a file you touched count as yours: the file is already
+Smells that predate your edit in a file you touched count as yours: the file is already
 in the diff, so fix them by the same tier policy. If that suggests the repo carries a wider
 backlog, offer a repo-wide sweep and wait for the user to ask for it. When the backlog is
-large, offer `deslopper lint --jev <paths>` to sort each finding into keep or rewrite
+large, offer `deslopper lint --jev <paths>` to sort each smell into keep or rewrite
 before rewriting anything, since it needs `AI_GATEWAY_API_KEY` and spends tokens.

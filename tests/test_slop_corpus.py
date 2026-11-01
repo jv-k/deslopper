@@ -35,19 +35,19 @@ PROSE_TELLS = {
 }
 
 
-def _findings(fixtures_dir):
+def _smells(fixtures_dir):
     cfg, _ = load_config(None, fixtures_dir)
     path = os.path.join(fixtures_dir, "ai_slop.md")
-    return lint_files([("ai_slop.md", path)], cfg.tells).findings
+    return lint_files([("ai_slop.md", path)], cfg.tells).smells
 
 
 def test_every_prose_tell_fires_on_ai_slop(fixtures_dir):
-    fired = {f.name for f in _findings(fixtures_dir)}
+    fired = {f.name for f in _smells(fixtures_dir)}
     missing = PROSE_TELLS - fired
     assert not missing, f"these prose tells failed to flag known slop: {sorted(missing)}"
 
 
 def test_slop_corpus_reports_an_error_and_many_warnings(fixtures_dir):
-    counts = collections.Counter(f.tier for f in _findings(fixtures_dir))
+    counts = collections.Counter(f.tier for f in _smells(fixtures_dir))
     assert counts["error"] >= 1
     assert counts["warn"] >= 20

@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased (2.0.0)
+
+This is a major release. The `json` payload renames its top-level key, which breaks any
+script or model that reads it.
+
+- deslopper now calls one place where a tell matched a smell, the word the glossary in
+  `CONTEXT.md` uses. The output, the help text, and the docs say smell instead of finding.
+  The `--jev` spinner reads `Asking Jev about N smells`, and the summary table's first row
+  is `smells`.
+- The `json` format's `findings` key is now `smells`. The array holds the same objects
+  with the same fields. `output.schema.json` requires `smells` in place of `findings`.
+- The lines a `deslop-lint-disable` or `deslop-lint-disable-line` comment takes out of the
+  scan are now called an exempt region and an exempt line. The comments are unchanged.
+- Jev's prompt is unchanged, so a verdict cached before this release is still used.
+
+### Migrate from 1.x
+
+Read `smells` where you read `findings`. For example, change
+`jq '.findings[]'` to `jq '.smells[]'`, and `payload["findings"]` to `payload["smells"]`.
+Nothing else in the payload moved.
+
 ## 1.7.2
 
 - The README is shorter. It leads with the tells, install, and the CI and pre-commit
