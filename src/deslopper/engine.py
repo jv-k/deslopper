@@ -30,6 +30,11 @@ ENTITY = re.compile(r"&#?[0-9a-zA-Z]+;")
 DISABLE_LINE = re.compile(r"<!--\s*deslop-lint-disable-line(?![-\w])[^>]*-->")
 DISABLE = re.compile(r"<!--\s*deslop-lint-disable(?![-\w])[^>]*-->")
 ENABLE = re.compile(r"<!--\s*deslop-lint-enable(?![-\w])[^>]*-->")
+# In the Astro fence the same words are read from the text of a JS comment, which must
+# start with the directive. The lookaheads reject an unknown suffix as above.
+JS_DISABLE_LINE = re.compile(r"^\s*deslop-lint-disable-line(?![-\w])")
+JS_DISABLE = re.compile(r"^\s*deslop-lint-disable(?![-\w])")
+JS_ENABLE = re.compile(r"^\s*deslop-lint-enable(?![-\w])")
 # In .mdx, a top-level line that starts with import/export is an ESM statement,
 # not prose. Skip those lines so their punctuation is not scanned. JSX is left
 # alone: it wraps rendered prose that should still be linted.
@@ -238,8 +243,9 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
     Skips front matter, fenced code, MDX ESM statements, and exempt regions, and masks
     inline code and HTML entities. The dialect says which of those rules apply. In an
     Astro fence each line is lexed instead: its string literals stay and the code around
-    them is masked, then HTML entities are masked as for prose. Line endings on the input
-    are tolerated, not required.
+    them is masked, then HTML entities are masked as for prose. Fence directives are read
+    from its JS comments, and an exempt region opened there ends at the fence close. Line
+    endings on the input are tolerated, not required.
     """
     fences = FenceTracker()
     in_first_block = False
@@ -261,11 +267,23 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
             if dialect.first_block_close.match(line):
                 in_first_block = False
                 lexer = None
+                # A region opened in the fence ends with it, so a missed enable does not
+                # exempt the markup.
+                disabled = False
             elif lexer is not None:
                 # An import line is lexed too, so a comment it opens still carries.
                 is_import = lexer.at_top_level and ASTRO_IMPORT.match(line)
-                masked, _comments = lexer.feed(line)
-                if not is_import:
+                masked, comments = lexer.feed(line)
+                # As in prose, a directive takes its own line out of the scan.
+                if any(JS_DISABLE_LINE.match(c) for c in comments):
+                    continue
+                if any(JS_DISABLE.match(c) for c in comments):
+                    disabled = True
+                    continue
+                if any(JS_ENABLE.match(c) for c in comments):
+                    disabled = False
+                    continue
+                if not is_import and not disabled:
                     yield ProseLine(ln, masked, ENTITY.sub(_blank, masked))
             continue
 

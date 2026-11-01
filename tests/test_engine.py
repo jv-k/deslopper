@@ -1,4 +1,4 @@
-from deslopper.engine import Dialect, FenceLexer, dialect_for, lint_files, scan_prose
+from deslopper.engine import Dialect, dialect_for, lint_files, scan_prose
 from deslopper.rules import compile_tell
 
 
@@ -426,21 +426,6 @@ def test_astro_typescript_annotation_masked_and_literal_type_scanned(tmp_path):
     assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 46, "semicolon")]
 
 
-def test_fence_lexer_reports_comment_text_by_line():
-    # The scanner reads directives from comments, so the lexer hands back each comment's
-    # text on the line, delimiters stripped, beside the masked line.
-    # This asserts on feed's output, not lexer state, since no smell observes it yet.
-    lexer = FenceLexer()
-    fed = [lexer.feed(line) for line in (
-        "const A = 1; // deslop-lint-disable-line",
-        "/* one */ const B = 'x'; /* two",
-        "   three */",
-        "const C = '// not a comment';",
-    )]
-    assert [comments for _, comments in fed] == [
-        [" deslop-lint-disable-line"], [" one ", " two"], ["   three "], []]
-
-
 def test_astro_block_comment_opened_on_an_import_line_still_masks(tmp_path):
     # The import line is skipped, but the comment it opens still runs to its closer.
     text = ("---\n"
@@ -504,3 +489,63 @@ def test_astro_template_line_starting_with_import_is_scanned(tmp_path):
     # A line inside a template literal is text, even when it starts with `import`.
     text = "---\nconst T = `a\nimport; this too`;\n---\n"
     assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(3, 7, "semicolon")]
+
+
+# In the fence the exemption directives are written as JS comments, with the same exact
+# words as the HTML-comment forms. A region opened in the fence ends at the fence close.
+
+def test_astro_line_comment_disable_line_exempts_its_line(tmp_path):
+    text = ("---\n"
+            "const A = 'a; b'; // deslop-lint-disable-line\n"
+            "const B = 'c; d';\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(3, 13, "semicolon")]
+
+
+def test_astro_block_comment_region_exempts_until_enable(tmp_path):
+    text = ("---\n"
+            "/* deslop-lint-disable */\n"
+            "const A = 'a; b';\n"
+            "const B = `c — d`;\n"
+            "/* deslop-lint-enable */\n"
+            "const C = 'e; f';\n"
+            "---\n")
+    tells = [compile_tell(SEMI), compile_tell(EM_LITERAL)]
+    assert lint_astro(tmp_path, text, tells) == [(6, 13, "semicolon")]
+
+
+def test_astro_region_left_open_ends_at_the_fence_close(tmp_path):
+    text = ("---\n"
+            "/* deslop-lint-disable */\n"
+            "const A = 'a; b';\n"
+            "---\n"
+            "<p>c; d</p>\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(5, 5, "semicolon")]
+
+
+def test_astro_directive_with_unknown_suffix_exempts_nothing(tmp_path):
+    text = ("---\n"
+            "const A = 'a; b'; // deslop-lint-disable-line-foo\n"
+            "/* deslop-lint-disable-next-line */\n"
+            "const B = 'c; d';\n"
+            "/* deslop-lint-enabled */\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == \
+        [(2, 13, "semicolon"), (4, 13, "semicolon")]
+
+
+def test_astro_directive_word_inside_a_literal_is_not_a_directive(tmp_path):
+    text = "---\nconst A = 'a; // deslop-lint-disable-line';\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 13, "semicolon")]
+
+
+def test_astro_html_directives_in_markup_after_the_fence_still_exempt(tmp_path):
+    text = ("---\n"
+            "const A = 1; // deslop-lint-disable-line\n"
+            "---\n"
+            "<p>a; b</p> <!-- deslop-lint-disable-line -->\n"
+            "<!-- deslop-lint-disable -->\n"
+            "<p>c; d</p>\n"
+            "<!-- deslop-lint-enable -->\n"
+            "<p>e; f</p>\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(8, 5, "semicolon")]
