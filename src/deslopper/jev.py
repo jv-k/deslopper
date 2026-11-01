@@ -29,8 +29,8 @@ TIMEOUT_SECONDS = 10
 # A consumer packs one request under both budgets below. Characters, not tokens:
 # the client does not count tokens. Measured against the live gateway (see
 # "Request limits" in docs/jev.md), Jev refuses a request whose input passes
-# 65,536 tokens, state and questions together, or whose state alone passes about
-# 32,500. The model's output does not count toward either.
+# about 65,536 tokens, state and questions together, or whose state alone passes
+# about 32,900. The model's output does not count toward either.
 #
 # The state. Markdown with punctuation and line prefixes runs about three
 # characters a token, so 64k characters is roughly 21k to 23k tokens.
@@ -38,7 +38,7 @@ STATE_CHAR_BUDGET = 64_000
 
 # The questions, as the JSON `post` sends. A triage question runs about 3.7
 # characters a token, so 110k characters is about 30k tokens. That fits beside
-# any state the gateway accepts on its own, with about 2,500 tokens spare.
+# the largest state the gateway accepted, with about 2,600 tokens spare.
 QUESTION_CHAR_BUDGET = 110_000
 
 

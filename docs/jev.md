@@ -129,18 +129,19 @@ beside it.
 
 | What the probe measured | Result |
 | --- | --- |
-| Largest input Jev accepts, state and questions together | 65,536 tokens: 415 short smells passed at 65,533, 418 failed |
-| Largest state Jev accepts with one question | about 32,500 tokens: 142,183 characters of prose passed, 142,964 failed |
+| Largest input Jev accepts, state and questions together | 415 short smells passed at 65,533 tokens and 418 failed, so the cap is most likely 65,536 (2^16) |
+| Largest state Jev accepts with one question | 142,183 characters of prose passed at 32,883 input tokens, and 142,964 failed |
 | Characters per token, triage questions | 3.66 |
 | Characters per token, short smell blocks | 2.83 |
 | Characters per token, plain prose | 4.4 |
 | Output tokens per question | about 31, not counted toward either limit |
 
-A refused request fails with `max_tokens_exceeded`. Under the state limit alone, 600 short
-smells packed 478 questions into the first request, past the 415 that fit.
+Each refused request failed with status 400 and the reason `max_tokens_exceeded`. The probe
+also packed short smells under the state limit alone, as triage did before this limit. The
+first request held 378 questions and 63,933 characters of state, and Jev refused it.
 
-The question limit is about 30,000 tokens. That fits beside any state Jev accepts on its
-own, with about 2,500 tokens spare. In the same probe, two requests filled both limits
+The question limit is about 30,000 tokens. Beside the largest state Jev accepted, 32,883
+tokens, that leaves about 2,600 tokens of the 65,536 spare. In the same probe, two requests filled both limits
 together:
 
 | Request | Smells | State | Questions | Input tokens |
@@ -150,7 +151,7 @@ together:
 | Lines of one repeated letter that fill the state | 247 | 63,863 | 105,886 | 60,616 |
 
 The repeated letter is the densest state the probe found, and it still leaves about 4,900
-tokens spare. A full request came back in about 1.2 seconds, well inside the 10-second
+tokens spare. Each full request came back in under 1.5 seconds, well inside the 10-second
 deadline.
 
 ## Send only the smells that need a rewrite
