@@ -501,6 +501,10 @@ WIDENED_POSITIVES = {
     ],
     "inflated-word": [
         "the realm of tests",
+        # Issue #74. The slop forms stay caught once bare "realm" is exempt.
+        "in the realm of possibility",
+        "It sits in the realm of tests.",
+        "the realms of possibility",
         "a myriad of options",
         "a plethora of flags",
         "the interconnectedness of parts",
@@ -594,6 +598,13 @@ WIDENED_NEGATIVES = {
         "It orchestrates the build success check.",
         "It orchestrates the payment journey service.",
         "The platform orchestrates your entire workflow.",
+    ],
+    # Issue #74. "Realm" as the authentication term, not the inflated word.
+    "inflated-word": [
+        "Create a Keycloak realm.",
+        "the Kerberos realm",
+        "Add the user in the realm.",
+        "Each realm has its own users.",
     ],
     "vague-attribution": ["Config merges several sources in order."],
     "not-just-x-but-y": [
