@@ -14,6 +14,10 @@ script or model that reads it.
 - The lines a `deslop-lint-disable` or `deslop-lint-disable-line` comment takes out of the
   scan are now called an exempt region and an exempt line. The comments are unchanged.
 - Jev's prompt is unchanged, so a verdict cached before this release is still used.
+- `--jev` now counts the questions as well as the state when it packs smells into one
+  request. A run of many short smells used to pack more questions than Jev accepts, and
+  the request failed. The question limit comes from real requests, recorded in
+  `docs/jev.md` under Request limits.
 
 ### Migrate from 1.x
 
