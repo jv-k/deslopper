@@ -38,10 +38,12 @@ With no paths, deslopper lints the files that match `files.include` and not
 `files.exclude`. The default globs pick Markdown and MDX files. In a git work tree it finds
 them with `git ls-files`. Outside a work tree it walks the file system.
 
-Astro files are opt-in. To lint them, add `**/*.astro` to `files.include`.
-
 A folder path, such as `docs/`, lints the same files that a bare run would lint inside
 that folder. A file path lints that file as given, even when the config excludes it.
+
+Astro files are opt-in for a bare run and a folder path. To lint them, add `**/*.astro`
+to `files.include`. Keep the default globs in the list too, because `files.include`
+replaces the defaults and does not add to them.
 
 ## The fields of a tell
 
@@ -63,8 +65,8 @@ as the entity and literal forms of `em-dash` do. To target one of them, write
 
 ## What the tells skip
 
-Before the tells scan a file, deslopper masks fenced code, inline code, and HTML entities.
-It skips the front matter of a Markdown or MDX file. No tell fires inside them.
+Before the tells scan a file, deslopper skips fenced code and the front matter of a Markdown
+or MDX file. It masks inline code and HTML entities. No tell fires inside them.
 
 To keep an intentional example in prose, exempt it with an HTML comment. Put this on the
 line to skip:
@@ -83,11 +85,11 @@ To skip a block, wrap it:
 
 ## Astro files
 
-In an `.astro` file, the `---` fence at the top is code, not front matter. deslopper scans
+In an `.astro` file, the `---` fence that opens on the first line is code, not front matter. deslopper scans
 the string literals in the fence as prose. These are the quoted strings and the text of
 template literals. It masks the code around them, the `${...}` interpolations, and the
 `//` and `/* */` comments. It skips the `import` lines. The markup after the fence is
-linted as prose, as before.
+linted as prose.
 
 In the fence, write the exemptions as JavaScript comments with the same words. Put a line
 comment on the line to skip:
@@ -104,7 +106,8 @@ const examples = ['one', 'two'];
 /* deslop-lint-enable */
 ```
 
-A region that you open in the fence ends at the fence close. In the markup after the
+Either comment style takes either directive. A region that you open in the fence ends at
+the fence close. In the markup after the
 fence, use the HTML-comment forms.
 
 ## Write a preset
