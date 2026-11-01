@@ -277,7 +277,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v8.2.0
-      - run: uvx --from git+https://github.com/jv-k/deslopper@v2.0.0 deslopper lint --format github
+      - run: uvx --from git+https://github.com/jv-k/deslopper@v2.1.0 deslopper lint --format github
 ```
 
 The `github` format writes each smell as an annotation on the pull request.
@@ -293,7 +293,7 @@ request changes. Then the old smells do not block every change:
 - run: |
     files=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- '*.md' '*.markdown' '*.mdx')
     [ -z "$files" ] && exit 0
-    uvx --from git+https://github.com/jv-k/deslopper@v2.0.0 deslopper lint --format github $files
+    uvx --from git+https://github.com/jv-k/deslopper@v2.1.0 deslopper lint --format github $files
 ```
 
 ## Use it in pre-commit
