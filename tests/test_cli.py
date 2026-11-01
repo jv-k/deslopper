@@ -187,6 +187,8 @@ def test_triage_gateway_failure_prints_one_line_and_keeps_the_scan_exit_code(tmp
                             for k in body["questions"]}}
 
     monkeypatch.setattr(jev, "post", post)
+    # One request per file, so the second file's request is the one that fails.
+    monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", 1)
     write(tmp_path, "a.md", "c; d\n")
     write(tmp_path, "b.md", "e; f\n")
     code, out, err = run(["lint", "--jev", "a.md", "b.md"], str(tmp_path), capsys)
@@ -235,6 +237,8 @@ def test_json_with_jev_carries_the_totals_and_errors_in_the_payload(tmp_path, ca
                 "providerMetadata": {"gateway": {"marketCost": "0.000012"}}}
 
     monkeypatch.setattr(jev, "post", post)
+    # One request per file, so the second file's request is the one that fails.
+    monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", 1)
     write(tmp_path, "a.md", "c; d\n")
     write(tmp_path, "b.md", "e; f\n")
     code, out, err = run(["lint", "--jev", "--format", "json", "a.md", "b.md"], str(tmp_path), capsys)

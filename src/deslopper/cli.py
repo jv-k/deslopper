@@ -86,9 +86,9 @@ def _lint_command(args):
     return cfg, result, items
 
 
-def _jev_spinner(path, count, index, total):
+def _jev_spinner(where, count, index, total):
     noun = "finding" if count == 1 else "findings"
-    return gum.spin(f"({index}/{total}) Asking Jev about {count} {noun} in {path}")
+    return gum.spin(f"({index}/{total}) Asking Jev about {count} {noun} in {where}")
 
 
 def _view(result, sources, items, strict, command, judged=None) -> bool:
