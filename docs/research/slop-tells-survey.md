@@ -253,6 +253,9 @@ corrective framing at about 12 times the human rate in GPT-6 Astra.
   flagged the human sentence `It is not set by default. It is read from the env.` With the
   list, Django hits: 0.
 - Tier: warn. Consider folding it into `not-just-x-but-y` under one name.
+- Since #62 the shipped regex ends the first clause with `[.,]` only, not `[.,;:]`. Two
+  CPython 3.9 docs lines joined the clauses with a colon or a semicolon and were honest. See
+  `docs/qa/noisy-tell-forms-62/README.md`.
 - Sources: Wikipedia "Not X, but Y", tropes.fyi "Negative Parallelism", slop-guard
   `setup_resolution.py` (two regexes this draft is based on), stop-slop "Binary Contrasts",
   tbhb/vale-ai-tells `ContrastiveFormulas.yml`, Ruben Hassid ("You don't need more X. You

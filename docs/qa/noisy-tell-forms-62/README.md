@@ -24,19 +24,25 @@ It prints the line hits for each tell and for each top-level branch of its patte
 
 ## Results before the change
 
-| Tell | Form the issue names | Django hits | CPython hits |
-| --- | --- | --- | --- |
-| `hidden-truth` | `the hard costs of hosting` | 0 | 0 |
-| `mic-drop` | a bare `It works.` line | 0 | 0 |
-| `negation-pivot` | `This is not a drill, this is a test.` | 0 | 2 |
+The counts are lines, per corpus. The named-form columns count the branch that holds the form
+the issue names. The whole-tell columns count every branch.
+
+| Tell | Form the issue names | Named form, Django | Named form, CPython | Whole tell, Django | Whole tell, CPython |
+| --- | --- | --- | --- | --- | --- |
+| `hidden-truth` | `the hard costs of hosting` | 0 | 0 | 0 | 0 |
+| `mic-drop` | a bare `It works.` line | 0 | 0 | 0 | 1 |
+| `negation-pivot` | `This is not a drill, this is a test.` | 0 | 2 | 0 | 2 |
+
+The `hidden-truth` pattern is one branch, so its two counts are the same.
 
 <!-- deslop-lint-disable -->
-The whole `hidden-truth` and `mic-drop` patterns hit 0 and 1 lines. The one `mic-drop` hit is
-on a branch the issue does not name, so it is out of scope here:
+The one `mic-drop` hit is on a set-phrase branch that the issue does not name, so it is out
+of scope here:
 
     howto/clinic.rst:1707: (That's the whole point!)
 
-The two `negation-pivot` hits are honest. Each one leads into an explanation with a colon or a
+The two `negation-pivot` hits are on the branch that holds the named form, but neither is the
+named form itself. Both are honest, and each one leads into an explanation with a colon or a
 semicolon:
 
     library/functions.rst:1471: This is not a bug: it's a result of the fact that most decimal fractions
@@ -52,6 +58,10 @@ corpus, and no `hard cost` or `hard costs` at all.
   a colon or a semicolon. The examples from the survey still match, and both CPython lines no
   longer do. After the change the tell has 0 hits in both corpora.
   `tests/test_rules.py` pins the two CPython lines as honest prose.
+  The cost is reach: a pivot joined by a colon or a semicolon, such as
+  `It's not a bug; it's a feature.`, no longer fires. Moving that form to `aggressive`
+  instead would need a new tell name, since `aggressive` may not share a name with a
+  `recommended` tell, and new tells are out of scope for #62.
 - `hidden-truth` stays as it is. The corpora have no hits, so there is no evidence that it is
   noisy. The issue's `the hard costs of hosting` still matches.
 - `mic-drop` stays as it is, for the same reason. A bare `It works.` line still matches.
