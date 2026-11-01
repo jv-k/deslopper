@@ -30,8 +30,7 @@ One place where a tell matched, reported at a path, line, and column. A smell is
 instance. The tell is the definition behind it. A smell has the tier of its tell, so there
 are error smells and warn smells. Triage can judge a smell worth keeping, and it is still a
 smell.
-_Avoid_: finding, warning, match. The code and output still say finding for now. Warning
-collides with the `warn` tier.
+_Avoid_: finding, warning, match. Warning collides with the `warn` tier.
 
 ## A tell's shape
 

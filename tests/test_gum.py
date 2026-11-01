@@ -97,14 +97,14 @@ def test_render_keeps_template_syntax_in_the_text_literal(gum_shim):
 def test_spin_runs_a_spinner_for_the_block_and_stops_it(gum_shim):
     import time
 
-    with gum.spin("Asking Jev about 2 findings in a.md"):
+    with gum.spin("Asking Jev about 2 smells in a.md"):
         # The spinner is a separate process; wait for it to start, as real work would.
         deadline = time.monotonic() + 5
         while not gum_shim() and time.monotonic() < deadline:
             time.sleep(0.02)
     args = gum_shim()[0]["args"]
     assert args[0] == "spin"
-    assert args[args.index("--title") + 1] == "Asking Jev about 2 findings in a.md"
+    assert args[args.index("--title") + 1] == "Asking Jev about 2 smells in a.md"
 
 
 def test_spin_leaves_no_process_behind(gum_shim):

@@ -4,7 +4,7 @@ deslopper's plain output is a contract. Editors and scripts read the
 `path:line:col [tier] tell: message` lines, CI reads the `github` annotations, models read
 the `json` payload, and golden files pin the text. The terminal view had grown its own
 styling in `ui.py` and `report.py`: hand-written escapes, a colour gate, and a second
-layout of the same findings.
+layout of the same smells.
 
 We draw the terminal view with [gum](https://github.com/charmbracelet/gum) instead, the
 same way the engineering-playbook's ship scripts do (its ADR 0006). The rules:
@@ -31,7 +31,7 @@ same way the engineering-playbook's ship scripts do (its ADR 0006). The rules:
 We picked this over keeping the hand-written styling, and over a fallback that draws the
 same view without gum. Either keeps two renderers of one output that drift apart.
 
-We tried `gum table` for the findings first and dropped it. A table needs a wide
+We tried `gum table` for the smells first and dropped it. A table needs a wide
 terminal, breaks in a narrow one, and has no room for the rating bar. We then compared
 several list layouts as screenshots, and chose the one that groups by tell: a section per
 file, each tell once with its fix, then every place it fired, with the line, the caught
@@ -48,6 +48,6 @@ has a marker line on each side, and the rows stay in their place. Without gum, t
 is the same box in plain text.
 
 The costs: each gum call starts a process, about 20 ms, so a view makes one call for all
-its lines, never one per finding. `gum spin` wraps a command, so a
+its lines, never one per smell. `gum spin` wraps a command, so a
 spinner around Python work wraps a command that waits, and that command must end when gum
 does, or it outlives deslopper and holds the terminal or a pipe open.

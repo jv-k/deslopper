@@ -1,7 +1,7 @@
 """The tier taxonomy: the closed set of tell severities and how each one behaves.
 
 A tier is `error` or `warn` and nothing else. This module owns what that means — the
-github annotation level and whether a finding of that tier fails a lint — so the
+github annotation level and whether a smell of that tier fails a lint — so the
 formatter, the exit-code rule, and the compiler read one table instead of each
 hardcoding the tier names.
 """
@@ -22,5 +22,5 @@ def github_level(tier: str) -> str:
 
 
 def is_failing(tier: str, strict: bool) -> bool:
-    """Whether a finding of this tier fails the lint, given the strict flag."""
+    """Whether a smell of this tier fails the lint, given the strict flag."""
     return strict or tier not in _STRICT_ONLY

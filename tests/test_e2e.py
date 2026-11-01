@@ -55,7 +55,7 @@ def test_json_output_is_parseable(tmp_path):
 def test_every_tell_fires_across_the_corpus(tmp_path):
     cwd = _stage(tmp_path, "ai_slop.md", "ai_slop_entities.md")
     proc = _run(["lint", "--format", "json", "ai_slop.md", "ai_slop_entities.md"], cwd)
-    names = {f["name"] for f in json.loads(proc.stdout)["findings"]}
+    names = {f["name"] for f in json.loads(proc.stdout)["smells"]}
     expected = {
         "em-dash",
         "middle-dot",
@@ -94,7 +94,7 @@ def test_module_entrypoint_runs():
 
 def test_triage_without_the_key_exits_two_with_the_hint(tmp_path):
     """The real process, with the key scrubbed from the environment: exit 2, one
-    hint line naming the variable, and no findings on stdout."""
+    hint line naming the variable, and no smells on stdout."""
     cwd = _stage(tmp_path, "ai_slop.md")
     env = {k: v for k, v in os.environ.items() if k != "AI_GATEWAY_API_KEY"}
     proc = subprocess.run(

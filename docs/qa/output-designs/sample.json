@@ -1,5 +1,5 @@
 {
-  "findings": [
+  "smells": [
     {
       "path": "README.md",
       "line": 3,

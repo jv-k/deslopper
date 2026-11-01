@@ -1,6 +1,6 @@
 # Output formats
 
-`deslopper lint` and `deslopper check` write findings in one of three formats. Choose one
+`deslopper lint` and `deslopper check` write smells in one of three formats. Choose one
 with `--format text|github|json`. The default is `text`.
 
 ## `text`
@@ -14,7 +14,7 @@ totals.
 
 On a narrow terminal, the line is cut around the caught words, so nothing wraps.
 
-Without gum, and whenever the output is piped, deslopper prints one line per finding, for
+Without gum, and whenever the output is piped, deslopper prints one line per smell, for
 editors and scripts:
 
 ```text
@@ -27,7 +27,7 @@ two variables that gum itself reads.
 
 ## `github`
 
-The `github` format writes each finding as a GitHub Actions annotation, so the finding
+The `github` format writes each smell as a GitHub Actions annotation, so the smell
 shows on the pull request. It never calls gum.
 
 ## `json`
@@ -38,7 +38,7 @@ missing gateway key, prints one line to stderr and exits 2.
 
 ```json
 {
-  "findings": [
+  "smells": [
     {
       "path": "docs/guide.md",
       "line": 6,
@@ -53,7 +53,7 @@ missing gateway key, prints one line to stderr and exits 2.
 }
 ```
 
-With `--jev`, each judged finding also has `verdict` and `probability`, and the object has
+With `--jev`, each judged smell also has `verdict` and `probability`, and the object has
 a `jev` key with the totals of the run. Its `errors` list has one line for each Jev request
 that failed:
 

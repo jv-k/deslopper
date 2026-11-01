@@ -4,11 +4,11 @@ import json
 from decimal import ROUND_HALF_UP, Decimal
 
 from . import gum, tiers, ui
-from .findings import Finding
+from .smells import Smell
 
 
-def _verdict_suffix(f: Finding) -> str:
-    """The ` [keep 0.93]` tail a judged finding carries, or nothing for an unjudged one."""
+def _verdict_suffix(f: Smell) -> str:
+    """The ` [keep 0.93]` tail a judged smell carries, or nothing for an unjudged one."""
     if f.verdict is None:
         return ""
     return f" [{f.verdict} {f.probability:.2f}]"
@@ -70,7 +70,7 @@ def excerpt(text: str, col: int, room: int) -> tuple:
     return before, word, after
 
 
-def _rating_parts(f: Finding, compact: bool) -> list:
+def _rating_parts(f: Smell, compact: bool) -> list:
     """Jev's rating: a five-slot bar in the confidence colour (ok from 0.9, warn from
     0.7, error below), then the probability, then the verdict. Compact drops the
     probability."""
@@ -145,20 +145,20 @@ def lint_view(result, sources: dict, linted: int, width: int, judged=None,
     """The attended view of a lint run: a header, then a section per file with each
     tell grouped once under it, then the status line and the summary tables.
 
-    `sources` maps a finding's path to the file's text, for the excerpts. `judged` is
+    `sources` maps a smell's path to the file's text, for the excerpts. `judged` is
     the Triage a --jev run returned; it adds the rating to each row, its failed requests
     to the footer, its verdicts to the summary table, and a table of what Jev cost and
     what the cache saved. Both tables span the rules' width."""
-    findings = result.findings
+    smells = result.smells
     files = {}
-    for f in findings:
+    for f in smells:
         files.setdefault(f.path, []).append(f)
     out = _header(command, linted, len(files), width)
     tag = [("faint", "  [strict]")] if strict else []
-    if not findings and not result.unreadable:
+    if not smells and not result.unreadable:
         return out + [[("", "  "), ("ok", f"{ui.I_OK} "), ("bold ok", "no slop found")] + tag, []]
-    rated = any(f.verdict is not None for f in findings)
-    loc_w = max((len(f"{f.line}:{f.col}") for f in findings), default=0)
+    rated = any(f.verdict is not None for f in smells)
+    loc_w = max((len(f"{f.line}:{f.col}") for f in smells), default=0)
     for path, fs in files.items():
         errors = sum(f.tier == "error" for f in fs)
         out.append(_right([("", "  "), ("bold accent", path)], _tally(errors, len(fs) - errors), width - 2))
@@ -199,9 +199,9 @@ def _money(cost) -> str:
 
 
 def summary_table(result, judged, with_slop: int, width: int) -> gum.Table:
-    """The run's totals as label and value rows, `width` across: the findings, and
+    """The run's totals as label and value rows, `width` across: the smells, and
     after a --jev run, Jev's verdicts."""
-    rows = [("findings", [("bold", f"{len(result.findings)} in {_plural(with_slop, 'file')}")]),
+    rows = [("smells", [("bold", f"{len(result.smells)} in {_plural(with_slop, 'file')}")]),
             ("errors", [("error" if result.errors else "faint", str(result.errors))]),
             ("warnings", [("warn" if result.warnings else "faint", str(result.warnings))])]
     if result.unreadable:
@@ -265,11 +265,11 @@ def rule_lines(tells, width: int) -> list:
 
 
 def format_text(result) -> str:
-    """One `path:line:col [tier] name: message` line per finding, the pinned grammar,
-    with the ` [keep 0.93]` tail on a judged finding."""
+    """One `path:line:col [tier] name: message` line per smell, the pinned grammar,
+    with the ` [keep 0.93]` tail on a judged smell."""
     lines = [
         f"{f.path}:{f.line}:{f.col} [{f.tier}] {f.name}: {f.message}{_verdict_suffix(f)}"
-        for f in result.findings
+        for f in result.smells
     ]
     return "\n".join(lines) + ("\n" if lines else "")
 
@@ -286,7 +286,7 @@ def _encode_prop(value: str) -> str:
 
 def format_github(result) -> str:
     lines = []
-    for f in result.findings:
+    for f in result.smells:
         level = tiers.github_level(f.tier)
         lines.append(
             f"::{level} file={_encode_prop(f.path)},line={f.line},col={f.col}::"
@@ -295,7 +295,7 @@ def format_github(result) -> str:
     return "\n".join(lines) + ("\n" if lines else "")
 
 
-def _finding_json(f: Finding) -> dict:
+def _smell_json(f: Smell) -> dict:
     item = {"path": f.path, "line": f.line, "col": f.col,
             "tier": f.tier, "name": f.name, "message": f.message}
     if f.verdict is not None:
@@ -308,7 +308,7 @@ def format_json(result, judged=None) -> str:
     """The json payload. `judged` is the Triage a --jev run returned, which adds the
     `jev` object with its totals and the requests that failed."""
     payload = {
-        "findings": [_finding_json(f) for f in result.findings],
+        "smells": [_smell_json(f) for f in result.smells],
         "unreadable": list(result.unreadable),
         "summary": {
             "errors": result.errors,
@@ -349,7 +349,7 @@ def summary_line(result, strict: bool, judged=None) -> str:
     """The run's one summary line, with its status icon."""
     tag = " [strict]" if strict else ""
     unreadable = len(result.unreadable)
-    if not result.findings and not unreadable:
+    if not result.smells and not unreadable:
         return f"{ui.I_OK} no slop found{tag}"
     counts = f"{result.errors} error(s), {result.warnings} warning(s)"
     if unreadable:
@@ -361,6 +361,6 @@ def summary_line(result, strict: bool, judged=None) -> str:
 
 def exit_code(result, strict: bool) -> int:
     fail = bool(result.unreadable) or any(
-        tiers.is_failing(f.tier, strict) for f in result.findings
+        tiers.is_failing(f.tier, strict) for f in result.smells
     )
     return 1 if fail else 0

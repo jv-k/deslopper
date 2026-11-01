@@ -53,7 +53,7 @@ def test_resolve_inputs_explicit_paths(tmp_path):
 
 def test_resolve_inputs_path_outside_root_shows_absolute_not_dotdot(tmp_path):
     # A file outside the discovery root would render as ../../x.md, which is not a usable
-    # finding path (github annotations reject it). Show the absolute path instead.
+    # smell path (github annotations reject it). Show the absolute path instead.
     root = tmp_path / "proj"
     outside = tmp_path / "outside"
     root.mkdir()

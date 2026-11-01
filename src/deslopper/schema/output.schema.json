@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "deslopper json output",
   "type": "object",
-  "required": ["findings", "unreadable", "summary"],
+  "required": ["smells", "unreadable", "summary"],
   "properties": {
-    "findings": {
+    "smells": {
       "type": "array",
       "items": {
         "type": "object",
@@ -46,7 +46,7 @@
         "errors": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "One line per Jev request that failed. Those findings carry no verdict."
+          "description": "One line per Jev request that failed. Those smells carry no verdict."
         }
       }
     }

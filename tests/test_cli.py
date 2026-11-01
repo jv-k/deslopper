@@ -4,7 +4,7 @@ import os
 import pytest
 
 from deslopper.cli import main
-from tests.conftest import canned_jev, check_finding, finding_schema
+from tests.conftest import canned_jev, check_smell, smell_schema
 
 
 def run(args, cwd, capsys):
@@ -33,13 +33,13 @@ def test_lint_reports_and_exits_one_on_error(tmp_path, capsys):
     assert "1 error(s)" in err
 
 
-def test_findings_on_one_line_are_listed_by_column(tmp_path, capsys):
+def test_smells_on_one_line_are_listed_by_column(tmp_path, capsys):
     write(tmp_path, "a.md", "It leverages this; ok.\n")
     _, out, _ = run(["lint", "a.md"], str(tmp_path), capsys)
     assert [line.split(" ")[0] for line in out.splitlines()] == ["a.md:1:4", "a.md:1:18"]
 
 
-def test_check_exits_zero_on_findings(tmp_path, capsys):
+def test_check_exits_zero_on_smells(tmp_path, capsys):
     write(tmp_path, "a.md", "a — dash\n")
     code, _, _ = run(["check", "a.md"], str(tmp_path), capsys)
     assert code == 0
@@ -104,7 +104,7 @@ def test_init_writes_then_refuses(tmp_path, capsys):
     assert "exists" in err2
 
 
-# --jev: the scan runs as today, then Jev annotates each finding.
+# --jev: the scan runs as today, then Jev annotates each smell.
 
 
 def test_triage_appends_the_verdict_to_each_text_line_and_the_summary(tmp_path, capsys, monkeypatch):
@@ -126,12 +126,12 @@ def test_triage_json_carries_the_verdict_fields_and_validates(tmp_path, capsys, 
     write(tmp_path, "a.md", "a — b\nc; d\n")
     code, out, _ = run(["lint", "--jev", "--format", "json", "a.md"], str(tmp_path), capsys)
     payload = json.loads(out)
-    assert [(f["verdict"], f["probability"]) for f in payload["findings"]] == [
+    assert [(f["verdict"], f["probability"]) for f in payload["smells"]] == [
         ("keep", 0.93), ("rewrite", 0.88),
     ]
-    schema = finding_schema()
-    for item in payload["findings"]:
-        check_finding(item, schema)
+    schema = smell_schema()
+    for item in payload["smells"]:
+        check_smell(item, schema)
     assert code == 1
 
 
@@ -157,7 +157,7 @@ def test_triage_never_moves_the_exit_code(tmp_path, capsys, monkeypatch, text, e
     assert judged == plain
 
 
-def test_triage_without_the_key_prints_one_hint_and_no_findings(tmp_path, capsys, monkeypatch):
+def test_triage_without_the_key_prints_one_hint_and_no_smells(tmp_path, capsys, monkeypatch):
     from deslopper import jev
 
     monkeypatch.delenv("AI_GATEWAY_API_KEY", raising=False)
