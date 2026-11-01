@@ -24,6 +24,9 @@ class Install(NamedTuple):
     method: str
     command: Optional[Tuple[str, ...]]
     hint: str = ""
+    # Runs before `command`. Homebrew needs it: a stale tap can name an old version whose
+    # GitHub tarball no longer matches the formula's checksum.
+    refresh: Optional[Tuple[str, ...]] = None
 
 
 def _direct_url():
@@ -46,7 +49,8 @@ def detect(prefix, direct_url) -> Install:
                        f"This is an editable install from {source}. Run git pull there.")
     # Homebrew builds the venv as <keg>/libexec and writes its receipt in the keg.
     if os.path.exists(os.path.join(os.path.dirname(prefix), "INSTALL_RECEIPT.json")):
-        return Install("Homebrew", ("brew", "upgrade", "jv-k/tap/deslopper"))
+        return Install("Homebrew", ("brew", "upgrade", "jv-k/tap/deslopper"),
+                       refresh=("brew", "update"))
     if os.path.exists(os.path.join(prefix, "pipx_metadata.json")):
         return Install("pipx", ("pipx", "upgrade", "deslopper"))
     if os.path.exists(os.path.join(prefix, "uv-receipt.toml")):
@@ -64,15 +68,17 @@ def run(dry_run=False) -> int:
     if install.command is None:
         ui.log_info(install.hint)
         return 0
-    shown = shlex.join(install.command)
+    steps = [c for c in (install.refresh, install.command) if c]
+    shown = " && ".join(shlex.join(c) for c in steps)
     if dry_run:
         ui.log_info(f"{install.method} installed deslopper. Would run: {shown}")
         return 0
     ui.log_info(f"{install.method} installed deslopper. Running: {shown}")
     if shutil.which(install.command[0]) is None:
         raise UsageError(f"{install.command[0]} is not on PATH, so run {shown} by hand")
-    if subprocess.call(install.command) != 0:
-        ui.log_error(f"{shown} failed")
-        return 1
+    for step in steps:
+        if subprocess.call(step) != 0:
+            ui.log_error(f"{shlex.join(step)} failed")
+            return 1
     ui.log_success("updated. Run deslopper --version to see the version")
     return 0

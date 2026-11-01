@@ -34,6 +34,8 @@ def test_detects_homebrew(tmp_path):
     install = update.detect(str(homebrew(tmp_path)), None)
     assert install.method == "Homebrew"
     assert install.command == ("brew", "upgrade", "jv-k/tap/deslopper")
+    # A stale tap names an old version whose checksum may no longer match.
+    assert install.refresh == ("brew", "update")
 
 
 def test_detects_pipx(tmp_path):
@@ -98,9 +100,28 @@ def test_update_runs_the_detected_upgrade(tmp_path, monkeypatch, capsys, calls):
     monkeypatch.setattr(update, "_direct_url", lambda: None)
     code, out, _ = run(["update"], capsys)
     assert code == 0
-    assert calls == [("brew", "upgrade", "jv-k/tap/deslopper")]
-    assert "brew upgrade jv-k/tap/deslopper" in out
+    assert calls == [("brew", "update"), ("brew", "upgrade", "jv-k/tap/deslopper")]
+    assert "brew update && brew upgrade jv-k/tap/deslopper" in out
     assert "deslopper --version" in out
+
+
+def test_a_failed_refresh_skips_the_upgrade(tmp_path, monkeypatch, capsys, calls):
+    monkeypatch.setattr(update.sys, "prefix", str(homebrew(tmp_path)))
+    monkeypatch.setattr(update, "_direct_url", lambda: None)
+    calls.code = 1
+    code, _, err = run(["update"], capsys)
+    assert code == 1
+    assert calls == [("brew", "update")]
+    assert "brew update" in err
+
+
+def test_dry_run_shows_the_refresh(tmp_path, monkeypatch, capsys, calls):
+    monkeypatch.setattr(update.sys, "prefix", str(homebrew(tmp_path)))
+    monkeypatch.setattr(update, "_direct_url", lambda: None)
+    code, out, _ = run(["update", "--dry-run"], capsys)
+    assert code == 0
+    assert calls == []
+    assert "brew update && brew upgrade jv-k/tap/deslopper" in out
 
 
 def test_dry_run_prints_the_command_and_runs_nothing(tmp_path, monkeypatch, capsys, calls):
