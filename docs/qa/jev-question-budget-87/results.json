@@ -1,0 +1,235 @@
+[
+  {
+    "label": "questions",
+    "questions": 1,
+    "state_chars": 245,
+    "question_chars": 424,
+    "input_tokens": 439,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "questions",
+    "questions": 10,
+    "state_chars": 1255,
+    "question_chars": 4242,
+    "input_tokens": 1810,
+    "output_tokens": 294,
+    "answers": 10
+  },
+  {
+    "label": "questions",
+    "questions": 50,
+    "state_chars": 5815,
+    "question_chars": 21282,
+    "input_tokens": 8010,
+    "output_tokens": 1494,
+    "answers": 50
+  },
+  {
+    "label": "questions",
+    "questions": 100,
+    "state_chars": 11517,
+    "question_chars": 42584,
+    "input_tokens": 15763,
+    "output_tokens": 2995,
+    "answers": 100
+  },
+  {
+    "label": "questions",
+    "questions": 200,
+    "state_chars": 23117,
+    "question_chars": 85384,
+    "input_tokens": 31563,
+    "output_tokens": 6095,
+    "answers": 200
+  },
+  {
+    "label": "questions only",
+    "questions": 100,
+    "state_chars": 245,
+    "question_chars": 42584,
+    "input_tokens": 11916,
+    "output_tokens": 2995,
+    "answers": 100
+  },
+  {
+    "label": "questions only",
+    "questions": 200,
+    "state_chars": 245,
+    "question_chars": 85384,
+    "input_tokens": 23616,
+    "output_tokens": 6095,
+    "answers": 200
+  },
+  {
+    "label": "blocks only",
+    "questions": 1,
+    "state_chars": 23117,
+    "question_chars": 424,
+    "input_tokens": 8386,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "blocks only",
+    "questions": 1,
+    "state_chars": 57917,
+    "question_chars": 424,
+    "input_tokens": 20686,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "padded state",
+    "questions": 1,
+    "state_chars": 1996,
+    "question_chars": 424,
+    "input_tokens": 839,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "padded state",
+    "questions": 1,
+    "state_chars": 15996,
+    "question_chars": 424,
+    "input_tokens": 4039,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "padded state",
+    "questions": 1,
+    "state_chars": 31996,
+    "question_chars": 424,
+    "input_tokens": 7696,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "padded state",
+    "questions": 1,
+    "state_chars": 63996,
+    "question_chars": 424,
+    "input_tokens": 15011,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "question ceiling",
+    "questions": 450,
+    "state_chars": 52117,
+    "question_chars": 192384,
+    "error": "gateway returned 400: typesafe returned status 400"
+  },
+  {
+    "label": "question ceiling",
+    "questions": 425,
+    "state_chars": 49217,
+    "question_chars": 181684,
+    "error": "gateway returned 400: typesafe returned status 400"
+  },
+  {
+    "label": "question ceiling",
+    "questions": 412,
+    "state_chars": 47709,
+    "question_chars": 176120,
+    "input_tokens": 65059,
+    "output_tokens": 12667,
+    "answers": 412
+  },
+  {
+    "label": "question ceiling",
+    "questions": 418,
+    "state_chars": 48405,
+    "question_chars": 178688,
+    "error": "gateway returned 400: typesafe returned status 400"
+  },
+  {
+    "label": "question ceiling",
+    "questions": 415,
+    "state_chars": 48057,
+    "question_chars": 177404,
+    "input_tokens": 65533,
+    "output_tokens": 12760,
+    "answers": 415
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 124996,
+    "question_chars": 424,
+    "input_tokens": 28954,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 137496,
+    "question_chars": 424,
+    "input_tokens": 31811,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 143746,
+    "question_chars": 424,
+    "error": "gateway returned 400: typesafe returned status 400"
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 140621,
+    "question_chars": 424,
+    "input_tokens": 32526,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 142183,
+    "question_chars": 424,
+    "input_tokens": 32883,
+    "output_tokens": 32,
+    "answers": 1
+  },
+  {
+    "label": "state ceiling",
+    "questions": 1,
+    "state_chars": 142964,
+    "question_chars": 424,
+    "error": "gateway returned 400: typesafe returned status 400"
+  },
+  {
+    "label": "shipped, short findings",
+    "questions": 256,
+    "state_chars": 43193,
+    "question_chars": 109756,
+    "input_tokens": 51334,
+    "output_tokens": 7831,
+    "answers": 256
+  },
+  {
+    "label": "shipped, full state of prose",
+    "questions": 247,
+    "state_chars": 63863,
+    "question_chars": 105886,
+    "input_tokens": 52476,
+    "output_tokens": 7552,
+    "answers": 247
+  },
+  {
+    "label": "shipped, full state of one letter",
+    "questions": 247,
+    "state_chars": 63863,
+    "question_chars": 105886,
+    "input_tokens": 60616,
+    "output_tokens": 7552,
+    "answers": 247
+  }
+]
