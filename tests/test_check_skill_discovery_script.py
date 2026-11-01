@@ -18,9 +18,13 @@ pytestmark = pytest.mark.skipif(shutil.which("bash") is None, reason="needs bash
 
 ESC = "\x1b"
 # The skills CLI redraws its spinner in place. Captured from 1.7.x on a pipe, it moves the
-# cursor to column 1 and erases (ESC[1G ESC[J). On a terminal it can use a carriage return.
+# cursor to column 1 and erases (ESC[1G ESC[J). Issue #110 reports carriage returns.
 REDRAW_ESC = f"{ESC}[1G{ESC}[J"
 REDRAW_CR = "\r"
+SPINNER = pytest.mark.parametrize("redraw", [REDRAW_ESC, REDRAW_CR], ids=["esc-1g", "carriage-return"])
+REDRAWS = pytest.mark.parametrize(
+    "redraw", [None, REDRAW_ESC, REDRAW_CR], ids=["plain", "esc-1g", "carriage-return"]
+)
 
 HEAD = (
     "\n│\n"
@@ -28,17 +32,20 @@ HEAD = (
     f"{ESC}[?25h{ESC}[?25l│\n◇  Local path validated\n"
     f"{ESC}[?25h{ESC}[?25l│\n"
 )
-TAIL = (
-    f"\n{ESC}[?25h\n│\n◇  Available Skills\n│\n│    deslopper\n│\n"
-    "│      Write prose free of the mechanical tells of machine-generated text.\n│\n"
-)
 
 
-def _listing(found, redraw=None, frames=3, tail=TAIL):
+def _tail(skill):
+    return (
+        f"\n{ESC}[?25h\n│\n◇  Available Skills\n│\n│    {skill}\n│\n"
+        "│      Write prose free of the mechanical tells of machine-generated text.\n│\n"
+    )
+
+
+def _listing(count_line, redraw=None, skill="deslopper"):
     spinner = ""
     if redraw is not None:
-        spinner = "".join(f"◒  Discovering skills…{redraw}" for _ in range(frames))
-    return HEAD + spinner + f"◇  {found}" + tail
+        spinner = f"◒  Discovering skills…{redraw}" * 3
+    return HEAD + spinner + f"◇  {count_line}" + _tail(skill)
 
 
 def _run(tmp_path, output):
@@ -59,29 +66,30 @@ def test_passes_on_a_plain_listing(tmp_path):
     assert "skill discovery ok" in proc.stdout
 
 
-@pytest.mark.parametrize("redraw", [REDRAW_ESC, REDRAW_CR], ids=["esc-1g", "carriage-return"])
+@SPINNER
 def test_passes_with_spinner_frames_on_the_result_line(tmp_path, redraw):
     proc = _run(tmp_path, _listing("Found 1 skill", redraw=redraw))
     assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "skill discovery ok" in proc.stdout
 
 
-@pytest.mark.parametrize("redraw", [None, REDRAW_ESC, REDRAW_CR], ids=["plain", "esc-1g", "carriage-return"])
+@REDRAWS
 def test_fails_when_more_than_one_skill_is_found(tmp_path, redraw):
     proc = _run(tmp_path, _listing("Found 2 skills", redraw=redraw))
     assert proc.returncode == 1
     assert "expected exactly one discovered skill" in proc.stderr
 
 
-@pytest.mark.parametrize("redraw", [None, REDRAW_ESC, REDRAW_CR], ids=["plain", "esc-1g", "carriage-return"])
+@REDRAWS
 def test_fails_when_the_count_is_only_a_prefix(tmp_path, redraw):
     proc = _run(tmp_path, _listing("Found 10 skills", redraw=redraw))
     assert proc.returncode == 1
     assert "expected exactly one discovered skill" in proc.stderr
 
 
-def test_fails_when_deslopper_appears_only_inside_another_line(tmp_path):
+@SPINNER
+def test_fails_when_deslopper_appears_only_inside_another_line(tmp_path, redraw):
     # The source path holds "deslopper" on CI, so a name match anywhere would pass falsely.
-    tail = f"\n{ESC}[?25h\n│\n◇  Available Skills\n│\n│    other-skill\n│\n"
-    proc = _run(tmp_path, _listing("Found 1 skill", redraw=REDRAW_ESC, tail=tail))
+    proc = _run(tmp_path, _listing("Found 1 skill", redraw=redraw, skill="other-skill"))
     assert proc.returncode == 1
     assert "expected the discovered skill to be deslopper" in proc.stderr
