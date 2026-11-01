@@ -1,4 +1,4 @@
-from deslopper.engine import Dialect, dialect_for, lint_files, scan_prose
+from deslopper.engine import Dialect, FenceLexer, dialect_for, lint_files, scan_prose
 from deslopper.rules import compile_tell
 
 
@@ -429,7 +429,7 @@ def test_astro_typescript_annotation_masked_and_literal_type_scanned(tmp_path):
 def test_fence_lexer_reports_comment_text_by_line():
     # The scanner reads directives from comments, so the lexer hands back each comment's
     # text on the line, delimiters stripped, beside the masked line.
-    from deslopper.engine import FenceLexer
+    # This asserts on feed's output, not lexer state, since no smell observes it yet.
     lexer = FenceLexer()
     fed = [lexer.feed(line) for line in (
         "const A = 1; // deslop-lint-disable-line",
