@@ -22,6 +22,67 @@ NON_SPACE = re.compile(r"\S")
 ID_LABEL_TAIL = re.compile(r"[:).]?\s+(?:[-\u2013\u2014]\s*)?[*_\"']?[A-Z]")
 
 
+CURLY_APOSTROPHE = "\u2019"
+# What a bare apostrophe becomes.
+EITHER_APOSTROPHE = "['" + CURLY_APOSTROPHE + "]"
+
+
+def _widen_apostrophes(pattern: str) -> str:
+    """Let each apostrophe in a pattern match the straight and the curly form.
+
+    A bare or escaped ' becomes either apostrophe. A character class that holds one is
+    left as written and wrapped instead: [a'] becomes (?:[a']|’) and [^'] becomes
+    (?:(?!’)[^']), so a negated class keeps out both forms and no range inside the
+    class changes. Only a ' written as itself counts: an escape such as \\x27 is left
+    alone. Only the pattern changes: the input is never folded, so a tell for the curly
+    character still sees it.
+    """
+    out = []
+    i, n = 0, len(pattern)
+    class_start = None  # index in out where the open class begins
+    negated = has_apostrophe = False
+    while i < n:
+        ch = pattern[i]
+        if ch == "\\" and i + 1 < n:
+            esc = pattern[i:i + 2]
+            if esc == "\\'" and class_start is None:
+                out.append(EITHER_APOSTROPHE)
+            else:
+                has_apostrophe |= esc == "\\'"
+                out.append(esc)
+            i += 2
+            continue
+        if class_start is not None:
+            has_apostrophe |= ch == "'"
+            out.append(ch)
+            if ch == "]":
+                if has_apostrophe:
+                    cls = "".join(out[class_start:])
+                    del out[class_start:]
+                    if negated:
+                        out.append("(?:(?!" + CURLY_APOSTROPHE + ")" + cls + ")")
+                    else:
+                        out.append("(?:" + cls + "|" + CURLY_APOSTROPHE + ")")
+                class_start = None
+            i += 1
+            continue
+        if ch == "[":
+            # A ] straight after the opening [ or [^ is a literal, not the close.
+            j = i + 1
+            negated = j < n and pattern[j] == "^"
+            if negated:
+                j += 1
+            if j < n and pattern[j] == "]":
+                j += 1
+            class_start, has_apostrophe = len(out), False
+            out.append(pattern[i:j])
+            i = j
+            continue
+        out.append(EITHER_APOSTROPHE if ch == "'" else ch)
+        i += 1
+    return "".join(out)
+
+
 @dataclass(frozen=True)
 class CompiledTell:
     name: str
@@ -121,10 +182,16 @@ def compile_tell(raw: dict, extra_kinds: Optional[dict] = None) -> CompiledTell:
         pattern = raw["pattern"]
     else:
         raise ConfigError(f"tell {name!r} has neither pattern nor words")
-    spec = {**raw, "pattern": pattern}
+    spec = {**raw, "pattern": _widen_apostrophes(pattern)}
     try:
         matcher = kinds[kind](spec, flags)
     except re.error as exc:
+        # Report the error against the pattern as written, not the widened one, so its
+        # position points at the user's text.
+        try:
+            re.compile(pattern, flags)
+        except re.error as written:
+            exc = written
         raise ConfigError(f"tell {name!r} has an invalid pattern: {exc}") from exc
     phase = raw.get("phase", "post-entity")
     return CompiledTell(

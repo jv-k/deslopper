@@ -2,7 +2,7 @@ import pytest
 
 from deslopper.rules import compile_tell
 from deslopper.errors import ConfigError
-from deslopper.presets import load_builtin
+from deslopper.presets import available, load_builtin
 
 
 def offsets(tell, text):
@@ -23,6 +23,75 @@ def test_words_is_sugar_for_regex_with_word_boundaries():
                       "words": ["enables?", "powers"], "flags": "i", "message": "m"})
     # case-insensitive, word-boundaried, regex fragments honoured
     assert offsets(t, "It Enables and power and powers") == [3, 25]
+
+
+def _regex(pattern, flags=""):
+    return compile_tell({"name": "q", "tier": "warn", "pattern": pattern,
+                         "flags": flags, "message": "m"})
+
+
+@pytest.mark.parametrize("pattern,text", [
+    ("it's", "it’s"),
+    ("it's", "it's"),
+    ("don't|can't", "can’t"),
+    ("you'(?:re|ve)", "you’ve"),
+    ("it'?s", "it’s"),
+    (r"it\'s", "it’s"),          # an escaped apostrophe is still an apostrophe
+    (r"it[']s", "it’s"),          # inside a class the curly form joins the class
+    (r"x[\w'-]y", "x’y"),
+])
+def test_bare_apostrophe_matches_the_curly_form(pattern, text):
+    assert offsets(_regex(pattern), text) == [0]
+
+
+@pytest.mark.parametrize("pattern,text", [
+    (r"a[^']b", "a’b"),           # a negated class keeps out both forms
+    (r"a[^']b", "a'b"),
+    (r"a[^x']+b", "a’b"),
+    (r"a[^\]']b", "a’b"),         # an escaped ] does not close the class
+])
+def test_negated_class_keeps_out_both_apostrophes(pattern, text):
+    assert offsets(_regex(pattern), text) == []
+
+
+def test_leading_bracket_in_a_class_is_a_literal():
+    t = _regex(r"a[]']b")
+    assert offsets(t, "a]b") == [0]
+    assert offsets(t, "a’b") == [0]
+    assert offsets(t, "a'b") == [0]
+    assert offsets(t, "ab") == []
+
+
+@pytest.mark.parametrize("text,want", [
+    ("a'b", [0]), ("a’b", [0]), ("a-b", [0]), ("akb", [0]), ("a{b", []),
+])
+def test_apostrophe_opening_a_class_range_keeps_the_range(text, want):
+    # ['-z] is a range from ' to z. The curly form must not land inside the range.
+    assert offsets(_regex(r"a['-z]b"), text) == want
+
+
+def test_widened_class_still_works_in_a_lookbehind():
+    t = _regex(r"(?<![\w'])x")
+    assert offsets(t, "’x") == []
+    assert offsets(t, " x") == [1]
+
+
+def test_invalid_pattern_error_names_the_pattern_as_written():
+    with pytest.raises(ConfigError) as err:
+        _regex("it's(")
+    assert "position 4" in str(err.value)
+
+
+def test_widening_treats_a_quote_after_an_escaped_backslash_as_bare():
+    t = _regex(r"a\\'b")
+    assert offsets(t, "a\\’b") == [0]
+
+
+def test_widening_does_not_touch_the_input():
+    # The input is never folded, so a tell for the curly character still sees it.
+    t = _regex(r"\u2019")
+    assert offsets(t, "it’s") == [2]
+    assert offsets(t, "it's") == []
 
 
 def test_pattern_takes_phase_and_scope_from_fields():
@@ -1196,50 +1265,36 @@ def test_no_aggressive_tell_shares_a_name_with_a_recommended_tell():
     assert not recommended & aggressive
 
 
-# The survey tells whose patterns hold an apostrophe. Each takes a curly one as well as
-# a straight one, so the tell still names the slop when curly-quote is turned off.
-CURLY_APOSTROPHE_TELLS = [
-    ("recommended", "not-just-x-but-y"),
-    ("recommended", "throat-clearing"),
-    ("recommended", "chatbot-phrase"),
-    ("recommended", "sycophancy"),
-    ("recommended", "real-problem-reframe"),
-    ("recommended", "false-suspense"),
-    ("recommended", "emphasis-crutch"),
-    ("recommended", "staged-candor"),
-    ("recommended", "mic-drop"),
-    ("recommended", "negation-pivot"),
-    ("recommended", "urgency-inflation"),
-    ("aggressive", "cutoff-disclaimer"),
-    ("aggressive", "negation-pivot-joined"),
-    ("aggressive", "contrarian-hook"),
-    ("aggressive", "overreach"),
-    ("aggressive", "contrast-adverb"),
-    ("aggressive", "tutorial-signposting"),
-]
-
-APOSTROPHE_CLASS = "['’]"
+def _preset_sources():
+    """(preset, name, pattern text) for every tell in every shipped preset."""
+    return [
+        (preset, raw["name"], raw.get("pattern") or "|".join(raw["words"]))
+        for preset in available()
+        for raw in load_builtin(preset)["tells"]
+    ]
 
 
-@pytest.mark.parametrize("preset,name", CURLY_APOSTROPHE_TELLS)
-def test_survey_tell_has_no_straight_only_apostrophe(preset, name):
-    raw = _preset_tell_json(name, preset)
-    source = raw.get("pattern") or "|".join(raw["words"])
-    assert "'" in source, f"{name} has no apostrophe, so it does not belong in the list"
-    assert "'" not in source.replace(APOSTROPHE_CLASS, ""), (
-        f"{name} matches only a straight apostrophe somewhere: {source!r}"
+# Issue #107. rules.py widens each bare apostrophe at compile time, so a preset writes a
+# plain ' and never spells the curly form out. Read from the presets, not a hand-kept
+# list, so a new tell with an apostrophe is covered the day it lands.
+APOSTROPHE_TELLS = sorted(
+    {(preset, name) for preset, name, source in _preset_sources() if "'" in source}
+)
+
+
+@pytest.mark.parametrize("preset,name,source", _preset_sources())
+def test_preset_pattern_does_not_spell_out_the_curly_apostrophe(preset, name, source):
+    # Any spelling of U+2019 next to a straight apostrophe spells the pair out by hand:
+    # ['’], [’'], (?:'|’), or the same with an escape. A pattern with no straight
+    # apostrophe, like curly-quote's, may name U+2019 on purpose.
+    spellings = ("’", "\\u2019", "\\U00002019", "\\N{RIGHT SINGLE QUOTATION MARK}")
+    assert "'" not in source or not any(s in source for s in spellings), (
+        f"{preset} {name} spells out the curly apostrophe; write a bare ' instead"
     )
 
 
-def _curly_cases():
-    tables = (
-        ("recommended", SURVEY_TELL_POSITIVES),
-        ("recommended", WIDENED_POSITIVES),
-        ("aggressive", AGGRESSIVE_WIDENED_POSITIVES),
-        ("aggressive", AGGRESSIVE_SURVEY_TELL_POSITIVES),
-        ("aggressive", {"negation-pivot-joined": NEGATION_PIVOT_JOINED_POSITIVES}),
-    )
-    wanted = set(CURLY_APOSTROPHE_TELLS)
+def _curly_cases(*tables):
+    wanted = set(APOSTROPHE_TELLS)
     return [
         (preset, name, text)
         for preset, name, text in _cases(*tables)
@@ -1247,14 +1302,37 @@ def _curly_cases():
     ]
 
 
-def test_every_curly_apostrophe_tell_has_a_case_with_an_apostrophe():
-    covered = {(preset, name) for preset, name, _text in _curly_cases()}
-    assert covered == set(CURLY_APOSTROPHE_TELLS)
+POSITIVE_TABLES = (
+    ("recommended", SURVEY_TELL_POSITIVES),
+    ("recommended", WIDENED_POSITIVES),
+    ("aggressive", AGGRESSIVE_WIDENED_POSITIVES),
+    ("aggressive", AGGRESSIVE_SURVEY_TELL_POSITIVES),
+    ("aggressive", {"negation-pivot-joined": NEGATION_PIVOT_JOINED_POSITIVES}),
+)
+NEGATIVE_TABLES = (
+    ("recommended", SURVEY_TELL_NEGATIVES),
+    ("recommended", WIDENED_NEGATIVES),
+    ("aggressive", AGGRESSIVE_WIDENED_NEGATIVES),
+    ("aggressive", AGGRESSIVE_SURVEY_TELL_NEGATIVES),
+    ("aggressive", {"negation-pivot-joined": NEGATION_PIVOT_JOINED_NEGATIVES}),
+)
 
 
-@pytest.mark.parametrize("preset,name,text", _curly_cases())
-def test_survey_tell_flags_the_curly_apostrophe_form(preset, name, text):
+def test_every_apostrophe_tell_has_a_positive_case_with_an_apostrophe():
+    covered = {(preset, name) for preset, name, _text in _curly_cases(*POSITIVE_TABLES)}
+    assert set(APOSTROPHE_TELLS) - covered == set()
+
+
+@pytest.mark.parametrize("preset,name,text", _curly_cases(*POSITIVE_TABLES))
+def test_apostrophe_tell_flags_the_curly_form(preset, name, text):
     tell = _preset_tell(name, preset)
     curly = text.replace("'", "’")
     assert offsets(tell, curly), f"{name} should flag: {curly!r}"
     assert offsets(tell, curly) == offsets(tell, text)
+
+
+@pytest.mark.parametrize("preset,name,text", _curly_cases(*NEGATIVE_TABLES))
+def test_apostrophe_tell_leaves_the_curly_form_of_honest_prose_alone(preset, name, text):
+    tell = _preset_tell(name, preset)
+    curly = text.replace("'", "’")
+    assert offsets(tell, curly) == offsets(tell, text) == [], f"{name} false positive: {curly!r}"
