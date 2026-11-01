@@ -80,8 +80,10 @@ _Avoid_: format, flavour.
 **Astro fence**:
 The code block that a first-line `---` opens in an Astro file, closed only by a bare
 `---` line. It is not front matter. Its lines are prose lines in which everything outside
-a string literal is masked. Its `//` and `/* */` comments are masked whole, so a quote in a
-comment opens no literal. Its `import` lines are skipped.
+a string literal is masked. A backtick opens a template literal, whose text is scanned on
+every line it spans. Each `${...}` interpolation in it is code and is masked up to its
+matching brace. Its `//` and `/* */` comments are masked whole, so a quote in a comment
+opens no literal. Its `import` lines are skipped.
 
 **Prose line**:
 A line that tells scan. Every line is a prose line unless it is skipped.

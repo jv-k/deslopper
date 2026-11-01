@@ -449,3 +449,58 @@ def test_astro_block_comment_opened_on_an_import_line_still_masks(tmp_path):
             "const T = 'a; b';\n"
             "---\n")
     assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(4, 13, "semicolon")]
+
+
+# A backtick in the fence opens a template literal. Its text is scanned, on every line it
+# spans, and each `${...}` interpolation in it is masked up to its matching brace.
+
+def test_astro_template_literal_reports_source_column(tmp_path):
+    text = "---\nconst T = `a; b`;\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 13, "semicolon")]
+
+
+def test_astro_template_literal_across_lines_reports_on_each_line(tmp_path):
+    text = ("---\n"
+            "const T = `first; line\n"
+            "plain middle line\n"
+            "  last — line; end`;\n"
+            "const U = 1;\n"
+            "---\n")
+    tells = [compile_tell(SEMI), compile_tell(EM_LITERAL)]
+    assert lint_astro(tmp_path, text, tells) == \
+        [(2, 17, "semicolon"), (4, 8, "em-dash"), (4, 14, "semicolon")]
+
+
+def test_astro_interpolation_code_raises_nothing(tmp_path):
+    text = ("---\n"
+            "const T = `a ${f({ k: 'x; y', n: `p; ${q} — r` })} b`;\n"
+            "const U = `${ { a: 1; } }`;\n"
+            "---\n")
+    tells = [compile_tell(SEMI), compile_tell(EM_LITERAL)]
+    assert lint_astro(tmp_path, text, tells) == []
+
+
+def test_astro_template_text_after_a_closed_interpolation_is_scanned(tmp_path):
+    text = "---\nconst T = `a ${ {b: 1}.b } c; d`;\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 29, "semicolon")]
+
+
+def test_astro_interpolation_across_lines_stays_masked(tmp_path):
+    text = ("---\n"
+            "const T = `a ${items.map((i) => {\n"
+            "  return 'x; y';\n"
+            "})} tail; end`;\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(4, 9, "semicolon")]
+
+
+def test_astro_escaped_backtick_and_dollar_stay_template_text(tmp_path):
+    text = "---\nconst T = `a \\` b; \\${c; d}`;\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == \
+        [(2, 18, "semicolon"), (2, 24, "semicolon")]
+
+
+def test_astro_template_line_starting_with_import_is_scanned(tmp_path):
+    # A line inside a template literal is text, even when it starts with `import`.
+    text = "---\nconst T = `a\nimport; this too`;\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(3, 7, "semicolon")]
