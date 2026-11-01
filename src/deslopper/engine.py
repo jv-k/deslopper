@@ -116,22 +116,38 @@ class FenceLexer:
     """Masks the code in Astro fence lines and keeps the text of their string literals.
 
     Feed the fence lines in order. Each comes back the same length, with everything
-    outside a single- or double-quoted literal blanked to spaces, the quote characters
-    included, so a match offset is still the source column. A backslash escapes the next
-    character inside a literal; escapes are not decoded. A quoted literal that reaches
-    the end of the line without a closer ends there and does not carry to the next line.
+    outside a literal blanked to spaces, the quote characters included, so a match offset
+    is still the source column. A backslash escapes the next character inside a literal;
+    escapes are not decoded. A single- or double-quoted literal that reaches the end of
+    the line without a closer ends there and does not carry to the next line.
+
+    A backtick opens a template literal, which runs to its closing backtick across lines
+    if need be. Inside it, `${` opens an interpolation that is code up to its matching
+    `}`. The lexer counts the braces in the interpolation, and a literal nested in it is
+    masked with it.
 
     A `//` line comment runs to the end of its line and a `/* */` block comment to its
-    closer, across lines if need be, which is the state the lexer carries. Both are masked
-    whole, so a quote inside one opens no literal. `feed` also returns the text of each
-    comment on the line, delimiters stripped, so the scanner can read directives from it.
+    closer, across lines if need be. Both are masked whole, so a quote inside one opens no
+    literal. `feed` also returns the text of each comment on the line, delimiters
+    stripped, so the scanner can read directives from it.
+
+    The state carried across lines is an open block comment and the nesting of open
+    template literals, interpolations, and the braces inside interpolations.
     """
 
     QUOTES = "'\""
+    TEMPLATE, INTERPOLATION, BRACE = "`", "${", "{"
 
     def __init__(self):
         # True while a block comment is open at the end of the last line fed.
         self.in_block_comment = False
+        # Open template literals, interpolations and braces inside them, innermost last.
+        self._nesting = []
+
+    @property
+    def at_top_level(self) -> bool:
+        """Whether the next line starts in plain code, not in a comment or a template."""
+        return not self.in_block_comment and not self._nesting
 
     def feed(self, line: str) -> tuple[str, list[str]]:
         """Return the masked line and the text of each comment on it, in order."""
@@ -144,27 +160,50 @@ class FenceLexer:
             out.append(" " * i)
         while i < len(line):
             ch = line[i]
-            if quote is None and line.startswith("//", i):
+            in_template = quote is None and self._nesting[-1:] == [self.TEMPLATE]
+            if quote is not None or in_template:
+                # A quoted literal shows only in plain code, and template text only
+                # outside every interpolation. A literal nested in code is masked.
+                if quote is not None:
+                    shown = not self._nesting
+                else:
+                    shown = self.INTERPOLATION not in self._nesting
+                if ch == "\\" and i + 1 < len(line):
+                    out.append(line[i:i + 2] if shown else "  ")
+                    i += 2
+                    continue
+                if in_template and line.startswith("${", i):
+                    self._nesting.append(self.INTERPOLATION)
+                    out.append("  ")
+                    i += 2
+                    continue
+                if ch == (quote or self.TEMPLATE):
+                    if in_template:
+                        self._nesting.pop()
+                    quote = None
+                    out.append(" ")
+                else:
+                    out.append(ch if shown else " ")
+                i += 1
+                continue
+            if line.startswith("//", i):
                 comments.append(line[i + 2:])
                 out.append(" " * (len(line) - i))
                 break
-            if quote is None and line.startswith("/*", i):
+            if line.startswith("/*", i):
                 end = self._consume_block_comment(line, i + 2, comments)
                 out.append(" " * (end - i))
                 i = end
                 continue
-            if quote is None:
-                if ch in self.QUOTES:
-                    quote = ch
-                out.append(" ")
-            elif ch == "\\" and i + 1 < len(line):
-                out.append(line[i:i + 2])
-                i += 1
-            elif ch == quote:
-                quote = None
-                out.append(" ")
-            else:
-                out.append(ch)
+            if ch in self.QUOTES:
+                quote = ch
+            elif ch == self.TEMPLATE:
+                self._nesting.append(self.TEMPLATE)
+            elif ch == "{" and self._nesting:
+                self._nesting.append(self.BRACE)
+            elif ch == "}" and self._nesting:
+                self._nesting.pop()
+            out.append(" ")
             i += 1
         return "".join(out), comments
 
@@ -224,7 +263,7 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
                 lexer = None
             elif lexer is not None:
                 # An import line is lexed too, so a comment it opens still carries.
-                is_import = not lexer.in_block_comment and ASTRO_IMPORT.match(line)
+                is_import = lexer.at_top_level and ASTRO_IMPORT.match(line)
                 masked, _comments = lexer.feed(line)
                 if not is_import:
                     yield ProseLine(ln, masked, ENTITY.sub(_blank, masked))
