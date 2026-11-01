@@ -15,7 +15,7 @@ what it saved.
 import json
 from contextlib import nullcontext
 from dataclasses import dataclass, field, replace
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from typing import NamedTuple
 
 from . import jev
@@ -121,8 +121,12 @@ def _recall(cache, key, smell):
     tokens = entry.get("tokens")
     if isinstance(tokens, bool) or not isinstance(tokens, int) or tokens < 0:
         tokens = 0
-    cost = _cached_cost(entry.get("cost"))
-    return hit, tokens, cost if cost.is_finite() and cost >= 0 else Decimal(0)
+    # One guard, not `or Decimal(0)`: a zero is falsy, and `or` would drop the places
+    # of a cached "0.000000000" that the report prints.
+    cost = jev.parse_cost(entry.get("cost"))
+    if cost is None or not cost.is_finite() or cost < 0:
+        cost = Decimal(0)
+    return hit, tokens, cost
 
 
 def _shares(tokens: int, cost: Decimal, count: int) -> list:
@@ -153,16 +157,6 @@ def _judge(smell, answer):
                        probability=answer.probabilities.get(answer.value))
     except (ValueError, TypeError):
         return None
-
-
-def _cached_cost(cost) -> Decimal:
-    """A cached cost as a Decimal, or zero when the entry holds none or garbage."""
-    if cost is None:
-        return Decimal(0)
-    try:
-        return Decimal(str(cost))
-    except InvalidOperation:
-        return Decimal(0)
 
 
 def _state(blocks) -> str:
