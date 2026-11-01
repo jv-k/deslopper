@@ -110,7 +110,7 @@ def _recall(cache, key, smell):
     tokens = entry.get("tokens")
     if isinstance(tokens, bool) or not isinstance(tokens, int) or tokens < 0:
         tokens = 0
-    cost = _decimal(entry.get("cost"))
+    cost = _cached_cost(entry.get("cost"))
     return hit, tokens, cost if cost.is_finite() and cost >= 0 else Decimal(0)
 
 
@@ -144,8 +144,8 @@ def _judge(smell, answer):
         return None
 
 
-def _decimal(cost) -> Decimal:
-    """The gateway's cost as a Decimal, or zero when it sent none or garbage."""
+def _cached_cost(cost) -> Decimal:
+    """A cached cost as a Decimal, or zero when the entry holds none or garbage."""
     if cost is None:
         return Decimal(0)
     try:
@@ -248,8 +248,8 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
             # unjudged and the next batch is still asked.
             errors.append(f"{_named(files)}: {exc}")
             continue
-        spent = (reply.input_tokens or 0) + (reply.output_tokens or 0)
-        price = _decimal(reply.market_cost)
+        spent = reply.total_tokens or 0
+        price = reply.cost if reply.cost is not None else Decimal(0)
         tokens += spent
         cost += price
         unusable = 0
