@@ -338,7 +338,13 @@ SURVEY_TELL_NEGATIVES = {
     "emphasis-crutch": ["Use a full stop at the end."],
     "staged-candor": ["He answered honestly."],
     "mic-drop": ["It matters which order you pass them in."],
-    "negation-pivot": ["It is not set by default. It is read from the env."],
+    # The last two are CPython 3.9 docs lines (issue #62). A colon or semicolon leads
+    # into an explanation, so only a full stop or comma makes the pivot.
+    "negation-pivot": [
+        "It is not set by default. It is read from the env.",
+        "This is not a bug: it's a result of the fact that most decimal fractions",
+        "That is not a future statement; it's an ordinary import statement with no",
+    ],
     "importance-flag": ["The order matters for hashing."],
     # The Django hits and the tutorial examples the survey lists for signposting.
     # recommended leaves them out, and #71 adds them to the aggressive preset.
