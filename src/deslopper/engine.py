@@ -7,7 +7,7 @@ what a tell must not see. `lint_file` is then a thin runner over the prose lines
 
 import re
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, auto
 
 from .smells import Smell, LintResult
 
@@ -39,9 +39,14 @@ class Dialect(Enum):
     import/export lines are ESM. Astro reads its `---` block as front matter for now,
     the same as Markdown.
     """
-    MARKDOWN = "markdown"
-    MDX = "mdx"
-    ASTRO = "astro"
+    MARKDOWN = auto()
+    MDX = auto()
+    ASTRO = auto()
+
+    @property
+    def front_matter_close(self) -> "re.Pattern":
+        """The line that closes a first-line `---` block. The same in every dialect."""
+        return FRONT_CLOSE
 
     @property
     def skips_esm(self) -> bool:
@@ -127,7 +132,7 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
                 in_front = True
                 continue
         if in_front:
-            if FRONT_CLOSE.match(line):
+            if dialect.front_matter_close.match(line):
                 in_front = False
             continue
 
