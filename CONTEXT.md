@@ -89,8 +89,9 @@ opens no literal. Its `import` lines are skipped.
 A line that tells scan. Every line is a prose line unless it is skipped.
 
 **Skipped line**:
-A line that no tell scans. Front matter, fenced code, MDX import and export lines, `import`
-lines in an Astro fence, and exempt regions are skipped.
+A line that no tell scans. Markdown and MDX front matter, fenced code, MDX import and
+export lines, `import` lines in an Astro fence, and exempt regions are skipped. An Astro
+fence is not front matter: its other lines are prose lines with masking.
 
 **Masking**:
 Blanking part of a prose line to spaces before tells scan it, so no tell fires inside that
