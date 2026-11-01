@@ -147,3 +147,5 @@ comprehensive.md:135:31 [warn] emoji: emoji or decorative checkmark in body text
 comprehensive.md:135:44 [warn] emoji: emoji or decorative checkmark in body text
 comprehensive.md:151:9 [error] em-dash: em dash in prose, use a colon, comma, parentheses, or two sentences
 comprehensive.md:151:17 [warn] filler-verb: filler verb, use a plain verb or cut
+comprehensive.md:153:1 [warn] false-suspense: false suspense before a reveal, start with the point
+comprehensive.md:153:5 [error] curly-quote: curly quote, use a straight quote
