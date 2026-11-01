@@ -23,9 +23,10 @@ def test_readme_tell_table_matches_recommended_preset():
 def test_readme_tell_counts_match_the_presets():
     # The highlights line counts each preset's tells by name. It is generated
     # with the tables, so adding a tell needs no hand edit to a count.
-    from deslopper.config import resolve
-    recommended = {t.name for t in resolve({}).tells}
-    aggressive = {t.name for t in resolve({"extends": ["deslopper:aggressive"]}).tells}
+    # Counted from the preset files directly, not through the renderer.
+    from deslopper.presets import load_builtin
+    recommended = {t["name"] for t in load_builtin("recommended")["tells"]}
+    aggressive = {t["name"] for t in load_builtin("aggressive")["tells"]}
     line = _renderer().render_counts()
     assert f" {len(recommended)} tells" in line
     assert f" {len(aggressive)} more" in line
