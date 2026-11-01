@@ -471,7 +471,12 @@ WIDENED_POSITIVES = {
         "It is unleashing the cache.",
         "This bolsters the case.",
         "It is bolstering the case.",
-        "It orchestrates the jobs.",
+        # Issue #75: orchestrates only with an abstract or marketing object.
+        "It orchestrates the experience.",
+        "It orchestrates a seamless rollout.",
+        "Orchestrate a symphony of services.",
+        "It orchestrates your entire journey.",
+        "It orchestrates the whole customer experience.",
         "It transcends the old design.",
         "This enhances the output.",
         "It helps you navigate the complexities of config.",
@@ -573,7 +578,15 @@ WIDENED_POSITIVES = {
 }
 
 WIDENED_NEGATIVES = {
-    "filler-verb": ["Navigate to the settings page."],
+    "filler-verb": [
+        "Navigate to the settings page.",
+        # Issue #75. Orchestration of concrete things is the honest technical sense.
+        "Kubernetes orchestrates containers.",
+        "It orchestrates the jobs.",
+        "The scheduler orchestrates the build steps.",
+        "Orchestrate runs your jobs.",
+        "Use a tool that can orchestrate deployments.",
+    ],
     "vague-attribution": ["Config merges several sources in order."],
     "not-just-x-but-y": [
         "The cache is not only keyed by its hash.",

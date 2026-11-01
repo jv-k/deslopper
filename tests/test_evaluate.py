@@ -55,6 +55,23 @@ def test_raw_fixtures_trip_every_aggressive_tell(tmp_path):
     assert expected <= fired, f"missing tells: {sorted(expected - fired)}"
 
 
+@pytest.mark.parametrize("preset", ["recommended", "aggressive"])
+def test_fixture_product_name_trips_no_tell(tmp_path, preset):
+    """The product the overview fixture describes has an honest name (issue #75).
+
+    A name that matches a tell fires on every line it appears on, before and after
+    the rewrite, so it hides what the rewrite actually fixed.
+    """
+    seed_sandbox(str(tmp_path))
+    title = (tmp_path / "overview.md").read_text(encoding="utf-8").splitlines()[0]
+    product = title.removeprefix("# ")
+    tells = resolve({"extends": [f"deslopper:{preset}"]}).tells
+    assert tells
+    for line in (product, f"{product} runs your jobs.", f"{product.lower()} run"):
+        hits = [t.name for t in tells if list(t.matcher(line))]
+        assert not hits, f"{line!r} trips {hits}"
+
+
 # A stand-in for the LLM rewrite pass. `clean` keeps every protected line (front
 # matter, fences, headings, table rows, lines holding a link) and replaces the
 # rest with plain prose; `mangle` cleans and then edits inside a fence.
