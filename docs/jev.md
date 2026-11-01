@@ -107,8 +107,8 @@ lint pass, and the gate holds in CI. Some other limits apply:
   calls for everyone who lints it.
 - `check` does not accept `--jev`.
 
-If a request fails, deslopper prints one error line to stderr that names the files in that
-request. It leaves the findings in that request without verdicts, still sends the requests
+If a request fails, deslopper prints one error line to stderr that names the first three
+files in that request and counts the rest. It leaves the findings in that request without verdicts, still sends the requests
 after it, and exits with the code of the scan. With `--format json`, the error
 goes into the payload instead.
 
