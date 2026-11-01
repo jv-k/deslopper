@@ -5,8 +5,9 @@
 # then require the count line and a listing line that is exactly the skill name, nothing
 # about formatting. The name must match a whole line, not the blob, because the listing
 # echoes the source path and on CI that path itself contains "deslopper". Takes the repo
-# root as $1 (used by the red-case checks), defaulting to the checkout this script lives
-# in, resolved absolute because the CLI reads `scripts/..` as a GitHub owner/repo slug.
+# root as $1 (used by the red cases in tests/test_check_skill_discovery_script.py),
+# defaulting to the checkout this script lives in, resolved absolute because the CLI reads
+# `scripts/..` as a GitHub owner/repo slug.
 set -euo pipefail
 root="$(cd "${1:-$(dirname "$0")/..}" && pwd)"
 
