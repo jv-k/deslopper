@@ -12,7 +12,7 @@
       "name": "cutoff-disclaimer",
       "tier": "warn",
       "flags": "i",
-      "words": ["specific details are (?:limited|scarce)", "as of my last (?:update|training)", "as of my knowledge cutoff", "I don't have access to", "not widely (?:documented|available|disclosed)", "based on (?:the )?available information", "in the (?:provided|available) (?:sources|search results)", "does not by itself establish"],
+      "words": ["specific details are (?:limited|scarce)", "as of my last (?:update|training)", "as of my knowledge cutoff", "I don['\u2019]t have access to", "not widely (?:documented|available|disclosed)", "based on (?:the )?available information", "in the (?:provided|available) (?:sources|search results)", "does not by itself establish"],
       "message": "cutoff disclaimer, find the fact or cut"
     },
     {

@@ -147,3 +147,5 @@
 ::warning file=comprehensive.md,line=135,col=44::emoji - emoji or decorative checkmark in body text
 ::error file=comprehensive.md,line=151,col=9::em-dash - em dash in prose, use a colon, comma, parentheses, or two sentences
 ::warning file=comprehensive.md,line=151,col=17::filler-verb - filler verb, use a plain verb or cut
+::warning file=comprehensive.md,line=153,col=1::false-suspense - false suspense before a reveal, start with the point
+::error file=comprehensive.md,line=153,col=5::curly-quote - curly quote, use a straight quote
