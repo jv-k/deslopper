@@ -251,7 +251,7 @@ def test_one_file_over_the_budget_is_split_across_requests(monkeypatch):
     assert [f.verdict for f in judged.result.smells] == ["keep"] * 6
 
 
-def test_many_short_smells_split_on_the_question_limit_before_the_state_budget(monkeypatch):
+def test_many_short_smells_split_on_the_question_budget_before_the_state_budget(monkeypatch):
     # 600 short smells make about 80,000 characters of state, so the state budget
     # alone would put 478 questions in the first request. Jev refused 418 in the
     # measurement, so the questions must close each batch first.
@@ -271,7 +271,7 @@ def test_many_short_smells_split_on_the_question_limit_before_the_state_budget(m
     assert judged.result.keep == 600
 
 
-def test_a_question_over_the_question_limit_still_goes_alone_in_its_own_request(monkeypatch):
+def test_a_question_over_the_question_budget_still_goes_alone_in_its_own_request(monkeypatch):
     calls = canned_jev(monkeypatch, [("keep", 0.9)])
     monkeypatch.setattr(jev, "QUESTION_CHAR_BUDGET", 1)
     result, sources = _many_files(files=1, per_file=2)
