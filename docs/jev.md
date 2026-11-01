@@ -99,7 +99,7 @@ clear the cache, delete the folder.
 Triage only adds notes. It never changes the exit code, so a `keep` verdict cannot make a
 lint pass, and the gate holds in CI. Some other limits apply:
 
-- deslopper never sends smells on an exempt line.
+- deslopper never sends smells on an exempt line or in an exempt region.
 - A clean run sends no request. deslopper packs the smells, in file order, into as few
   requests as fit in Jev's window. One request can hold smells from many files, and a
   file with many smells can span more than one request.
