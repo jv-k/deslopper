@@ -155,7 +155,7 @@
       "name": "inflated-word",
       "tier": "warn",
       "flags": "i",
-      "words": ["tapestry", "interplay", "garners?", "intricate", "crucial", "pivotal", "enduring", "realm", "myriad", "plethora", "interconnectedness", "nuanced", "commendable", "noteworthy", "ever-evolving", "ever-changing"],
+      "words": ["tapestry", "interplay", "garners?", "intricate", "crucial", "pivotal", "enduring", "realms?(?=\\s+of\\b)", "myriad", "plethora", "interconnectedness", "nuanced", "commendable", "noteworthy", "ever-evolving", "ever-changing"],
       "message": "inflated word, use a plain one"
     },
     {
