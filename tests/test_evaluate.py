@@ -64,9 +64,9 @@ def test_fixture_product_name_trips_no_tell(tmp_path, preset):
     """
     seed_sandbox(str(tmp_path))
     title = (tmp_path / "overview.md").read_text(encoding="utf-8").splitlines()[0]
+    assert title.startswith("# "), f"the fixture's first line is not its title: {title!r}"
     product = title.removeprefix("# ")
     tells = resolve({"extends": [f"deslopper:{preset}"]}).tells
-    assert tells
     for line in (product, f"{product} runs your jobs.", f"{product.lower()} run"):
         hits = [t.name for t in tells if list(t.matcher(line))]
         assert not hits, f"{line!r} trips {hits}"
