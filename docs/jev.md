@@ -25,8 +25,8 @@ Without the key, `--jev` exits 2 with a one-line hint and prints no findings.
 ## Read the output
 
 On a terminal with [gum](https://github.com/charmbracelet/gum), a tool from Charm that
-draws styled output in a terminal, a spinner names each file while Jev reads it, and each place then
-starts with Jev's rating:
+draws styled output in a terminal, a spinner shows each request while Jev reads it, and each place
+then starts with Jev's rating:
 
 ```text
   ✖ em-dash
@@ -83,7 +83,7 @@ The other formats carry the verdict too:
 deslopper keeps each verdict in a cache on disk, in `$XDG_CACHE_HOME/deslopper/jev`, or
 `~/.cache/deslopper/jev` when that variable is not set. A later run uses the cached verdict
 while the tell, its column, and the lines around the finding stay the same. A finding that
-only moved down the file is not sent again. A file whose findings are all cached sends no
+only moved down the file is not sent again. A run whose findings are all cached sends no
 request.
 
 Each cached verdict also keeps its share of the tokens and the cost of the request that
@@ -100,14 +100,16 @@ Triage only adds notes. It never changes the exit code, so a `keep` verdict cann
 lint pass, and the gate holds in CI. Some other limits apply:
 
 - deslopper never sends findings on a disabled line.
-- A file with no findings sends no request. A file with findings sends one request at
-  most.
+- A clean run sends no request. deslopper packs the findings, in file order, into as few
+  requests as fit in Jev's window. One request can hold findings from many files, and a
+  file with many findings can span more than one request.
 - `--jev` is a command-line flag only, never a config key. So no repo can turn on network
   calls for everyone who lints it.
 - `check` does not accept `--jev`.
 
-If a request fails, deslopper prints one error line to stderr, leaves the findings of that
-file without verdicts, and exits with the code of the scan. With `--format json`, the error
+If a request fails, deslopper prints one error line to stderr that names the files in that
+request. It leaves the findings in that request without verdicts, still sends the requests
+after it, and exits with the code of the scan. With `--format json`, the error
 goes into the payload instead.
 
 ## Send only the findings that need a rewrite
