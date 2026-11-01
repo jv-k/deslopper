@@ -462,6 +462,11 @@ WIDENED_POSITIVES = {
         "Notably, the run is fast.",
         "Ultimately, this is a choice.",
         "In the realm of build tools, speed wins.",
+        # Issue #123. The opener takes the inflated-word auth-noun exemption, so
+        # these stay flagged by the same guards.
+        "In the realm of possibility",
+        "In the realm of the user's experience",
+        "In the realm of the user experience",
         "In an era where builds are slow, speed wins.",
         "In a world where builds are slow, speed wins.",
         "Imagine a world where builds are fast.",
@@ -696,6 +701,11 @@ WIDENED_NEGATIVES = {
         "if it is not the realm of the client principal",
         "The name and realm of the delegated principal identity.",
         "principals registered in the realm of the compromised KDC",
+    ],
+    # Issue #123. The "In the realm of" opener before an auth noun.
+    "throat-clearing": [
+        "In the realm of the client, set the redirect URI.",
+        "In the realm of the user, add a role.",
     ],
     "vague-attribution": [
         "Config merges several sources in order.",
