@@ -130,7 +130,8 @@ class FenceLexer:
     QUOTES = "'\""
 
     def __init__(self):
-        self.in_block = False
+        # True while a block comment is open at the end of the last line fed.
+        self.in_block_comment = False
 
     def feed(self, line: str) -> tuple[str, list[str]]:
         """Return the masked line and the text of each comment on it, in order."""
@@ -138,8 +139,8 @@ class FenceLexer:
         comments = []
         quote = None
         i = 0
-        if self.in_block:
-            i = self._block(line, 0, comments)
+        if self.in_block_comment:
+            i = self._consume_block_comment(line, 0, comments)
             out.append(" " * i)
         while i < len(line):
             ch = line[i]
@@ -148,8 +149,7 @@ class FenceLexer:
                 out.append(" " * (len(line) - i))
                 break
             if quote is None and line.startswith("/*", i):
-                self.in_block = True
-                end = self._block(line, i + 2, comments)
+                end = self._consume_block_comment(line, i + 2, comments)
                 out.append(" " * (end - i))
                 i = end
                 continue
@@ -168,15 +168,17 @@ class FenceLexer:
             i += 1
         return "".join(out), comments
 
-    def _block(self, line, start, comments):
-        """Consume block comment text from `start`; return the index after it."""
+    def _consume_block_comment(self, line: str, start: int, comments: list[str]) -> int:
+        """Read block comment text from `start` and return the index just after it.
+
+        The text is appended to `comments`. The comment stays open past the line end when
+        `*/` is not on the line.
+        """
         close = line.find("*/", start)
-        if close < 0:
-            comments.append(line[start:])
-            return len(line)
-        comments.append(line[start:close])
-        self.in_block = False
-        return close + 2
+        self.in_block_comment = close < 0
+        end = len(line) if close < 0 else close
+        comments.append(line[start:end])
+        return end if close < 0 else close + 2
 
 
 @dataclass(frozen=True)
@@ -222,7 +224,7 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
                 lexer = None
             elif lexer is not None:
                 # An import line is lexed too, so a comment it opens still carries.
-                is_import = not lexer.in_block and ASTRO_IMPORT.match(line)
+                is_import = not lexer.in_block_comment and ASTRO_IMPORT.match(line)
                 masked, _comments = lexer.feed(line)
                 if not is_import:
                     yield ProseLine(ln, masked, ENTITY.sub(_blank, masked))
