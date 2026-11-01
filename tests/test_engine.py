@@ -1,4 +1,4 @@
-from deslopper.engine import lint_files, scan_prose
+from deslopper.engine import Dialect, dialect_for, lint_files, scan_prose
 from deslopper.rules import compile_tell
 
 
@@ -8,8 +8,10 @@ def lint_text(tmp_path, text, tells):
     return lint_files([("doc.md", str(p))], tells)
 
 
-def scan(text, is_mdx=False):
-    return list(scan_prose(text.splitlines(keepends=True), is_mdx))
+def scan(text, is_mdx=False, dialect=None):
+    if dialect is None:
+        dialect = Dialect.MDX if is_mdx else Dialect.MARKDOWN
+    return list(scan_prose(text.splitlines(keepends=True), dialect))
 
 
 # scan_prose is the seam under lint_file: raw lines in, the prose lines that tells
@@ -46,6 +48,43 @@ def test_scan_prose_skips_mdx_esm_only_when_mdx():
     text = "import x from 'y';\n; body\n"
     assert [p.lineno for p in scan(text, is_mdx=True)] == [2]
     assert [p.lineno for p in scan(text, is_mdx=False)] == [1, 2]
+
+
+# The dialect is the one place the scanner learns the file type. The runner picks it
+# from the display path's extension.
+
+def test_dialect_for_maps_extension():
+    assert dialect_for("doc.mdx") is Dialect.MDX
+    assert dialect_for("src/pages/index.astro") is Dialect.ASTRO
+    assert dialect_for("README.md") is Dialect.MARKDOWN
+    assert dialect_for("notes.markdown") is Dialect.MARKDOWN
+    assert dialect_for("notes.txt") is Dialect.MARKDOWN
+    assert dialect_for("no-extension") is Dialect.MARKDOWN
+
+
+def test_dialect_has_exactly_three_cases():
+    assert {d.name for d in Dialect} == {"MARKDOWN", "MDX", "ASTRO"}
+
+
+def test_scan_prose_defaults_to_markdown():
+    text = "import x from 'y';\n"
+    assert [p.lineno for p in scan_prose(text.splitlines(keepends=True))] == [1]
+
+
+def test_scan_prose_skips_front_matter_in_every_dialect():
+    for dialect in Dialect:
+        for close in ("---", "..."):
+            text = f"---\ntitle: a;\n{close}\nbody;\n"
+            assert [p.lineno for p in scan(text, dialect=dialect)] == [4], (dialect, close)
+
+
+def test_scan_prose_astro_reads_like_markdown():
+    # Until the Astro work lands, Astro skips its first-line `---` block as front matter
+    # and lints import/export lines as prose, the same as Markdown.
+    text = "---\nimport A from './a';\n---\nimport the data; then go\n"
+    assert [p.lineno for p in scan(text, dialect=Dialect.ASTRO)] == [4]
+    assert [p.lineno for p in scan(text, dialect=Dialect.ASTRO)] == \
+        [p.lineno for p in scan(text, dialect=Dialect.MARKDOWN)]
 
 
 # Fence handling follows CommonMark's block rules. Each of these used to open or close a
@@ -208,3 +247,13 @@ def test_md_does_not_skip_import_prose(tmp_path):
     p.write_text("import the data; then continue\n", encoding="utf-8")
     r = lint_files([("doc.md", str(p))], [compile_tell(SEMI)])
     assert [f.line for f in r.smells] == [1]
+
+
+def test_lint_files_picks_dialect_from_display_path(tmp_path):
+    # The read path has no extension; the display path decides the dialect.
+    text = "---\ntitle: a;\n...\nimport x from 'y';\n; body\n"
+    p = tmp_path / "blob"
+    p.write_text(text, encoding="utf-8")
+    lines = {name: [f.line for f in lint_files([(name, str(p))], [compile_tell(SEMI)]).smells]
+             for name in ("doc.md", "doc.mdx", "page.astro")}
+    assert lines == {"doc.md": [4, 5], "doc.mdx": [5], "page.astro": [4, 5]}

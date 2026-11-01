@@ -70,6 +70,12 @@ _Avoid_: calling `words` a word list. The entries are regex.
 
 ## Scanning
 
+**Dialect**:
+The file type the scanner reads a file as: Markdown, MDX, or Astro. The lint picks it from
+the file's extension, and anything that is not `.mdx` or `.astro` is Markdown. The dialect
+decides which lines are skipped, such as MDX import and export lines.
+_Avoid_: format, flavour.
+
 **Prose line**:
 A line that tells scan. Every line is a prose line unless it is skipped.
 
