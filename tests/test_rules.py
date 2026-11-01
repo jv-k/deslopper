@@ -554,6 +554,43 @@ WIDENED_POSITIVES = {
         "Several sources claimed it scales.",
         "Several sources suggested it scales.",
         "Several sources noted the cost.",
+        # Issue #95. Both entries take one verb list in the same tenses: present,
+        # past, and have/has with the past participle.
+        "Experts believe it scales.",
+        "Experts believed it scales.",
+        "Experts have believed it for years.",
+        "Experts say it scales.",
+        "Experts said it scales.",
+        "Experts have said it scales.",
+        "Experts suggest it scales.",
+        "Experts suggested it scales.",
+        "Experts has suggested it scales.",
+        "Experts agree it scales.",
+        "Experts agreed it scales.",
+        "Experts have agreed it scales.",
+        "Experts claim it scales.",
+        "Experts claimed it scales.",
+        "Experts have claimed it scales.",
+        "Experts report that it scales.",
+        "Experts reported the cost.",
+        "Experts have reported the cost.",
+        "Experts note the cost.",
+        "Experts noted the cost.",
+        "Experts have noted the cost.",
+        "Several sources believe it scales.",
+        "Several sources believed it scales.",
+        "Several sources have believed it for years.",
+        "Several sources agree it scales.",
+        "Several publications agreed it scales.",
+        "Several sources have agreed it scales.",
+        "Several sources have said it scales.",
+        "Several sources have suggested it scales.",
+        "Several sources have claimed it scales.",
+        "Several sources have reported the cost.",
+        "Several publications has reported the cost.",
+        "Several sources have noted the cost.",
+        "According to several sources, it scales.",
+        "according to several publications, it scales.",
     ],
     "chatbot-phrase": [
         "Would you like me to add tests?",
@@ -622,7 +659,28 @@ WIDENED_NEGATIVES = {
         "Add the user in the realm.",
         "Each realm has its own users.",
     ],
-    "vague-attribution": ["Config merges several sources in order."],
+    "vague-attribution": [
+        "Config merges several sources in order.",
+        # Issue #95. Each verb's noun form after have/has is not a reporting verb.
+        "The experts have beliefs we can test.",
+        "Several sources have a say in the order.",
+        "The experts have suggestions for the API.",
+        "Several sources have agreements with us.",
+        "Several sources have claims on the lock.",
+        "The experts have reports to file.",
+        "Several sources have notes on the draft.",
+        "The experts have a say in the order.",
+        "The experts have agreements with us.",
+        "The experts have claims on the lock.",
+        "The experts have notes on the draft.",
+        "Several sources have beliefs we can test.",
+        "Several sources have suggestions for the API.",
+        "Several sources have reports to file.",
+        # A form of the verb outside the tenses the tell takes.
+        "Experts reporting tools ship today.",
+        # "According to" fires only before "several sources".
+        "Config merges several sources according to their order.",
+    ],
     "not-just-x-but-y": [
         "The cache is not only keyed by its hash.",
         "It is not just its size.",
@@ -742,6 +800,13 @@ NEGATION_PIVOT_JOINED_NEGATIVES = [
     "This is not supported: see the docs.",
     "It is not a bug. Note: it's a feature.",
 ]
+
+
+def test_vague_attribution_misses_a_clause_between_noun_and_verb_by_design():
+    # Issue #95 decision: a clause between the noun and the verb is a deliberate
+    # miss. Catching it would mean matching across arbitrary text.
+    text = "Several sources, including X, say it scales."
+    assert not offsets(_preset_tell("vague-attribution"), text)
 
 
 # The tells from issues #60 and #61 whose patterns hold an apostrophe. Each takes a
