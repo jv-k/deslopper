@@ -155,6 +155,26 @@ def test_a_zero_cost_keeps_the_digits_the_gateway_sent(monkeypatch):
     assert f"{judged.cost:f}" == "0.000000"
 
 
+@pytest.mark.parametrize("market_cost", ["NaN", "Infinity", "-Infinity", "-0.000066"])
+def test_a_non_finite_or_negative_reply_cost_counts_as_zero(monkeypatch, tmp_path, market_cost):
+    canned_jev(monkeypatch, [("keep", 0.9)], tokens=(10, 1), cost=market_cost)
+    store = cache.Store(str(tmp_path))
+    monkeypatch.setattr(jev, "STATE_CHAR_BUDGET", 1)
+    result = LintResult(smells=[
+        _smell("a.md", 1, 1, "semicolon"),
+        _smell("b.md", 1, 1, "semicolon"),
+    ])
+    sources = {"a.md": "a; b\n", "b.md": "c; d\n"}
+
+    first = triage.run(result, sources, cache=store)
+    second = triage.run(result, sources, cache=store)
+
+    assert (first.result.keep, first.result.rewrite) == (2, 0)
+    assert first.tokens == 22
+    assert first.cost == Decimal(0) and first.cost.is_finite()
+    assert second.saved_cost == Decimal(0) and second.saved_cost.is_finite()
+
+
 def test_a_reply_without_usage_or_cost_still_counts_the_verdicts(monkeypatch):
     def post(body):
         return {"answers": {key: {"type": "choice", "choice": "rewrite",

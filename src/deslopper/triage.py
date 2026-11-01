@@ -123,9 +123,7 @@ def _recall(cache, key, smell):
         tokens = 0
     # One guard, not `or Decimal(0)`: a zero is falsy, and `or` would drop the places
     # of a cached "0.000000000" that the report prints.
-    cost = jev.parse_cost(entry.get("cost"))
-    if cost is None or not cost.is_finite() or cost < 0:
-        cost = Decimal(0)
+    cost = _countable_cost(jev.parse_cost(entry.get("cost")))
     return hit, tokens, cost
 
 
@@ -157,6 +155,14 @@ def _judge(smell, answer):
                        probability=answer.probabilities.get(answer.value))
     except (ValueError, TypeError):
         return None
+
+
+def _countable_cost(cost) -> Decimal:
+    """A cost as spent, or zero when there is none or it is not a finite,
+    non-negative number. A live reply and a cached share both go through it."""
+    if cost is None or not cost.is_finite() or cost < 0:
+        return Decimal(0)
+    return cost
 
 
 def _state(blocks) -> str:
@@ -266,7 +272,7 @@ def run(result: LintResult, sources: dict, progress=None, cache=None) -> Triage:
             errors.append(f"{_named(files)}: {exc}")
             continue
         spent = reply.total_tokens or 0
-        price = reply.cost if reply.cost is not None else Decimal(0)
+        price = _countable_cost(reply.cost)
         tokens += spent
         cost += price
         unusable = 0
