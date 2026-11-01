@@ -1191,12 +1191,28 @@
       "tier": "warn",
       "name": "filler-verb",
       "message": "filler verb, use a plain verb or cut"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 153,
+      "col": 1,
+      "tier": "warn",
+      "name": "false-suspense",
+      "message": "false suspense before a reveal, start with the point"
+    },
+    {
+      "path": "comprehensive.md",
+      "line": 153,
+      "col": 5,
+      "tier": "error",
+      "name": "curly-quote",
+      "message": "curly quote, use a straight quote"
     }
   ],
   "unreadable": [],
   "summary": {
-    "errors": 33,
-    "warnings": 116,
+    "errors": 34,
+    "warnings": 117,
     "unreadable": 0
   }
 }

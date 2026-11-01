@@ -149,3 +149,5 @@ This whole block — has a § and a · and leverages but is disabled.
 <!-- deslop-lint-enable -->
 
 Back on — after enable, flags again.
+
+Here’s the thing: a curly apostrophe still fires the survey tells.
