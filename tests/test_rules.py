@@ -580,6 +580,16 @@ AGGRESSIVE_WIDENED_POSITIVES = {
         "It is deeply useful.",
         "It is remarkably fast.",
         "It is fundamentally sound.",
+        # Near the technical uses issue #72 exempts, still intensifiers.
+        "It is absolutely necessary.",
+        "You absolutely must run it.",
+        "It is incredibly useful.",
+        "It is deeply important.",
+        "We can deeply customize it.",
+        "It is fundamentally different.",
+        "It is truly immutable.",
+        "We care as deeply as anyone.",
+        "It is positioned as absolutely essential.",
     ],
     "generic-conclusion": [
         "At the end of the day, it ships.",
@@ -602,6 +612,26 @@ AGGRESSIVE_WIDENED_POSITIVES = {
 
 AGGRESSIVE_WIDENED_NEGATIVES = {
     "generic-conclusion": ["The ring buffer wraps in the end state."],
+    # Issue #72. Honest technical uses from the MDN and Django docs, where the
+    # word names a position, a depth, or a representation, not a degree.
+    "strong-intensifier": [
+        "The menu is absolutely positioned.",
+        "Absolutely position the badge.",
+        "Absolutely-positioned elements leave the flow.",
+        "Avoid absolutely positioning the footer.",
+        "The element is not absolutely or fixed positioned.",
+        "Auto-sized absolutely and fixed-positioned elements shrink.",
+        "The box is positioned absolutely.",
+        "It walks a deeply nested tree.",
+        "It walks a deeply-nested tree.",
+        "Avoid deeply nesting the lists.",
+        "Lists can be nested as deeply as needed.",
+        "The badge absolutely positions itself.",
+        "Lists may nest as deeply as desired.",
+        "Nested thenables are deeply flattened to one promise.",
+        "It is fundamentally represented as a count of nanoseconds.",
+        "The badges get a truly random hue.",
+    ],
 }
 
 

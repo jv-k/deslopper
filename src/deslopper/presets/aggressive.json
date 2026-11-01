@@ -39,7 +39,7 @@
       "name": "strong-intensifier",
       "tier": "warn",
       "flags": "i",
-      "words": ["genuinely", "truly", "incredibly", "absolutely", "deeply", "remarkably", "fundamentally"],
+      "words": ["genuinely", "truly(?![ -]random\\b)", "incredibly", "(?<!\\bpositioned )absolutely(?![ -](?:position(?:ed|ing|s)?|(?:or|and) fixed)\\b)", "(?<!\\bnest as )(?<!\\bnested as )deeply(?![ -](?:nest(?:ed|ing|s)?|flatten(?:ed|ing|s)?)\\b)", "remarkably", "fundamentally(?![ -]represented\\b)"],
       "message": "strong intensifier, cut it or give the evidence"
     },
     {
