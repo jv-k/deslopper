@@ -73,20 +73,27 @@ _Avoid_: calling `words` a word list. The entries are regex.
 **Dialect**:
 The file type the scanner reads a file as: Markdown, MDX, or Astro. The lint picks it from
 the file's extension, and anything that is not `.mdx` or `.astro` is Markdown. The dialect
-decides which lines are skipped, such as MDX import and export lines.
+decides which lines are skipped, such as MDX import and export lines, and how the
+first-line `---` block is read.
 _Avoid_: format, flavour.
+
+**Astro fence**:
+The code block that a first-line `---` opens in an Astro file, closed only by a bare
+`---` line. It is not front matter. Its lines are prose lines in which everything outside
+a string literal is masked. Its `import` lines are skipped.
 
 **Prose line**:
 A line that tells scan. Every line is a prose line unless it is skipped.
 
 **Skipped line**:
-A line that no tell scans. Front matter, fenced code, MDX import and export lines, and
-exempt regions are skipped.
+A line that no tell scans. Front matter, fenced code, MDX import and export lines, `import`
+lines in an Astro fence, and exempt regions are skipped.
 
 **Masking**:
 Blanking part of a prose line to spaces before tells scan it, so no tell fires inside that
-part. The rest of the line is still scanned. Inline code and HTML entities are masked. The
-entity step is the one the phase names key on.
+part. The rest of the line is still scanned. Inline code and HTML entities are masked, and
+in an Astro fence so is all code outside string literals. The entity step is the one the
+phase names key on.
 
 **Exempt region**:
 Lines that the author takes out of the scan with a `deslop-lint-disable` comment, up to the

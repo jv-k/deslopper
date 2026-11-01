@@ -2,7 +2,8 @@
 
 `scan_prose` owns the block structure: it decides which lines are prose (not front
 matter, not fenced or inline code, not MDX ESM, not inside an exempt region) and masks
-what a tell must not see. `lint_file` is then a thin runner over the prose lines.
+what a tell must not see. In an Astro file the first-line `---` fence is code, and
+`FenceLexer` masks all of it except the text inside its string literals. `lint_file` is then a thin runner over the prose lines.
 """
 
 import re
@@ -13,6 +14,8 @@ from .smells import Smell, LintResult
 
 FRONT_OPEN = re.compile(r"^---\s*$")
 FRONT_CLOSE = re.compile(r"^(---|\.\.\.)\s*$")
+# Astro's code fence closes only on a bare `---`, never on the YAML `...` closer.
+ASTRO_FENCE_CLOSE = re.compile(r"^---\s*$")
 # A fence is indented at most 3 spaces (4+ is indented code, not a fence); the rest of
 # the line is the info string. `scan_prose` applies the CommonMark opener/closer rules.
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
@@ -30,14 +33,17 @@ ENABLE = re.compile(r"<!--\s*deslop-lint-enable(?![-\w])[^>]*-->")
 # not prose. Skip those lines so their punctuation is not scanned. JSX is left
 # alone: it wraps rendered prose that should still be linted.
 MDX_ESM = re.compile(r"^(import|export)\b")
+# In the Astro fence an import line is skipped, so its module specifier is never read as
+# copy. An export line is lexed like any other, because `export const` often holds copy.
+ASTRO_IMPORT = re.compile(r"^import\b")
 
 
 class Dialect(Enum):
     """The file type the scanner reads. The scanner's file-type rules live here.
 
     The dialect decides how the first-line `---` block is read and whether top-level
-    import/export lines are ESM. Astro reads its `---` block as front matter for now,
-    the same as Markdown.
+    import/export lines are ESM. Markdown and MDX skip the block as front matter. Astro
+    reads it as a code fence whose string literals are prose.
     """
     MARKDOWN = auto()
     MDX = auto()
@@ -45,8 +51,13 @@ class Dialect(Enum):
 
     @property
     def front_matter_close(self) -> "re.Pattern":
-        """The line that closes a first-line `---` block. The same in every dialect."""
-        return FRONT_CLOSE
+        """The line that closes a first-line `---` block."""
+        return ASTRO_FENCE_CLOSE if self is Dialect.ASTRO else FRONT_CLOSE
+
+    @property
+    def lexes_front_matter(self) -> bool:
+        """Whether the first-line `---` block is code to lex, not front matter to skip."""
+        return self is Dialect.ASTRO
 
     @property
     def skips_esm(self) -> bool:
@@ -99,6 +110,41 @@ class FenceTracker:
         return "prose"
 
 
+class FenceLexer:
+    """Masks the code in Astro fence lines and keeps the text of their string literals.
+
+    Feed the fence lines in order. Each comes back the same length, with everything
+    outside a single- or double-quoted literal blanked to spaces, the quote characters
+    included, so a match offset is still the source column. A backslash escapes the next
+    character inside a literal; escapes are not decoded. A quoted literal that reaches
+    the end of the line without a closer ends there and does not carry to the next line.
+    The lexer is a class because later regions (comments, template literals) do carry.
+    """
+
+    QUOTES = "'\""
+
+    def feed(self, line: str) -> str:
+        out = []
+        quote = None
+        i = 0
+        while i < len(line):
+            ch = line[i]
+            if quote is None:
+                if ch in self.QUOTES:
+                    quote = ch
+                out.append(" ")
+            elif ch == "\\" and i + 1 < len(line):
+                out.append(line[i:i + 2])
+                i += 1
+            elif ch == quote:
+                quote = None
+                out.append(" ")
+            else:
+                out.append(ch)
+            i += 1
+        return "".join(out)
+
+
 @dataclass(frozen=True)
 class ProseLine:
     """One prose line a tell sees: its 1-based number and the masked text for each phase.
@@ -115,11 +161,14 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
     """Yield a ProseLine for each line that is prose, in order.
 
     Skips front matter, fenced code, MDX ESM statements, and exempt regions, and masks
-    inline code and HTML entities. The dialect says which of those rules apply. Line
-    endings on the input are tolerated, not required.
+    inline code and HTML entities. The dialect says which of those rules apply. In an
+    Astro fence each line is lexed instead: its string literals stay and the code around
+    them is masked, then HTML entities are masked as for prose. Line endings on the input
+    are tolerated, not required.
     """
     fences = FenceTracker()
     in_front = False
+    lexer = None
     disabled = False
     first = True
 
@@ -130,10 +179,16 @@ def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
             first = False
             if FRONT_OPEN.match(line):
                 in_front = True
+                if dialect.lexes_front_matter:
+                    lexer = FenceLexer()
                 continue
         if in_front:
             if dialect.front_matter_close.match(line):
                 in_front = False
+                lexer = None
+            elif lexer is not None and not ASTRO_IMPORT.match(line):
+                masked = lexer.feed(line)
+                yield ProseLine(ln, masked, ENTITY.sub(_blank, masked))
             continue
 
         if fences.feed(line) != "prose":

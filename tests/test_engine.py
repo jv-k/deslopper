@@ -71,16 +71,16 @@ def test_scan_prose_defaults_to_markdown():
     assert [p.lineno for p in scan_prose(text.splitlines(keepends=True))] == [1]
 
 
-def test_scan_prose_skips_front_matter_in_every_dialect():
-    for dialect in Dialect:
+def test_scan_prose_skips_front_matter_in_markdown_and_mdx():
+    for dialect in (Dialect.MARKDOWN, Dialect.MDX):
         for close in ("---", "..."):
             text = f"---\ntitle: a;\n{close}\nbody;\n"
             assert [p.lineno for p in scan(text, dialect=dialect)] == [4], (dialect, close)
 
 
-def test_scan_prose_astro_reads_like_markdown():
-    # Until the Astro work lands, Astro skips its first-line `---` block as front matter
-    # and lints import/export lines as prose, the same as Markdown.
+def test_scan_prose_astro_markup_reads_like_markdown():
+    # After the fence, Astro markup goes through the Markdown path: an import line there
+    # is prose, the same as in Markdown.
     text = "---\nimport A from './a';\n---\nimport the data; then go\n"
     assert [p.lineno for p in scan(text, dialect=Dialect.ASTRO)] == [4]
     assert [p.lineno for p in scan(text, dialect=Dialect.ASTRO)] == \
@@ -256,4 +256,99 @@ def test_lint_files_picks_dialect_from_display_path(tmp_path):
     p.write_text(text, encoding="utf-8")
     lines = {name: [f.line for f in lint_files([(name, str(p))], [compile_tell(SEMI)]).smells]
              for name in ("doc.md", "doc.mdx", "page.astro")}
-    assert lines == {"doc.md": [4, 5], "doc.mdx": [5], "page.astro": [4, 5]}
+    # In .astro the `...` does not close the fence, so every later line is fence code.
+    assert lines == {"doc.md": [4, 5], "doc.mdx": [5], "page.astro": []}
+
+
+# An .astro file's first-line `---` opens a code fence. Only the text inside its string
+# literals is prose; the code around them is masked, so a column is the source column.
+
+def lint_astro(tmp_path, text, tells):
+    p = tmp_path / "Page.astro"
+    p.write_text(text, encoding="utf-8")
+    r = lint_files([("Page.astro", str(p))], tells)
+    return [(f.line, f.col, f.name) for f in r.smells]
+
+
+def test_astro_single_quoted_literal_reports_source_column(tmp_path):
+    text = "---\nconst T = 'a; b';\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 13, "semicolon")]
+
+
+def test_astro_double_quoted_literal_reports_source_column(tmp_path):
+    text = '---\nconst T = "a; b";\n---\n'
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 13, "semicolon")]
+
+
+def test_astro_code_outside_literals_raises_nothing(tmp_path):
+    text = ("---\n"
+            "const f = (a) => { return a; };\n"
+            "let n = 1; n++; if (n > 0 && n !== 2) { n -= 1; }\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == []
+
+
+def test_astro_escaped_quote_stays_inside_the_literal(tmp_path):
+    text = "---\nconst T = 'don\\'t; stop';\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 18, "semicolon")]
+
+
+def test_astro_unclosed_quote_ends_at_the_line_end(tmp_path):
+    text = "---\nconst T = 'open; here\nconst U = 1;\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 16, "semicolon")]
+
+
+def test_astro_import_line_skipped_and_export_const_scanned(tmp_path):
+    text = ("---\n"
+            "import Card from '../a;b.astro';\n"
+            "export const T = 'a; b';\n"
+            "---\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(3, 20, "semicolon")]
+
+
+def test_astro_fence_closes_on_dashes_not_dots(tmp_path):
+    text = ("---\n"
+            "const A = 'a; b';\n"
+            "...\n"
+            "const B = 'c; d';\n"
+            "---\n"
+            "; body\n")
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == \
+        [(2, 13, "semicolon"), (4, 13, "semicolon"), (6, 1, "semicolon")]
+
+
+def test_astro_dashes_after_line_one_are_not_a_fence(tmp_path):
+    text = "# heading\n---\n; body\nconst T = 'a';\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == \
+        [(3, 1, "semicolon"), (4, 14, "semicolon")]
+
+
+def test_astro_both_entity_phases_apply_to_fence_literals(tmp_path):
+    mdash_word = {"name": "mdash-word", "tier": "warn", "kind": "regex",
+                  "pattern": "mdash", "message": "post"}
+    text = "---\nconst T = 'a &mdash; b — c';\n---\n"
+    tells = [compile_tell(EM_ENTITY), compile_tell(EM_LITERAL), compile_tell(mdash_word)]
+    # The pre-entity tell sees the entity; the post-entity tells see it masked.
+    assert lint_astro(tmp_path, text, tells) == [(2, 14, "em-dash"), (2, 24, "em-dash")]
+
+
+def test_astro_fence_lines_skip_inline_code_masking(tmp_path):
+    text = "---\nconst T = 'a `x;` b';\n---\n"
+    assert lint_astro(tmp_path, text, [compile_tell(SEMI)]) == [(2, 16, "semicolon")]
+
+
+def test_astro_markup_after_fence_reports_as_before(tmp_path):
+    markup = "\n<p>a; b</p>\n`c;` and d;\n"
+    astro = lint_astro(tmp_path, "---\nconst A = 1;\n---\n" + markup, [compile_tell(SEMI)])
+    md = lint_text(tmp_path, "---\ntitle: x\n---\n" + markup, [compile_tell(SEMI)])
+    assert astro == [(f.line, f.col, f.name) for f in md.smells] == \
+        [(5, 5, "semicolon"), (6, 11, "semicolon")]
+
+
+def test_md_and_mdx_still_skip_the_same_fence_as_front_matter(tmp_path):
+    text = "---\nconst T = 'a; b';\n---\n; body\n"
+    p = tmp_path / "blob"
+    p.write_text(text, encoding="utf-8")
+    for name in ("doc.md", "doc.mdx"):
+        smells = lint_files([(name, str(p))], [compile_tell(SEMI)]).smells
+        assert [(f.line, f.col) for f in smells] == [(4, 1)], name
