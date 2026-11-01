@@ -7,6 +7,7 @@ what a tell must not see. `lint_file` is then a thin runner over the prose lines
 
 import re
 from dataclasses import dataclass
+from enum import Enum
 
 from .smells import Smell, LintResult
 
@@ -29,6 +30,33 @@ ENABLE = re.compile(r"<!--\s*deslop-lint-enable(?![-\w])[^>]*-->")
 # not prose. Skip those lines so their punctuation is not scanned. JSX is left
 # alone: it wraps rendered prose that should still be linted.
 MDX_ESM = re.compile(r"^(import|export)\b")
+
+
+class Dialect(Enum):
+    """The file type the scanner reads. The scanner's file-type rules live here.
+
+    The dialect decides how the first-line `---` block is read and whether top-level
+    import/export lines are ESM. Astro reads its `---` block as front matter for now,
+    the same as Markdown.
+    """
+    MARKDOWN = "markdown"
+    MDX = "mdx"
+    ASTRO = "astro"
+
+    @property
+    def skips_esm(self) -> bool:
+        return self is Dialect.MDX
+
+
+_DIALECT_BY_EXTENSION = {".mdx": Dialect.MDX, ".astro": Dialect.ASTRO}
+
+
+def dialect_for(path: str) -> Dialect:
+    """The dialect for a path, by its extension. Anything unlisted is Markdown."""
+    for ext, dialect in _DIALECT_BY_EXTENSION.items():
+        if path.endswith(ext):
+            return dialect
+    return Dialect.MARKDOWN
 
 
 def _blank(match: "re.Match") -> str:
@@ -78,11 +106,12 @@ class ProseLine:
     post_entity: str
 
 
-def scan_prose(raw_lines, is_mdx=False):
+def scan_prose(raw_lines, dialect=Dialect.MARKDOWN):
     """Yield a ProseLine for each line that is prose, in order.
 
     Skips front matter, fenced code, MDX ESM statements, and exempt regions, and masks
-    inline code and HTML entities. Line endings on the input are tolerated, not required.
+    inline code and HTML entities. The dialect says which of those rules apply. Line
+    endings on the input are tolerated, not required.
     """
     fences = FenceTracker()
     in_front = False
@@ -105,7 +134,7 @@ def scan_prose(raw_lines, is_mdx=False):
         if fences.feed(line) != "prose":
             continue
 
-        if is_mdx and MDX_ESM.match(line):
+        if dialect.skips_esm and MDX_ESM.match(line):
             continue
 
         masked = INLINE_CODE.sub(_blank, line)
@@ -140,7 +169,7 @@ def lint_file(display_path, read_path, pre_tells, post_tells):
         return [], False
 
     smells = []
-    for prose in scan_prose(raw_lines, display_path.endswith(".mdx")):
+    for prose in scan_prose(raw_lines, dialect_for(display_path)):
         smells.extend(_run_tells(pre_tells, prose.pre_entity, display_path, prose.lineno))
         smells.extend(_run_tells(post_tells, prose.post_entity, display_path, prose.lineno))
     # Tells run one after another, so a line's smells arrive in tell order. Sort them
