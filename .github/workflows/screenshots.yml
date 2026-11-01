@@ -164,3 +164,6 @@ jobs:
           commit_message: "docs(img): regenerate release visuals"
           commit_user_name: "github-actions[bot]"
           commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          # The author defaults to github.actor (whoever pushed or released), not the
+          # commit_user above. Name the bot so the render commit is not credited to a person.
+          commit_author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
