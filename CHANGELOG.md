@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.2
+
+- The help banner no longer shows an Author line. It keeps the version and the homepage.
+
 ## Unreleased
 
 - `deslopper update` runs `brew update` before `brew upgrade` on a Homebrew install. A

@@ -25,7 +25,6 @@ WORDMARK = (
     ("┻━┛", "┗━╸", "┗━┛", "┗━╸", "┗━┛", "╹  ", "╹  ", "┗━╸", "╹┗╸"),
 )
 
-_AUTHOR = "John Valai"
 _HOMEPAGE = "https://github.com/jv-k/deslopper"
 _TAGLINE = (
     "A deterministic slop linter for Markdown: it finds the mechanical tells "
@@ -34,23 +33,22 @@ _TAGLINE = (
 
 
 def _package_facts():
-    """Tagline, author, homepage from the installed package metadata.
+    """Tagline and homepage from the installed package metadata.
 
     The literals above are fallbacks so the banner never renders a blank field
     (e.g. running from a source tree that was never pip-installed).
     """
-    tagline, author, homepage = _TAGLINE, _AUTHOR, _HOMEPAGE
+    tagline, homepage = _TAGLINE, _HOMEPAGE
     try:
         meta = importlib_metadata.metadata("deslopper")
     except importlib_metadata.PackageNotFoundError:
-        return tagline, author, homepage
+        return tagline, homepage
     tagline = meta.get("Summary") or tagline
-    author = meta.get("Author") or author
     for url in meta.get_all("Project-URL") or []:
         label, _, dest = url.partition(",")
         if label.strip().lower() == "homepage" and dest.strip():
             homepage = dest.strip()
-    return tagline, author, homepage
+    return tagline, homepage
 
 # Label column for option/command/example rows, VerBump's OPT_COL pattern:
 # a label that reaches the column stacks instead of crowding the description.
@@ -223,12 +221,11 @@ def _example_row(rend, command, desc):
 
 
 def _banner(rend):
-    tagline, author, homepage = _package_facts()
+    tagline, homepage = _package_facts()
     for parts in ui.gradient(["".join(row) for row in WORDMARK]):
         rend.line(*parts)
     rend.line()
     rend.line(("pill-ok", f" deslopper v{__version__} "))
-    rend.line(" ", ("bullet", ui.I_BULLET), f" Author:   {author}")
     rend.line(" ", ("bullet", ui.I_BULLET), f" Homepage: {homepage}")
     rend.line()
     rend.prose(tagline)

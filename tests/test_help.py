@@ -28,6 +28,12 @@ def test_root_help_shows_banner_and_sections(capsys):
         assert command in out
 
 
+def test_root_help_banner_names_no_author(capsys):
+    _, out, _ = run(["--help"], capsys)
+    assert "Author" not in out
+    assert "Homepage:" in out
+
+
 def test_root_help_piped_is_plain(capsys, monkeypatch):
     monkeypatch.delenv("CLICOLOR_FORCE", raising=False)
     _, out, _ = run(["-h"], capsys)
