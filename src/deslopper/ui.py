@@ -1,8 +1,8 @@
-"""Terminal vocabulary: the icons, the wordmark's colour stops, the width, word wrap,
+"""Terminal vocabulary: the icons, the wordmark's gradient, the width, word wrap,
 and the one-line status messages.
 
-The look is VerBump's (github.com/jv-k/verbump): the same icons and the same rainbow
-stops. Styling itself is gum's job (gum.py, ADR 0002); this module only names things.
+The icons are VerBump's (github.com/jv-k/verbump), and the wordmark's gradient runs
+across Monokai Pro's yellow, green and cyan. Styling itself is gum's job (gum.py, ADR 0002); this module only names things.
 """
 
 import os
@@ -17,8 +17,29 @@ I_INFO = "ℹ"
 I_BULLET = "•"
 I_TRACE = "↳"
 
-# VerBump's 7-stop 256-colour ramp, stretched to one stop per wordmark letter.
-RAINBOW_STOPS = (196, 202, 214, 226, 82, 39, 21, 93, 163)
+# The wordmark gradient's three stops: Monokai Pro's yellow, green and cyan, the
+# palette the README's screenshots use.
+GRADIENT_STOPS = ((255, 216, 102), (169, 220, 118), (120, 220, 232))
+
+# How many columns each row's gradient starts to the right of the row above, which
+# tilts the gradient into a diagonal.
+GRADIENT_SHIFT = 2
+
+
+def _blend(t: float) -> str:
+    """The colour at `t`, from 0 at the first stop to 1 at the last, as #rrggbb."""
+    at = t * (len(GRADIENT_STOPS) - 1)
+    i = min(int(at), len(GRADIENT_STOPS) - 2)
+    pairs = zip(GRADIENT_STOPS[i], GRADIENT_STOPS[i + 1])
+    return "#%02x%02x%02x" % tuple(round(a + (b - a) * (at - i)) for a, b in pairs)
+
+
+def gradient(rows) -> list:
+    """Each row of `rows` as (colour, cell) parts on the diagonal gradient. A space
+    gets no colour."""
+    span = max(len(rows[0]) - 1 + GRADIENT_SHIFT * (len(rows) - 1), 1)
+    return [[("" if cell == " " else _blend((x + GRADIENT_SHIFT * y) / span), cell)
+             for x, cell in enumerate(row)] for y, row in enumerate(rows)]
 
 
 def term_cols(stream=None) -> int:

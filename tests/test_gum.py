@@ -187,6 +187,8 @@ def test_write_falls_back_to_plain_text_when_gum_fails(gum_shim, capsys, monkeyp
 
 def test_render_takes_256_colour_numbers_and_the_ok_pill():
     assert gum._part("196", "d") == '{{ Color "196" "d" }}'
+    assert gum._part("#f2774a", "d") == '{{ Color "#f2774a" "d" }}'
+    assert gum._part("bold #8b5cf6", "d") == '{{ Bold (Color "#8b5cf6" "d") }}'
     assert gum._part("pill-ok", " v1 ") == \
         '{{ Bold (Color "%s" "%s" " v1 ") }}' % (gum.PALETTE["on-accent"], gum.PALETTE["ok"])
 
@@ -259,3 +261,19 @@ def test_gum_gets_the_width_as_padded_header_names(gum_shim):
     gum.render([gum.Table(columns=["Jev", "a"], rows=[[[("", "now")], [("", "1")]]], width=16)])
     table = [c for c in gum_shim() if c["args"][0] == "table"][0]
     assert table["args"][table["args"].index("--columns") + 1] == "Jev,a     "
+
+
+def test_gum_keeps_24_bit_colour_when_colorterm_says_the_terminal_has_it(monkeypatch):
+    # gum draws into a pipe, so under tmux it cannot ask tmux and drops to 256 colours.
+    monkeypatch.setenv("TERM", "tmux-256color")
+    for depth in ("truecolor", "24bit"):
+        monkeypatch.setenv("COLORTERM", depth)
+        assert gum._env()["TERM"] == "xterm-256color"
+
+
+def test_gum_keeps_the_term_without_a_24_bit_colorterm(monkeypatch):
+    monkeypatch.setenv("TERM", "tmux-256color")
+    monkeypatch.delenv("COLORTERM", raising=False)
+    assert gum._env()["TERM"] == "tmux-256color"
+    monkeypatch.setenv("COLORTERM", "yes")
+    assert gum._env()["TERM"] == "tmux-256color"

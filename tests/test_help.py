@@ -1,12 +1,14 @@
 """The help system, driven through main(argv) with captured stdio."""
 
+import json
+
 import pytest
 
 from deslopper import __version__, gum
 from deslopper.cli import main
 
 ANSI = "\x1b["
-WORDMARK_CHUNK = "╺┳┓"  # the "d" of the figlet-future wordmark
+WORDMARK_CHUNK = "┳━┓"  # the "d" of the wordmark
 
 
 def run(args, capsys):
@@ -32,12 +34,37 @@ def test_root_help_piped_is_plain(capsys, monkeypatch):
     assert ANSI not in out
 
 
-def test_attended_root_help_is_drawn_by_gum_with_pills_and_rainbow(capsys, gum_shim):
+# The wordmark's gradient, worked out here apart from ui.py: yellow, green and cyan,
+# blended across the cells, each row starting 2 columns further along.
+STOPS = ((255, 216, 102), (169, 220, 118), (120, 220, 232))
+
+
+def _blend(t):
+    at = t * (len(STOPS) - 1)
+    i = min(int(at), len(STOPS) - 2)
+    return "#%02x%02x%02x" % tuple(
+        round(a + (b - a) * (at - i)) for a, b in zip(STOPS[i], STOPS[i + 1]))
+
+
+def test_attended_root_help_draws_the_wordmark_in_a_diagonal_gradient(capsys, gum_shim):
+    from deslopper.help import WORDMARK
+    _, out, _ = run(["--help"], capsys)
+    rows = ["".join(row) for row in WORDMARK]
+    span = len(rows[0]) - 1 + 2 * (len(rows) - 1)
+    for y, row in enumerate(rows):
+        drawn = "".join('{{ Color "%s" %s }}' % (_blend((x + 2 * y) / span),
+                                                 json.dumps(cell, ensure_ascii=False))
+                        for x, cell in enumerate(row) if cell != " ")
+        assert drawn in out.replace('{{ " " }}', ""), (y, out[:600])
+    assert '{{ Color "#ffd866" "┳" }}' in out  # the first cell is yellow
+    assert '{{ Color "#78dce8" "┗" }}' in out  # the last cell, the R's foot, is cyan
+
+
+def test_attended_root_help_is_drawn_by_gum_with_pills(capsys, gum_shim):
     _, out, _ = run(["--help"], capsys)
     assert [c["args"][0] for c in gum_shim()] == ["format"]
     assert '{{ Bold (Color "%s" "%s" " USAGE ") }}' % (
         gum.PALETTE["on-accent"], gum.PALETTE["accent"]) in out  # section pill
-    assert '{{ Color "196" "╺┳┓" }}' in out  # first rainbow stop
     assert f'" deslopper v{__version__} "' in out  # version pill
 
 

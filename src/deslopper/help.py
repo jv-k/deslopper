@@ -1,8 +1,8 @@
 """The help system: the wordmark banner and VerBump-style section rendering.
 
 The logo IS the wordmark below — figlet's "future" font, pre-rendered to a
-literal so the runtime stays standard-library only, one rainbow colour per
-letter. Sections are inverted-video pills; option rows are two columns with a
+literal so the runtime stays standard-library only, each cell coloured on a
+diagonal yellow, green and cyan gradient. Sections are inverted-video pills; option rows are two columns with a
 fixed description column, and every layout wraps to the width: COLUMNS wins,
 then the terminal's own size, then 80 — so piped output wraps neatly too (the
 colour gate still strips styling there).
@@ -13,11 +13,14 @@ from importlib import metadata as importlib_metadata
 
 from . import __version__, gum, ui
 
-# figlet "future", one 3-cell chunk per letter of "deslopper".
+# figlet "future", one 3-cell chunk per letter of "deslopper", with two letters
+# redrawn. The D spans its three cells with a bar along the top and the bottom, as
+# claude-gauge draws its own: the font's narrow D read as "ID". The R closes its bowl
+# and stands its leg under the bowl's right side, with a short foot.
 WORDMARK = (
-    ("╺┳┓", "┏━╸", "┏━┓", "╻  ", "┏━┓", "┏━┓", "┏━┓", "┏━╸", "┏━┓"),
-    (" ┃┃", "┣╸ ", "┗━┓", "┃  ", "┃ ┃", "┣━┛", "┣━┛", "┣╸ ", "┣┳┛"),
-    ("╺┻┛", "┗━╸", "┗━┛", "┗━╸", "┗━┛", "╹  ", "╹  ", "┗━╸", "╹┗╸"),
+    ("┳━┓", "┏━╸", "┏━┓", "╻  ", "┏━┓", "┏━┓", "┏━┓", "┏━╸", "┏━┓"),
+    ("┃ ┃", "┣╸ ", "┗━┓", "┃  ", "┃ ┃", "┣━┛", "┣━┛", "┣╸ ", "┣━┫"),
+    ("┻━┛", "┗━╸", "┗━┛", "┗━╸", "┗━┛", "╹  ", "╹  ", "┗━╸", "╹ ┗"),
 )
 
 _AUTHOR = "John Valai"
@@ -219,8 +222,8 @@ def _example_row(rend, command, desc):
 
 def _banner(rend):
     tagline, author, homepage = _package_facts()
-    for row in WORDMARK:
-        rend.line(*[(str(stop), chunk) for stop, chunk in zip(ui.RAINBOW_STOPS, row)])
+    for parts in ui.gradient(["".join(row) for row in WORDMARK]):
+        rend.line(*parts)
     rend.line()
     rend.line(("pill-ok", f" deslopper v{__version__} "))
     rend.line(" ", ("bullet", ui.I_BULLET), f" Author:   {author}")
