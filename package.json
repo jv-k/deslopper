@@ -1,6 +1,6 @@
 {
   "name": "deslopper",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "private": true,
   "description": "Dev and release scripts for the deslopper Python package.",
   "scripts": {
