@@ -15,12 +15,14 @@ from . import __version__, gum, ui
 
 # figlet "future", one 3-cell chunk per letter of "deslopper", with two letters
 # redrawn. The D spans its three cells with a bar along the top and the bottom, as
-# claude-gauge draws its own: the font's narrow D read as "ID". The R closes its bowl
-# and stands its leg under the bowl's right side, with a short foot.
+# claude-gauge draws its own: the font's narrow D read as "ID". The R's leg drops from
+# the middle of its bowl, one cell in from the bowl's right side, and kicks out to the
+# right. A terminal moves a stroke only by whole cells, so this is as close as the CLI
+# gets to the README picture, where the leg sits one stroke in.
 WORDMARK = (
     ("┳━┓", "┏━╸", "┏━┓", "╻  ", "┏━┓", "┏━┓", "┏━┓", "┏━╸", "┏━┓"),
-    ("┃ ┃", "┣╸ ", "┗━┓", "┃  ", "┃ ┃", "┣━┛", "┣━┛", "┣╸ ", "┣━┫"),
-    ("┻━┛", "┗━╸", "┗━┛", "┗━╸", "┗━┛", "╹  ", "╹  ", "┗━╸", "╹ ┗"),
+    ("┃ ┃", "┣╸ ", "┗━┓", "┃  ", "┃ ┃", "┣━┛", "┣━┛", "┣╸ ", "┣┳┛"),
+    ("┻━┛", "┗━╸", "┗━┛", "┗━╸", "┗━┛", "╹  ", "╹  ", "┗━╸", "╹┗╸"),
 )
 
 _AUTHOR = "John Valai"

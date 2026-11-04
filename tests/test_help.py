@@ -57,7 +57,8 @@ def test_attended_root_help_draws_the_wordmark_in_a_diagonal_gradient(capsys, gu
                         for x, cell in enumerate(row) if cell != " ")
         assert drawn in out.replace('{{ " " }}', ""), (y, out[:600])
     assert '{{ Color "#ffd866" "┳" }}' in out  # the first cell is yellow
-    assert '{{ Color "#78dce8" "┗" }}' in out  # the last cell, the R's foot, is cyan
+    assert '{{ Color "#78dce8" "╸" }}' in out  # the last cell, the R's foot, is cyan
+    assert ("┏━┓", "┣┳┛", "╹┗╸") == tuple(row[-1] for row in WORDMARK)  # the R
 
 
 def test_attended_root_help_is_drawn_by_gum_with_pills(capsys, gum_shim):
