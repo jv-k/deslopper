@@ -1,4 +1,9 @@
-# deslopper
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jv-k/deslopper/main/img/wordmark-dark.png">
+    <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/wordmark-light.png" alt="deslopper" width="270">
+  </picture>
+</h1>
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/deslopper-demo.gif" alt="Animated demo: deslopper lint shows an em-dash error and four warnings, each tell with its fix and a caret under the caught words. A lint --jev run then rates each place with a bar, a probability and a rewrite verdict, and after a rewrite the file lints clean.">
@@ -466,7 +471,7 @@ A file path lints that file as given, even when the config excludes it. For the 
 see [Output formats](docs/output.md).
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/screenshot.png" alt="A bare deslopper run: the rainbow wordmark logo, the version pill, and the USAGE, COMMANDS, OPTIONS, and EXAMPLES sections of the help.">
+  <img src="https://raw.githubusercontent.com/jv-k/deslopper/main/img/screenshot.png" alt="A bare deslopper run: the wordmark in a yellow, green and cyan gradient, the version pill, and the USAGE, COMMANDS, OPTIONS, and EXAMPLES sections of the help.">
 </div>
 
 ## Contributing

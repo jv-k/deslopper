@@ -1,24 +1,33 @@
 #!/usr/bin/env bash
 #
 # scripts/screenshots.sh — regenerate img/screenshot.png and img/deslopper-demo.gif
-# (plus its final-frame still img/deslopper-demo-final.png) via vhs.
+# (plus its final-frame still img/deslopper-demo-final.png) via vhs, and the README's
+# wordmark, img/wordmark-dark.png and img/wordmark-light.png, via rsvg-convert.
 #
 # Usage:
-#   ./scripts/screenshots.sh           # both
-#   ./scripts/screenshots.sh help      # just the --help PNG
-#   ./scripts/screenshots.sh demo      # just the lint-run GIF
+#   ./scripts/screenshots.sh            # all of them
+#   ./scripts/screenshots.sh help       # just the --help PNG
+#   ./scripts/screenshots.sh demo       # just the lint-run GIF
+#   ./scripts/screenshots.sh wordmark   # just the README's wordmark PNGs
 #
-# Requires: vhs (https://github.com/charmbracelet/vhs).  Install: brew install vhs
+# Requires: vhs (https://github.com/charmbracelet/vhs) and rsvg-convert (librsvg).
+# Install: brew install vhs librsvg
 
 set -eo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-if ! command -v vhs >/dev/null 2>&1; then
-  echo "screenshots: vhs not found on PATH. Install with: brew install vhs" >&2
-  exit 127
-fi
+target="${1:-all}"
+
+need() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "screenshots: $1 not found on PATH. Install with: brew install $2" >&2
+    exit 127
+  fi
+}
+[ "$target" = wordmark ] || need vhs vhs
+case "$target" in wordmark|all) need rsvg-convert librsvg ;; esac
 
 mkdir -p img img/tmp
 
@@ -48,8 +57,21 @@ render_help() {
   vhs img/tmp/help.tape
 }
 
-target="${1:-all}"
+# render_wordmark — the README's wordmark, from the CLI's rows, in the CLI's gradient:
+# one picture for a dark page and one, in darker stops, for a light page.
+render_wordmark() {
+  local py="python3"
+  [ -x .venv/bin/python ] && py=".venv/bin/python"
+  local variant
+  for variant in dark light; do
+    "$py" scripts/wordmark.py "$variant" | rsvg-convert -o "img/wordmark-$variant.png"
+  done
+}
+
 case "$target" in
+  wordmark)
+    render_wordmark
+  ;;
   help)
     clean img/screenshot.png img/tmp/help.gif
     render_help
@@ -61,12 +83,13 @@ case "$target" in
   all)
     clean img/screenshot.png img/deslopper-demo.gif \
           img/deslopper-demo-final.png img/tmp/help.gif
+    render_wordmark
     render_help
     vhs scripts/demo.tape
   ;;
   *)
     echo "screenshots: unknown target '$target'" >&2
-    echo "  expected: help | demo | all" >&2
+    echo "  expected: help | demo | wordmark | all" >&2
     exit 2
   ;;
 esac

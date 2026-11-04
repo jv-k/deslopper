@@ -18,7 +18,8 @@
     "bump-release": "verbump -c -p origin --release",
     "screenshots": "bash scripts/screenshots.sh",
     "screenshots:help": "bash scripts/screenshots.sh help",
-    "screenshots:demo": "bash scripts/screenshots.sh demo"
+    "screenshots:demo": "bash scripts/screenshots.sh demo",
+    "screenshots:wordmark": "bash scripts/screenshots.sh wordmark"
   },
   "devDependencies": {
     "@jv-k/verbump": "^4.0.3"

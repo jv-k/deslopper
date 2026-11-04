@@ -30,6 +30,10 @@ Set PlaybackSpeed 1.0
 # small. vhs records at 50 fps by default.
 Set Framerate 12
 
+# xterm.js draws 24-bit colour; say so, so gum draws the wordmark's gradient and the
+# palette exactly, on any machine.
+Env COLORTERM "truecolor"
+
 # Seed the sandbox off-camera: a notes file with four tells. The repo's .venv
 # build wins over any older deslopper on PATH.
 Hide

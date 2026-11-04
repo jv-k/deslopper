@@ -15,6 +15,8 @@ name: Screenshots
 #   img/deslopper-demo.gif        — vhs, a real lint run: the view, a live --jev
 #                                   run, then the clean run after a rewrite
 #   img/deslopper-demo-final.png  — the demo's finished ✔ frame, as a still
+#   img/wordmark-dark.png,        — rsvg-convert, the README's wordmark from the
+#   img/wordmark-light.png          CLI's rows, for a dark and a light page
 #
 # Triggers: merges to main that touch the CLI's presentation (path-filtered,
 # so unrelated merges don't churn the images), every published release (the
@@ -37,6 +39,7 @@ on:
       - 'scripts/help.tape'
       - 'scripts/demo.tape'
       - 'scripts/screenshots.sh'
+      - 'scripts/wordmark.py'
       - '.github/workflows/screenshots.yml'
   release:
     types: [published]
@@ -77,14 +80,14 @@ jobs:
       - name: Install deslopper (the tapes drive the real command)
         run: pip install -e .
 
-      - name: Install JetBrains Mono, gifsicle, ffmpeg, ttyd, and zsh
+      - name: Install JetBrains Mono, gifsicle, ffmpeg, ttyd, zsh, and rsvg-convert
         run: |
           # zsh: the tapes `Set Shell "zsh"` and the runner image ships
           # without it — ttyd then fails with "execvp failed" INSIDE the
           # rendered frames while the run stays green, so the images must
           # be eyeballed after any change here.
           sudo apt-get update -y
-          sudo apt-get install -y fonts-jetbrains-mono gifsicle ffmpeg ttyd zsh
+          sudo apt-get install -y fonts-jetbrains-mono gifsicle ffmpeg ttyd zsh librsvg2-bin
           fc-cache -f
 
       - name: Install vhs (sha256-pinned release binary)
@@ -135,6 +138,8 @@ jobs:
             img/screenshot.png
             img/deslopper-demo.gif
             img/deslopper-demo-final.png
+            img/wordmark-dark.png
+            img/wordmark-light.png
           retention-days: 7
           if-no-files-found: error
 
@@ -160,7 +165,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           branch: main
-          file_pattern: img/screenshot.png img/deslopper-demo.gif img/deslopper-demo-final.png
+          file_pattern: img/screenshot.png img/deslopper-demo.gif img/deslopper-demo-final.png img/wordmark-dark.png img/wordmark-light.png
           commit_message: "docs(img): regenerate release visuals"
           commit_user_name: "github-actions[bot]"
           commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
