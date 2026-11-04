@@ -12,6 +12,7 @@ caller to write, except `spin`, which draws on the terminal while a block runs.
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -59,7 +60,13 @@ def hint(stream=None) -> None:
 
 def _env() -> dict:
     # gum draws into a pipe here and would drop its colours, so force them on.
-    return {**os.environ, "CLICOLOR_FORCE": "1"}
+    env = {**os.environ, "CLICOLOR_FORCE": "1"}
+    # Off a terminal gum reads the colour depth from TERM alone. Under tmux that is
+    # 256 colours, which turns the wordmark's gradient grey in places, so when
+    # COLORTERM says the terminal draws 24-bit colour, give gum a TERM that says so.
+    if os.environ.get("COLORTERM", "").lower() in ("truecolor", "24bit"):
+        env["TERM"] = "xterm-256color"
+    return env
 
 
 # A view renders in well under a second; a gum that takes this long is stuck.
@@ -95,10 +102,13 @@ PALETTE = {
 }
 
 
+_HEX = re.compile(r"#[0-9a-fA-F]{6}")
+
+
 def _part(style: str, text: str) -> str:
     """One part as a template call. `style` is space-separated tokens: bold, faint, pill
-    (accent background), pill-ok (ok background), palette colour names, and 256-colour
-    numbers such as 196; "" is plain. A JSON string is a valid Go template string,
+    (accent background), pill-ok (ok background), palette colour names, 256-colour
+    numbers such as 196, and 24-bit colours such as #f2774a; "" is plain. A JSON string is a valid Go template string,
     so quotes, backslashes and any template syntax in the text stay literal."""
     call = json.dumps(text, ensure_ascii=False)
     nested = False  # a function call, which needs brackets when another wraps it
@@ -111,7 +121,7 @@ def _part(style: str, text: str) -> str:
         tokens = ["bold"] + [t for t in tokens if t not in pills and t != "bold"]
     else:
         colours = [PALETTE[t] if t in PALETTE else t for t in tokens
-                   if t in PALETTE or t.isdigit()]
+                   if t in PALETTE or t.isdigit() or _HEX.fullmatch(t)]
         if colours:
             call = 'Color "%s" %s' % (colours[-1], call)
             nested = True

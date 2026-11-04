@@ -26,6 +26,10 @@ Set WindowBar Colorful
 Set WindowBarSize 40
 Set TypingSpeed 40ms
 
+# xterm.js draws 24-bit colour; say so, so gum draws the wordmark's gradient and the
+# palette exactly, on any machine.
+Env COLORTERM "truecolor"
+
 Hide
 # Put the installed command on PATH so the screenshot shows plain
 # `deslopper`, not a repo path. Clear AFTER so the setup line never
