@@ -11,7 +11,11 @@ import sys
 from deslopper.help import WORDMARK
 from deslopper.ui import GRADIENT_SHIFT, GRADIENT_STOPS
 
-ROWS = ["".join(row) for row in WORDMARK]
+# The picture draws its own R: the leg under the bowl's right side, moved one stroke in
+# by LEG_NUDGE. A terminal moves a stroke only by whole cells, so the CLI's R has its
+# leg one cell in instead.
+PICTURE_R = ("┏━┓", "┣━┫", "╹ ┗")
+ROWS = ["".join(row[:-1]) + r for row, r in zip(WORDMARK, PICTURE_R)]
 
 # The CLI's stops for a dark page, and darker ones for a light page.
 STOPS = {
@@ -32,8 +36,7 @@ LEFT, TOP = 52, 55  # the first cell's centre
 HALF = STROKE / 2
 
 # The R's leg, from its middle bar down to its foot, sits one stroke left of the
-# bowl's right side. A terminal moves a stroke only by whole cells, so only the
-# picture has this nudge.
+# bowl's right side.
 LEG_NUDGE = -STROKE
 
 
